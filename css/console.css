@@ -651,6 +651,7 @@ body.modal-open { overflow: hidden; }
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--gut);
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -672,6 +673,8 @@ body.modal-open { overflow: hidden; }
   .field .note:not([data-mobile]) { display: none; }
   .sigwin, .sigwin-wide, .sigwin-sm { width: 200px; max-width: 200px; cursor: default; }
   .sigwin .win-body { height: 74px; }
+  /* the log has to read inside a 200px window without clipping its lines */
+  .field .log-lines { font-size: 0.5625rem; line-height: 1.55; padding: 0.35rem 0.45rem; }
   .field .note {
     cursor: default;
     width: 148px;
@@ -708,9 +711,26 @@ body.modal-open { overflow: hidden; }
     align-self: center;
     margin: clamp(0.9rem, 2.5vh, 1.5rem) 0 0;
   }
+  /* the fixed ember light keeps its warmth but loses its hard core dot:
+     on a phone the core reads as a stray dot floating over the copy */
+  .ember-core { display: none; }
+  .ember-light { opacity: 0.85; }
   .gap-grid > * { min-width: 0; }
   .win-dispatch { max-width: 100%; width: 100%; }
   .beat-txt { word-break: break-word; }
+}
+
+/* short phones (iPhone SE / 8 at 667px tall): tighten the hero so the strip
+   and the SCROLL cue still land inside the first screen */
+@media (max-width: 860px) and (max-height: 720px) {
+  .hero { padding-top: calc(var(--nav-h) + 1.1rem); }
+  .hero .hero-h { font-size: clamp(2.5rem, 12vw, 2.9rem); }
+  .hero .lede { margin-top: 1.15rem; }
+  .hero .actions { margin-top: 1.35rem; }
+  .field { margin-top: 1rem; }
+  .sigwin .win-body { height: 64px; }
+  .field .note { min-height: 64px; }
+  .hero .scroll-hint { margin-top: 0.7rem; }
 }
 @media (max-width: 620px) {
   .ops { gap: 0.5rem; flex-wrap: nowrap; }

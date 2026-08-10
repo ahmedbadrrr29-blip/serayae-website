@@ -741,7 +741,8 @@ main { position: relative; z-index: 4; }
 /* loading: the submit button holds a pulsing light while the signal goes out */
 .wl-form.sending .btn-ember { pointer-events: none; opacity: 0.9; }
 .wl-form.sending .btn-ember::after {
-  left: calc(50% - 0.2rem);
+  /* the signal light pulses where it lives — never over the label */
+  left: 1.1rem;
   animation: sendPulse 1.05s var(--ease) infinite;
 }
 .wl-form.sending .btn-ember::before { opacity: 0; }
