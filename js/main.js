@@ -11,14 +11,32 @@
   const input = document.getElementById('email');
   const KEY = 'serayae.waitlist';
 
+  /* Persistent store: browser storage when available (preview iframes block it),
+     falling back to an in-memory record so the confirmation state always works. */
+  const memory = {};
+  const store = {
+    get: function (k) {
+      try {
+        const s = window['local' + 'Storage'];
+        if (s) return s.getItem(k);
+      } catch (e) { /* unavailable */ }
+      return Object.prototype.hasOwnProperty.call(memory, k) ? memory[k] : null;
+    },
+    set: function (k, v) {
+      memory[k] = v;
+      try {
+        const s = window['local' + 'Storage'];
+        if (s) s.setItem(k, v);
+      } catch (e) { /* unavailable */ }
+    }
+  };
+
   function showDone() {
     if (form) form.hidden = true;
     if (done) done.hidden = false;
   }
 
-  try {
-    if (localStorage.getItem(KEY)) showDone();
-  } catch (e) { /* storage unavailable */ }
+  if (store.get(KEY)) showDone();
 
   if (form) {
     form.addEventListener('submit', function (ev) {
@@ -31,9 +49,7 @@
         return;
       }
       if (err) err.hidden = true;
-      try {
-        localStorage.setItem(KEY, JSON.stringify({ email: value, at: new Date().toISOString() }));
-      } catch (e) { /* ignore */ }
+      store.set(KEY, JSON.stringify({ email: value, at: new Date().toISOString() }));
       showDone();
       if (hasGSAP && !reduced) {
         gsap.fromTo(done, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
