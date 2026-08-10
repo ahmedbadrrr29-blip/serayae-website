@@ -1,0 +1,227 @@
+/* ═══ SERAYAE — scroll story ═══ */
+
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
+
+  /* ── waitlist (works with or without motion) ── */
+  const form = document.getElementById('wlForm');
+  const done = document.getElementById('wlDone');
+  const err = document.getElementById('wlError');
+  const input = document.getElementById('email');
+  const KEY = 'serayae.waitlist';
+
+  function showDone() {
+    if (form) form.hidden = true;
+    if (done) done.hidden = false;
+  }
+
+  try {
+    if (localStorage.getItem(KEY)) showDone();
+  } catch (e) { /* storage unavailable */ }
+
+  if (form) {
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      const value = (input.value || '').trim();
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+      if (!ok) {
+        if (err) err.hidden = false;
+        input.focus();
+        return;
+      }
+      if (err) err.hidden = true;
+      try {
+        localStorage.setItem(KEY, JSON.stringify({ email: value, at: new Date().toISOString() }));
+      } catch (e) { /* ignore */ }
+      showDone();
+      if (hasGSAP && !reduced) {
+        gsap.fromTo(done, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
+      }
+    });
+    input.addEventListener('input', function () { if (err) err.hidden = true; });
+  }
+
+  /* ── chapter progress (no motion required) ── */
+  const label = document.getElementById('progressLabel');
+  const ticks = Array.prototype.slice.call(document.querySelectorAll('.ticks i'));
+  const sections = Array.prototype.slice.call(document.querySelectorAll('[data-chapter]'));
+
+  function setChapter(n, text) {
+    if (label && text) label.textContent = text;
+    ticks.forEach(function (t, i) { t.classList.toggle('on', i < n); });
+  }
+
+  if ('IntersectionObserver' in window) {
+    const spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && e.intersectionRatio > 0.35) {
+          setChapter(parseInt(e.target.dataset.chapter, 10), e.target.dataset.label);
+        }
+      });
+    }, { threshold: [0.35, 0.6] });
+    sections.forEach(function (s) { spy.observe(s); });
+  }
+  setChapter(1);
+
+  if (!hasGSAP || reduced) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── generic reveals ── */
+  const groups = [
+    ['#ch1 .reveal', 0.16],
+    ['#ch2 .reveal', 0.14],
+    ['#ch3 .reveal', 0.14],
+    ['#ch4 .reveal', 0.1],
+    ['#ch5 .reveal', 0.08],
+    ['#ch6 .reveal', 0.07],
+    ['#ch7 .reveal', 0.16],
+    ['#waitlist .display, #waitlist .wl-form, #waitlist .wl-fine', 0.12]
+  ];
+
+  groups.forEach(function (g) {
+    const els = gsap.utils.toArray(g[0]);
+    if (!els.length) return;
+    gsap.fromTo(els,
+      { opacity: 0, y: 34 },
+      {
+        opacity: 1, y: 0,
+        duration: 1.5,
+        ease: 'power3.out',
+        stagger: g[1],
+        scrollTrigger: { trigger: els[0].closest('section'), start: 'top 72%' }
+      }
+    );
+  });
+
+  /* hero opens slowly out of the dark */
+  gsap.timeline({ delay: 0.25 })
+    .fromTo('#ch1 .chapter-no', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 1.4, ease: 'power2.out' })
+    .fromTo('#ch1 .hero-h', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 2, ease: 'power3.out' }, '-=0.9')
+    .fromTo('#ch1 .lede', { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 1.6, ease: 'power3.out' }, '-=1.4')
+    .fromTo('#ch1 .actions', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1.3, ease: 'power3.out' }, '-=1.1')
+    .fromTo('#ch1 .scroll-hint', { opacity: 0 }, { opacity: 1, duration: 1.4 }, '-=0.8');
+
+  /* ── the persistent ember light ── */
+  const ember = document.getElementById('emberLight');
+  const marks = [
+    { sel: '#ch1', x: 0.3, y: -0.1, s: 0.34, o: 0.95 },
+    { sel: '#ch2', x: -0.16, y: 0.14, s: 0.6, o: 0.8 },
+    { sel: '#ch3', x: 0.02, y: -0.04, s: 0.42, o: 0.6 },
+    { sel: '#ch4', x: 0.32, y: 0.1, s: 0.5, o: 0.5 },
+    { sel: '#ch5', x: -0.04, y: 0.0, s: 1.05, o: 0.7 },
+    { sel: '#ch6', x: -0.3, y: 0.12, s: 0.55, o: 0.55 },
+    { sel: '#ch7', x: 0, y: -0.02, s: 1.9, o: 1 }
+  ];
+
+  gsap.set(ember, {
+    x: function () { return window.innerWidth * marks[0].x; },
+    y: function () { return window.innerHeight * marks[0].y; },
+    scale: marks[0].s,
+    opacity: marks[0].o
+  });
+
+  marks.forEach(function (m, i) {
+    if (i === 0) return;
+    gsap.to(ember, {
+      x: function () { return window.innerWidth * m.x; },
+      y: function () { return window.innerHeight * m.y; },
+      scale: m.s,
+      opacity: m.o,
+      ease: 'none',
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: m.sel,
+        start: 'top bottom',
+        end: 'center center',
+        scrub: 1.1,
+        invalidateOnRefresh: true
+      }
+    });
+  });
+
+  /* ── 02 · roads emerging out of the darkness ── */
+  const roads = gsap.utils.toArray('#roads .road-lines path');
+  gsap.to(roads, {
+    strokeDashoffset: 0,
+    ease: 'none',
+    stagger: 0.12,
+    scrollTrigger: { trigger: '#ch2', start: 'top 85%', end: 'bottom 60%', scrub: 1 }
+  });
+  gsap.fromTo('#roads .road-nodes circle',
+    { opacity: 0, scale: 0 },
+    {
+      opacity: 1, scale: 1, transformOrigin: '50% 50%', stagger: 0.09, ease: 'power2.out', duration: 1.2,
+      scrollTrigger: { trigger: '#ch2', start: 'top 60%' }
+    }
+  );
+
+  /* ── 03 · everything succeeds, then everything stops ── */
+  const beats = gsap.utils.toArray('#beats .beat');
+  const freezeLine = document.getElementById('freezeLine');
+  const freezeLines = gsap.utils.toArray('#freezeCopy p');
+
+  const gapTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#ch3',
+      start: 'top 62%',
+      end: 'bottom 78%',
+      scrub: 0.8,
+      onLeaveBack: function () { document.body.classList.remove('frozen'); },
+      onLeave: function () { document.body.classList.remove('frozen'); }
+    }
+  });
+
+  beats.slice(0, 3).forEach(function (b) {
+    gapTl.fromTo(b, { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' });
+  });
+
+  gapTl.add(function () { document.body.classList.add('frozen'); });
+  gapTl.to({}, { duration: 0.35 });
+  gapTl.fromTo(freezeLine, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.9, ease: 'power2.inOut' });
+  gapTl.fromTo(beats[3], { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.4');
+  gapTl.to(freezeLine, { opacity: 0.35, duration: 0.6 });
+  freezeLines.forEach(function (p) {
+    gapTl.fromTo(p, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });
+  });
+  gapTl.add(function () { document.body.classList.remove('frozen'); });
+  gapTl.to(freezeLine, { opacity: 0, duration: 0.6 });
+
+  /* ── 04 · the void row weighs more ── */
+  gsap.fromTo('.ledger-row--void dt',
+    { opacity: 0.25, letterSpacing: '0.02em' },
+    {
+      opacity: 1, letterSpacing: '-0.01em', duration: 1.6, ease: 'power2.out',
+      scrollTrigger: { trigger: '.ledger-row--void', start: 'top 78%' }
+    }
+  );
+
+  /* ── 07 · the separated piece joins; the mark becomes whole ── */
+  const seam = document.getElementById('seamPiece');
+  gsap.set(seam, { transformOrigin: '50% 50%' });
+  gsap.fromTo(seam,
+    { x: 11, y: -13, rotate: -14, opacity: 0.4 },
+    {
+      x: 0, y: 0, rotate: 0, opacity: 1,
+      ease: 'power2.inOut',
+      scrollTrigger: { trigger: '#ch7', start: 'top 78%', end: 'center 58%', scrub: 1 }
+    }
+  );
+  gsap.fromTo('#markLarge',
+    { scale: 0.94, opacity: 0.4 },
+    {
+      scale: 1, opacity: 1, duration: 2, ease: 'power3.out',
+      scrollTrigger: { trigger: '#ch7', start: 'top 80%' }
+    }
+  );
+
+  /* nav recedes once the story starts, returns at the finale */
+  ScrollTrigger.create({
+    trigger: '#ch2',
+    start: 'top center',
+    onEnter: function () { gsap.to('#nav .nav-cta', { opacity: 1, duration: 0.6 }); }
+  });
+
+  window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+})();
