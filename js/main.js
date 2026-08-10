@@ -80,6 +80,19 @@
   }
   setChapter(1);
 
+  /* ── CTA arrival: the light-dot lands when the button is pressed ── */
+  if (!reduced) {
+    Array.prototype.slice.call(document.querySelectorAll('.btn-ember')).forEach(function (b) {
+      b.addEventListener('click', function () {
+        b.classList.remove('arrived');
+        /* force reflow so a repeat click restarts the arrival pulse */
+        void b.offsetWidth;
+        b.classList.add('arrived');
+        window.setTimeout(function () { b.classList.remove('arrived'); }, 700);
+      });
+    });
+  }
+
   if (!hasGSAP || reduced) return;
 
   gsap.registerPlugin(ScrollTrigger);
@@ -262,24 +275,65 @@
     }
   );
 
-  /* ── 07 · the separated piece joins; the mark becomes whole ── */
+  /* ── 07 · the official mark states ──
+     idle (piece at baseline, monochrome) → response (piece ignites)
+     → en route (piece travels toward the seam) → arrived (letter whole, ember seam)
+     → resolved (cools to ivory, piece returns to baseline).
+     Inner group is translate(0,1080) scale(0.1,-0.1): x is 10× and y is 10× AND flipped,
+     so travelling the piece up-left = negative x, positive y in inner units.
+     Measured seam slot: dx -194, dy -94 in viewBox units → -1940 / +940 inner. */
   const seam = document.getElementById('seamPiece');
-  gsap.set(seam, { transformOrigin: '50% 50%' });
-  gsap.fromTo(seam,
-    { x: 11, y: -13, rotate: -14, opacity: 0.4 },
-    {
-      x: 0, y: 0, rotate: 0, opacity: 1,
-      ease: 'power2.inOut',
-      scrollTrigger: { trigger: '#ch7', start: 'top 78%', end: 'center 58%', scrub: 1 }
-    }
-  );
-  gsap.fromTo('#markLarge',
-    { scale: 0.94, opacity: 0.4 },
-    {
-      scale: 1, opacity: 1, duration: 2, ease: 'power3.out',
-      scrollTrigger: { trigger: '#ch7', start: 'top 80%' }
-    }
-  );
+  const markLarge = document.getElementById('markLarge');
+  const markWrap = document.getElementById('markWrap');
+  const SEAM_X = -1940;
+  const SEAM_Y = 940;
+  const IVORY = '#F5F2EC';
+  const EMBER = '#BD3103';
+  const EMBER_HI = '#FF9257';
+
+  if (seam && markLarge && !reduced) {
+    gsap.set(seam, { x: 0, y: 0, fill: IVORY });
+
+    const markTl = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 2.6 });
+
+    /* the mark itself settles in first */
+    markTl.fromTo(markLarge,
+      { opacity: 0.35, scale: 0.965, transformOrigin: '10% 50%' },
+      { opacity: 1, scale: 1, duration: 1.4, ease: 'power3.out' }
+    );
+
+    /* RESPONSE — the piece ignites: two soft breaths, fast */
+    markTl.add(function () { markLarge.classList.add('lit'); }, '-=0.35');
+    markTl.to(seam, { fill: EMBER, duration: 0.28, ease: 'power2.out' }, '-=0.35');
+    markTl.to(seam, { fill: EMBER_HI, duration: 0.22, ease: 'sine.inOut' });
+    markTl.to(seam, { fill: EMBER, duration: 0.26, ease: 'sine.inOut' });
+    markTl.to(seam, { fill: EMBER_HI, duration: 0.22, ease: 'sine.inOut' });
+
+    /* EN ROUTE — the distance closes. eased, no bounce */
+    markTl.add(function () { if (markWrap) markWrap.classList.add('glow'); });
+    markTl.to(seam, { x: SEAM_X, y: SEAM_Y, duration: 1.5, ease: 'power2.inOut' });
+
+    /* ARRIVED — the seam closes; the letter is whole with an ember seam */
+    markTl.add(function () { markLarge.classList.add('whole'); });
+    markTl.to(seam, { fill: '#FFC39C', duration: 0.18, ease: 'power2.out' });
+    markTl.to({}, { duration: 1.15 });
+
+    /* RESOLVED — ember cools to ivory in place, then the piece returns */
+    markTl.add(function () { markLarge.classList.remove('whole'); });
+    markTl.to(seam, { fill: IVORY, duration: 2.1, ease: 'power1.inOut' });
+    markTl.add(function () {
+      markLarge.classList.remove('lit');
+      if (markWrap) markWrap.classList.remove('glow');
+    });
+    markTl.to(seam, { x: 0, y: 0, duration: 1.5, ease: 'power2.inOut' }, '-=0.5');
+
+    ScrollTrigger.create({
+      trigger: '#ch7',
+      start: 'top 74%',
+      once: true,
+      onEnter: function () { markTl.play(0); }
+    });
+  }
 
   /* nav recedes once the story starts, returns at the finale */
   ScrollTrigger.create({

@@ -11,7 +11,8 @@
 
   const IVORY = [245, 242, 236];
   const EMBER = [189, 49, 3];
-  const EMBER_HI = [217, 88, 31];
+  const EMBER_HI = [255, 146, 87];
+  const EMBER_LIT = [255, 195, 156];
 
   let w = 0, h = 0, dpr = 1;
   let points = [];
@@ -90,8 +91,8 @@
         const fade = 1 - d / linkDist;
         const warm = Math.max(a.warm, b.warm);
         ctx.strokeStyle = warm > 0.05
-          ? rgba(EMBER, 0.05 + fade * 0.3 * warm)
-          : 'rgba(29,36,46,' + (0.22 + fade * 0.5) + ')';
+          ? rgba(EMBER_HI, 0.18 + fade * 0.6 * warm)
+          : 'rgba(245,242,236,' + (0.1 + fade * 0.26) + ')';
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -103,8 +104,8 @@
     if (call) {
       const prog = Math.min(1, call.t / 2600);
       const maxR = Math.min(w, h) * 0.42;
-      ctx.strokeStyle = rgba(EMBER_HI, 0.34 * (1 - prog));
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = rgba(EMBER_HI, 0.7 * (1 - prog));
+      ctx.lineWidth = 1.6;
       ctx.beginPath();
       ctx.arc(call.p.x, call.p.y, maxR * prog, 0, Math.PI * 2);
       ctx.stroke();
@@ -131,15 +132,16 @@
       p.x += (tx + drift - p.x) * 0.045;
       p.y += (ty + Math.cos(p.phase * 0.8) * (2.2 * (1 - p.steady * 0.7)) - p.y) * 0.045;
 
-      const breathe = 0.72 + Math.sin(p.phase) * 0.28 * (1 - p.steady * 0.5);
-      const base = 0.26 + 0.3 * p.steady;
-      const alpha = Math.min(1, base * breathe + p.warm * 0.6);
-      const rad = p.r * (1 + p.warm * 0.6);
+      const breathe = 0.82 + Math.sin(p.phase) * 0.18 * (1 - p.steady * 0.5);
+      const base = 0.5 + 0.34 * p.steady;
+      const alpha = Math.min(1, base * breathe + p.warm * 0.4);
+      const rad = p.r * (1.25 + p.warm * 0.75);
 
       if (p.warm > 0.03) {
-        const gr = rad * 6.5;
+        const gr = rad * 8;
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, gr);
-        g.addColorStop(0, rgba(EMBER_HI, 0.26 * p.warm));
+        g.addColorStop(0, rgba(EMBER_HI, 0.55 * p.warm));
+        g.addColorStop(0.45, rgba(EMBER, 0.22 * p.warm));
         g.addColorStop(1, rgba(EMBER, 0));
         ctx.fillStyle = g;
         ctx.beginPath();
@@ -149,9 +151,9 @@
 
       const col = p.warm > 0.03
         ? [
-            Math.round(IVORY[0] + (EMBER_HI[0] - IVORY[0]) * p.warm),
-            Math.round(IVORY[1] + (EMBER_HI[1] - IVORY[1]) * p.warm),
-            Math.round(IVORY[2] + (EMBER_HI[2] - IVORY[2]) * p.warm)
+            Math.round(IVORY[0] + (EMBER_LIT[0] - IVORY[0]) * p.warm),
+            Math.round(IVORY[1] + (EMBER_LIT[1] - IVORY[1]) * p.warm),
+            Math.round(IVORY[2] + (EMBER_LIT[2] - IVORY[2]) * p.warm)
           ]
         : IVORY;
       ctx.fillStyle = rgba(col, alpha);
@@ -174,14 +176,14 @@
         const a = points[i], b = points[j];
         const d = Math.hypot(a.x - b.x, a.y - b.y);
         if (d > linkDist) continue;
-        ctx.strokeStyle = 'rgba(29,36,46,' + (0.3 + (1 - d / linkDist) * 0.4) + ')';
+        ctx.strokeStyle = 'rgba(245,242,236,' + (0.14 + (1 - d / linkDist) * 0.24) + ')';
         ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
       }
     }
     points.forEach(function (p, i) {
       const warm = i % 9 === 0;
-      ctx.fillStyle = warm ? rgba(EMBER_HI, 0.9) : rgba(IVORY, 0.4);
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (warm ? 1.6 : 1), 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = warm ? rgba(EMBER_HI, 1) : rgba(IVORY, 0.62);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (warm ? 2 : 1.3), 0, Math.PI * 2); ctx.fill();
     });
   }
 

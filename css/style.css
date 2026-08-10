@@ -9,11 +9,16 @@
   --ember-soft: #d9581f;
   --red: #dc2626;
 
+  --ivory-85: rgba(245, 242, 236, 0.85);
   --ivory-70: rgba(245, 242, 236, 0.7);
   --ivory-60: rgba(245, 242, 236, 0.6);
   --ivory-45: rgba(245, 242, 236, 0.45);
+  --ivory-32: rgba(245, 242, 236, 0.32);
   --ivory-24: rgba(245, 242, 236, 0.24);
+  --ivory-16: rgba(245, 242, 236, 0.16);
   --ivory-10: rgba(245, 242, 236, 0.1);
+  --ember-hi: #ff9257;
+  --ember-lit: #ffc39c;
 
   --font-display: 'Boska', 'Iowan Old Style', Georgia, serif;
   --font-body: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
@@ -53,8 +58,9 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(120% 80% at 50% 0%, rgba(189, 49, 3, 0.055), transparent 60%),
-    radial-gradient(100% 70% at 50% 100%, rgba(29, 36, 46, 0.5), transparent 65%);
+    radial-gradient(120% 80% at 50% 0%, rgba(189, 49, 3, 0.1), transparent 62%),
+    radial-gradient(110% 80% at 50% 100%, rgba(29, 36, 46, 0.85), transparent 68%),
+    radial-gradient(140% 100% at 50% 50%, rgba(58, 74, 94, 0.28), transparent 70%);
 }
 
 img, svg { display: block; max-width: 100%; }
@@ -104,13 +110,13 @@ a { color: inherit; text-decoration: none; }
   z-index: 1;
   pointer-events: none;
   display: grid; place-items: center;
-  background: radial-gradient(circle, rgba(189, 49, 3, 0.5) 0%, rgba(189, 49, 3, 0.16) 32%, rgba(189, 49, 3, 0) 68%);
+  background: radial-gradient(circle, rgba(217, 88, 31, 0.62) 0%, rgba(189, 49, 3, 0.26) 36%, rgba(189, 49, 3, 0) 72%);
   will-change: transform, opacity;
 }
 .ember-core {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #ffb185;
-  box-shadow: 0 0 12px 4px rgba(217, 88, 31, 0.85), 0 0 44px 14px rgba(189, 49, 3, 0.45);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ember-lit);
+  box-shadow: 0 0 18px 6px rgba(217, 88, 31, 0.95), 0 0 68px 22px rgba(189, 49, 3, 0.6);
   animation: breathe 5.5s var(--ease) infinite;
 }
 @keyframes breathe {
@@ -167,8 +173,18 @@ body.frozen .ember-light { opacity: 0.22 !important; }
     rgba(14, 12, 10, 0.55) 72%,
     rgba(14, 12, 10, 0) 100%);
 }
-.nav-mark { display: flex; align-items: center; gap: 0.6rem; }
-.mark { width: 26px; height: 26px; color: var(--ivory); flex: none; }
+.nav-mark { display: flex; align-items: center; gap: 0.7rem; }
+
+/* ═══ the official mark: heavy s, seam-cut, separated piece at baseline right ═══ */
+.mark {
+  width: 43px; height: 26px;
+  color: var(--ivory);
+  flex: none;
+  shape-rendering: geometricPrecision;
+}
+.mark-footer { width: 40px; height: 24px; }
+.mark .mark-body,
+.mark .mark-piece { fill: currentColor; }
 .nav-word {
   font-family: var(--font-body);
   font-weight: 500;
@@ -189,32 +205,141 @@ body.frozen .ember-light { opacity: 0.22 !important; }
 }
 .ticks i.on { background: var(--ember); transform: scaleY(2); }
 
-/* ═══ buttons ═══ */
+/* ═══ buttons — the response system ═══
+   Every CTA carries a light. On hover the light closes the distance to the
+   label: distance closing is the message. Arrival is a pulse, never a bounce. */
 .btn {
+  position: relative;
+  isolation: isolate;
   display: inline-flex; align-items: center; justify-content: center;
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 0.8125rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 0.9rem 1.5rem;
+  padding: 1.05rem 1.7rem;
   border: 1px solid transparent;
   border-radius: 2px;
   cursor: pointer;
-  transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+  overflow: hidden;
+  transform: translateY(0);
+  transition:
+    background 0.35s var(--ease),
+    color 0.35s var(--ease),
+    border-color 0.35s var(--ease),
+    letter-spacing 0.5s var(--ease),
+    box-shadow 0.45s var(--ease),
+    transform 0.35s var(--ease);
 }
+.btn > span { position: relative; z-index: 2; }
+
+/* ── ember CTA: the travelling light ── */
 .btn-ember {
   background: var(--ember);
-  color: var(--ivory);
+  color: #fff;
+  padding-left: 2.5rem;
+  box-shadow: 0 0 0 0 rgba(189, 49, 3, 0);
 }
-.btn-ember:hover { background: var(--ember-soft); }
+/* the bloom that trails the light */
+.btn-ember::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: 1.1rem; top: 50%;
+  width: 26px; height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 190, 0.75) 0%, rgba(255, 177, 133, 0.28) 45%, rgba(255, 177, 133, 0) 72%);
+  opacity: 0.75;
+  transition: left 0.72s var(--ease) 0.05s, opacity 0.5s var(--ease), width 0.6s var(--ease), height 0.6s var(--ease), margin 0.6s var(--ease);
+  pointer-events: none;
+}
+/* the light itself */
+.btn-ember::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  left: 1.1rem; top: 50%;
+  width: 7px; height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--ember-lit);
+  box-shadow: 0 0 10px 3px rgba(255, 177, 133, 0.85);
+  transition: left 0.68s var(--ease), transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+  pointer-events: none;
+}
+.btn-ember:hover,
+.btn-ember:focus-visible {
+  background: var(--ember-soft);
+  letter-spacing: 0.17em;
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(255, 177, 133, 0.35), 0 10px 34px -8px rgba(189, 49, 3, 0.85), 0 0 46px -6px rgba(217, 88, 31, 0.55);
+}
+.btn-ember:hover::after,
+.btn-ember:focus-visible::after { left: calc(100% - 1.05rem); }
+.btn-ember:hover::before,
+.btn-ember:focus-visible::before {
+  left: calc(100% - 1.05rem);
+  width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  opacity: 1;
+}
+/* arrival */
+.btn-ember.arrived::after {
+  left: calc(100% - 1.05rem);
+  animation: dotArrive 0.62s var(--ease);
+}
+@keyframes dotArrive {
+  0% { transform: scale(1); box-shadow: 0 0 10px 3px rgba(255, 177, 133, 0.85); }
+  38% { transform: scale(2.3); box-shadow: 0 0 24px 9px rgba(255, 177, 133, 0.95); }
+  100% { transform: scale(1); box-shadow: 0 0 10px 3px rgba(255, 177, 133, 0.85); }
+}
+
+/* ── ghost: an ivory seam draws across ── */
 .btn-ghost {
-  background: transparent;
-  border-color: var(--ivory-24);
-  color: var(--ivory-70);
+  background: rgba(245, 242, 236, 0.045);
+  border-color: var(--ivory-32);
+  color: var(--ivory-85);
 }
-.btn-ghost:hover { border-color: var(--ivory); color: var(--ivory); }
-.nav-cta { padding: 0.7rem 1.1rem; font-size: 0.6875rem; }
+.btn-ghost::after {
+  content: '';
+  position: absolute;
+  left: 1.1rem; right: 1.1rem; bottom: 0.68rem;
+  height: 1px;
+  background: var(--ivory);
+  transform: scaleX(0);
+  transform-origin: 0% 50%;
+  opacity: 0.9;
+  transition: transform 0.62s var(--ease);
+  pointer-events: none;
+}
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  border-color: var(--ivory);
+  color: var(--ivory);
+  background: rgba(245, 242, 236, 0.08);
+  letter-spacing: 0.17em;
+  transform: translateY(-2px);
+}
+.btn-ghost:hover::after,
+.btn-ghost:focus-visible::after { transform: scaleX(1); }
+
+/* ── sizes ── */
+.btn-lg {
+  font-size: 0.9375rem;
+  padding: 1.28rem 2.15rem;
+  letter-spacing: 0.14em;
+}
+.btn-ember.btn-lg { padding-left: 3.1rem; }
+.btn-ember.btn-lg::after { width: 8px; height: 8px; margin: -4px 0 0 -4px; }
+.nav-cta { padding: 0.78rem 1.15rem; font-size: 0.6875rem; }
+.btn-ember.nav-cta { padding-left: 2.1rem; }
+.btn-ember.nav-cta::before { left: 0.85rem; }
+.btn-ember.nav-cta::after { left: 0.85rem; width: 6px; height: 6px; margin: -3px 0 0 -3px; }
+.btn-ember.nav-cta:hover::after,
+.btn-ember.nav-cta:focus-visible::after,
+.btn-ember.nav-cta.arrived::after { left: calc(100% - 0.8rem); }
+.btn-ember.nav-cta:hover::before,
+.btn-ember.nav-cta:focus-visible::before { left: calc(100% - 0.8rem); }
 
 /* ═══ layout ═══ */
 main { position: relative; z-index: 4; }
@@ -236,7 +361,7 @@ main { position: relative; z-index: 4; }
   font-weight: 500;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--ivory-45);
+  color: var(--ivory-60);
 }
 
 .display {
@@ -274,7 +399,7 @@ main { position: relative; z-index: 4; }
   bottom: 1.5rem; left: 50%; transform: translateX(-50%);
   margin: 0;
   font-size: 0.625rem; letter-spacing: 0.36em; text-transform: uppercase;
-  color: var(--ivory-24);
+  color: var(--ivory-45);
 }
 
 /* ═══ 02 roads ═══ */
@@ -282,10 +407,11 @@ main { position: relative; z-index: 4; }
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   z-index: 1;
-  opacity: 0.9;
+  opacity: 1;
 }
 .road-lines path {
-  stroke: #26313f;
+  stroke: #4a5f78;
+  stroke-width: 1.5;
   stroke-dasharray: 1600;
   stroke-dashoffset: 1600;
 }
@@ -294,8 +420,15 @@ main { position: relative; z-index: 4; }
   animation: nodePulse 6s var(--ease) infinite;
 }
 @keyframes nodePulse {
-  0%, 100% { opacity: 0.28; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+#ch2::before {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(80% 70% at 18% 62%, rgba(14, 12, 10, 0.9) 0%, rgba(14, 12, 10, 0.5) 45%, rgba(14, 12, 10, 0) 72%);
 }
 #ch2 .wrap { max-width: 1180px; }
 
@@ -327,8 +460,8 @@ main { position: relative; z-index: 4; }
   display: flex; align-items: baseline; gap: 0.85rem;
   font-size: clamp(0.9375rem, 1.8vw, 1.1875rem);
   letter-spacing: 0.02em;
-  color: var(--ivory-70);
-  border-top: 1px solid var(--ivory-10);
+  color: var(--ivory-85);
+  border-top: 1px solid var(--ivory-16);
   padding-top: 0.6rem;
 }
 .tick { color: var(--ember); font-size: 0.9em; flex: none; }
@@ -345,7 +478,7 @@ main { position: relative; z-index: 4; }
   line-height: 1.25;
   margin: 0 0 0.85rem;
 }
-.freeze-copy p:last-child { color: var(--ivory-45); }
+.freeze-copy p:last-child { color: var(--ivory-60); }
 
 /* ═══ 04 ledger ═══ */
 .ledger { margin: 0; }
@@ -354,7 +487,7 @@ main { position: relative; z-index: 4; }
   grid-template-columns: 1fr;
   gap: 0.25rem 2rem;
   padding: clamp(1.1rem, 2.6vh, 1.75rem) 0;
-  border-top: 1px solid var(--ivory-10);
+  border-top: 1px solid var(--ivory-16);
 }
 .ledger-row dt {
   font-family: var(--font-display);
@@ -362,15 +495,15 @@ main { position: relative; z-index: 4; }
   font-size: clamp(1.375rem, 3.6vw, 2.75rem);
   line-height: 1.12;
   letter-spacing: -0.01em;
-  color: var(--ivory-60);
+  color: var(--ivory-70);
 }
 .ledger-row dd {
   margin: 0;
   font-size: 0.9375rem;
-  color: var(--ivory-45);
+  color: var(--ivory-60);
   letter-spacing: 0.02em;
 }
-.ledger-row--void { border-bottom: 1px solid var(--ivory-10); }
+.ledger-row--void { border-bottom: 1px solid var(--ivory-16); }
 .ledger-row--void dt { color: var(--ivory); font-weight: 700; }
 .statement {
   font-family: var(--font-display);
@@ -383,7 +516,7 @@ main { position: relative; z-index: 4; }
 .category {
   margin: 1.25rem 0 0;
   font-size: 0.6875rem; letter-spacing: 0.32em; text-transform: uppercase;
-  color: var(--ivory-45);
+  color: var(--ivory-60);
 }
 
 /* ═══ 05 network ═══ */
@@ -393,7 +526,7 @@ main { position: relative; z-index: 4; }
   position: absolute; inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(100deg, rgba(14, 12, 10, 0.9) 0%, rgba(14, 12, 10, 0.62) 34%, rgba(14, 12, 10, 0) 62%);
+  background: linear-gradient(100deg, rgba(14, 12, 10, 0.9) 0%, rgba(14, 12, 10, 0.42) 30%, rgba(14, 12, 10, 0) 52%);
 }
 #network {
   position: absolute; inset: 0;
@@ -411,7 +544,8 @@ main { position: relative; z-index: 4; }
   letter-spacing: 0.06em;
   color: var(--ivory-70);
 }
-.fragments li:nth-child(4) { color: var(--ember-soft); }
+.fragments li:nth-child(4) { color: var(--ember-hi); }
+.fragments li { text-shadow: 0 1px 12px rgba(14, 12, 10, 0.9); }
 
 /* ═══ 06 product ═══ */
 .sos {
@@ -437,17 +571,17 @@ main { position: relative; z-index: 4; }
   0% { transform: scale(0.14); opacity: 0.85; }
   100% { transform: scale(1); opacity: 0; }
 }
-.rows { border-top: 1px solid var(--ivory-10); }
+.rows { border-top: 1px solid var(--ivory-16); }
 .row {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.35rem 2.5rem;
   padding: clamp(1.1rem, 2.4vh, 1.6rem) 0;
-  border-bottom: 1px solid var(--ivory-10);
+  border-bottom: 1px solid var(--ivory-16);
 }
 .row-k {
   font-size: 0.6875rem; letter-spacing: 0.24em; text-transform: uppercase;
-  color: var(--ivory-45);
+  color: var(--ivory-60);
   padding-top: 0.35em;
 }
 .row-v {
@@ -462,7 +596,7 @@ main { position: relative; z-index: 4; }
   margin: clamp(2rem, 5vh, 3rem) 0 0;
   font-size: 0.8125rem;
   letter-spacing: 0.04em;
-  color: var(--ivory-45);
+  color: var(--ivory-60);
 }
 
 /* ═══ 07 ending ═══ */
@@ -470,17 +604,47 @@ main { position: relative; z-index: 4; }
 .ending .wrap { display: flex; flex-direction: column; align-items: center; }
 .ending .lede { max-width: 30ch; }
 .mark-large {
-  width: clamp(110px, 20vw, 190px);
+  width: clamp(210px, 38vw, 400px);
   height: auto;
   color: var(--ivory);
   margin: 0 0 clamp(2rem, 5vh, 3.25rem);
+  overflow: visible;
+  shape-rendering: geometricPrecision;
 }
-#seamPiece { color: var(--ember); stroke: var(--ember); }
+.mark-large .mark-body { fill: currentColor; }
+.mark-large .mark-piece {
+  fill: var(--ivory);
+  will-change: transform, fill;
+}
+/* the mark behaving: the piece ignites, travels, completes the seam, cools */
+.mark-large .mark-piece { filter: none; transition: filter 0.9s var(--ease); }
+.mark-large.lit .mark-piece {
+  filter: drop-shadow(0 0 8px rgba(255, 146, 87, 0.9)) drop-shadow(0 0 26px rgba(189, 49, 3, 0.65));
+}
+.mark-large.whole .mark-piece {
+  filter: drop-shadow(0 0 12px rgba(255, 146, 87, 1)) drop-shadow(0 0 42px rgba(189, 49, 3, 0.75));
+}
+/* ambient ember behind the mark only while the response is in flight */
+.mark-wrap { position: relative; display: inline-block; }
+.mark-wrap::before {
+  content: '';
+  position: absolute;
+  left: 8%; top: 50%;
+  width: 62%; height: 62%;
+  transform: translateY(-50%);
+  background: radial-gradient(circle, rgba(217, 88, 31, 0.3) 0%, rgba(189, 49, 3, 0.12) 42%, transparent 72%);
+  opacity: 0;
+  transition: opacity 1.2s var(--ease);
+  pointer-events: none;
+  filter: blur(12px);
+}
+.mark-wrap.glow::before { opacity: 1; }
 
 /* ═══ waitlist ═══ */
 .waitlist {
   padding: clamp(6rem, 18vh, 12rem) var(--gut) clamp(5rem, 12vh, 8rem);
   position: relative; z-index: 4;
+  isolation: isolate;
   text-align: center;
 }
 .waitlist .wrap { max-width: 900px; }
@@ -492,18 +656,18 @@ main { position: relative; z-index: 4; }
   max-width: 520px;
 }
 .wl-form input {
-  flex: 1 1 240px;
+  flex: 1 1 260px;
   min-width: 0;
-  background: transparent;
-  border: 1px solid var(--ivory-24);
+  background: rgba(29, 36, 46, 0.55);
+  border: 1px solid var(--ivory-32);
   border-radius: 2px;
   color: var(--ivory);
   font-family: var(--font-body);
-  font-size: 1rem;
-  padding: 0.9rem 1rem;
-  transition: border-color 0.35s var(--ease);
+  font-size: 1.0625rem;
+  padding: 1.28rem 1.2rem;
+  transition: border-color 0.35s var(--ease), background 0.35s var(--ease);
 }
-.wl-form input::placeholder { color: var(--ivory-45); }
+.wl-form input::placeholder { color: var(--ivory-60); }
 .wl-form input:focus { border-color: var(--ember); outline: none; }
 .wl-form .btn { flex: 0 0 auto; }
 .wl-error {
@@ -522,15 +686,22 @@ main { position: relative; z-index: 4; }
 }
 .wl-done-p { margin: 0; color: var(--ivory-70); font-size: 1.0625rem; }
 .wl-fine {
-  margin: 1.5rem 0 0;
+  margin: 1.75rem 0 0;
   font-size: 0.6875rem; letter-spacing: 0.24em; text-transform: uppercase;
-  color: var(--ivory-24);
+  color: var(--ivory-45);
+}
+.waitlist::before {
+  content: '';
+  position: absolute; inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(70% 60% at 50% 42%, rgba(189, 49, 3, 0.12), transparent 68%);
 }
 
 /* ═══ footer ═══ */
 .footer {
   position: relative; z-index: 4;
-  border-top: 1px solid var(--ivory-10);
+  border-top: 1px solid var(--ivory-16);
   padding: clamp(2.5rem, 6vh, 4rem) var(--gut);
 }
 .footer-grid {
@@ -539,10 +710,10 @@ main { position: relative; z-index: 4; }
   justify-content: space-between;
 }
 .footer-brand { display: flex; align-items: center; gap: 0.6rem; }
-.footer .mark { width: 22px; height: 22px; }
-.footer p { margin: 0; font-size: 0.6875rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ivory-45); }
-.footer-tag { color: var(--ivory-70) !important; }
-.footer-c { color: var(--ivory-24) !important; }
+.footer .mark { width: 40px; height: 24px; }
+.footer p { margin: 0; font-size: 0.6875rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ivory-60); }
+.footer-tag { color: var(--ivory-85) !important; }
+.footer-c { color: var(--ivory-45) !important; }
 
 /* ═══ reveal base (only when JS is running) ═══ */
 html.js .reveal,
@@ -574,6 +745,8 @@ html.js .freeze-copy p { opacity: 0; }
   .nav-cta { padding: 0.62rem 0.9rem; font-size: 0.625rem; letter-spacing: 0.1em; }
   .beat { font-size: 1rem; }
   .hero-h { font-size: clamp(3.25rem, 14vw, 5rem); letter-spacing: -0.03em; }
+  .btn-lg { font-size: 0.875rem; padding: 1.15rem 1.6rem; }
+  .btn-ember.btn-lg { padding-left: 2.6rem; }
   .actions { flex-direction: column; align-items: stretch; }
   .actions .btn { width: 100%; }
   .wl-form { flex-direction: column; }
@@ -592,6 +765,14 @@ html.js .freeze-copy p { opacity: 0; }
   .road-nodes circle { opacity: 0.5; }
   .road-lines path { stroke-dashoffset: 0 !important; }
   .reveal, .beat, .freeze-copy p { opacity: 1 !important; transform: none !important; }
+  /* buttons: state changes stay, motion does not */
+  .btn { transition: background 0.2s linear, color 0.2s linear, border-color 0.2s linear !important; }
+  .btn:hover, .btn:focus-visible { transform: none !important; letter-spacing: inherit; }
+  .btn-ember::before, .btn-ember::after, .btn-ghost::after { transition: none !important; animation: none !important; }
+  .btn-ember:hover::before, .btn-ember:focus-visible::before { width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+  .btn-ghost::after { transform: scaleX(1); opacity: 0.4; }
+  /* the mark stays idle: piece at baseline, monochrome */
+  .mark-large .mark-piece { fill: var(--ivory) !important; filter: none !important; transform: none !important; }
   .ember-core { opacity: 1; }
   .freeze-line { opacity: 0.8; transform: none; }
   .ember-light { left: 74%; top: 30%; opacity: 0.55; width: 20vmin; height: 20vmin; margin: -10vmin 0 0 -10vmin; }
