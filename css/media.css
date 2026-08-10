@@ -696,3 +696,19 @@ body.sos-live::before {
 
 /* ── nav CTA: never let the flex row clip the label ── */
 #nav .nav-cta { flex: 0 0 auto; white-space: nowrap; letter-spacing: 0.05em; }
+
+/* ── film label lifted clear of the film's own burned-in captions ── */
+.film-play-t {
+  position: absolute;
+  left: 50%; top: 0.95rem;
+  transform: translateX(-50%);
+  padding: 0.3rem 0.75rem;
+  background: rgba(14, 12, 10, 0.66);
+  border: 1px solid rgba(245, 242, 236, 0.1);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.film-play { gap: 0; }
+@media (max-width: 720px) {
+  .film-play-t { top: 0.7rem; font-size: 0.5625rem; letter-spacing: 0.22em; }
+}
