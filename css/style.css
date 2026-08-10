@@ -353,6 +353,7 @@ main { position: relative; z-index: 4; }
   font-size: clamp(1.375rem, 3.6vw, 2.75rem);
   line-height: 1.12;
   letter-spacing: -0.01em;
+  color: var(--ivory-60, rgba(245, 242, 236, 0.6));
 }
 .ledger-row dd {
   margin: 0;
@@ -361,7 +362,7 @@ main { position: relative; z-index: 4; }
   letter-spacing: 0.02em;
 }
 .ledger-row--void { border-bottom: 1px solid var(--ivory-10); }
-.ledger-row--void dt { color: var(--ember-soft); }
+.ledger-row--void dt { color: var(--ivory); font-weight: 700; }
 .statement {
   font-family: var(--font-display);
   font-weight: 700;
