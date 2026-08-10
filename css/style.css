@@ -10,6 +10,7 @@
   --red: #dc2626;
 
   --ivory-70: rgba(245, 242, 236, 0.7);
+  --ivory-60: rgba(245, 242, 236, 0.6);
   --ivory-45: rgba(245, 242, 236, 0.45);
   --ivory-24: rgba(245, 242, 236, 0.24);
   --ivory-10: rgba(245, 242, 236, 0.1);
@@ -353,7 +354,7 @@ main { position: relative; z-index: 4; }
   font-size: clamp(1.375rem, 3.6vw, 2.75rem);
   line-height: 1.12;
   letter-spacing: -0.01em;
-  color: var(--ivory-60, rgba(245, 242, 236, 0.6));
+  color: var(--ivory-60);
 }
 .ledger-row dd {
   margin: 0;
