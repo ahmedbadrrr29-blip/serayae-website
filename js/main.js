@@ -112,7 +112,8 @@
     { sel: '#ch4', x: 0.32, y: 0.1, s: 0.5, o: 0.5 },
     { sel: '#ch5', x: -0.04, y: 0.0, s: 1.05, o: 0.7 },
     { sel: '#ch6', x: -0.3, y: 0.12, s: 0.55, o: 0.55 },
-    { sel: '#ch7', x: 0, y: -0.02, s: 1.9, o: 1 }
+    { sel: '#ch7', x: 0, y: -0.02, s: 1.9, o: 1 },
+    { sel: '#waitlist', x: 0, y: -0.22, s: 2.3, o: 0.75 }
   ];
 
   gsap.set(ember, {
@@ -165,8 +166,8 @@
   const gapTl = gsap.timeline({
     scrollTrigger: {
       trigger: '#ch3',
-      start: 'top 62%',
-      end: 'bottom 78%',
+      start: 'top top',
+      end: 'bottom 92%',
       scrub: 0.8,
       onLeaveBack: function () { document.body.classList.remove('frozen'); },
       onLeave: function () { document.body.classList.remove('frozen'); }
@@ -181,12 +182,12 @@
   gapTl.to({}, { duration: 0.35 });
   gapTl.fromTo(freezeLine, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.9, ease: 'power2.inOut' });
   gapTl.fromTo(beats[3], { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.4');
-  gapTl.to(freezeLine, { opacity: 0.35, duration: 0.6 });
+  gapTl.to(freezeLine, { opacity: 0.8, duration: 0.6 });
   freezeLines.forEach(function (p) {
     gapTl.fromTo(p, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });
   });
   gapTl.add(function () { document.body.classList.remove('frozen'); });
-  gapTl.to(freezeLine, { opacity: 0, duration: 0.6 });
+  gapTl.to(freezeLine, { opacity: 0.25, duration: 0.6 });
 
   /* ── 04 · the void row weighs more ── */
   gsap.fromTo('.ledger-row--void dt',

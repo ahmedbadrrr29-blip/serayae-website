@@ -25,7 +25,6 @@
 <!-- persistent ember light: the connective thread -->
 <div class="ember-light" id="emberLight" aria-hidden="true"><span class="ember-core"></span></div>
 <div class="grain" aria-hidden="true"></div>
-<div class="freeze-line" id="freezeLine" aria-hidden="true"></div>
 
 <header class="nav" id="nav">
   <a class="nav-mark" href="#ch1" aria-label="SERAYAE — home">
@@ -98,9 +97,11 @@
 
 <!-- ══════════ CHAPTER 03 ══════════ -->
 <section class="chapter gap" id="ch3" data-chapter="3" data-label="03 — The Gap">
-  <div class="wrap">
+ <div class="gap-stage">
+  <div class="wrap gap-grid">
+   <div class="gap-left">
     <p class="chapter-no reveal">03 — The Gap</p>
-    <h2 class="display reveal">Everything worked.<br /><span class="dim">Except the last step.</span></h2>
+    <h2 class="display display-sm reveal">Everything worked.<br /><span class="dim">Except the last step.</span></h2>
 
     <ol class="beats" id="beats">
       <li class="beat"><span class="tick" aria-hidden="true">✓</span><span>Message delivered</span></li>
@@ -108,13 +109,16 @@
       <li class="beat"><span class="tick" aria-hidden="true">✓</span><span>Call connected</span></li>
       <li class="beat beat-stop"><span class="tick tick-red" aria-hidden="true">—</span><span>No one came</span></li>
     </ol>
+    <div class="freeze-line" id="freezeLine" aria-hidden="true"></div>
+   </div>
 
-    <div class="freeze-copy" id="freezeCopy">
-      <p>Delivered is not the same as answered.</p>
-      <p>Seen is not the same as safe.</p>
-      <p>A signal that reaches no one is just light leaving.</p>
-    </div>
+   <div class="freeze-copy" id="freezeCopy">
+     <p>Delivered is not the same as answered.</p>
+     <p>Seen is not the same as safe.</p>
+     <p>A signal that reaches no one is just light leaving.</p>
+   </div>
   </div>
+ </div>
 </section>
 
 <!-- ══════════ CHAPTER 04 ══════════ -->
@@ -199,7 +203,7 @@
 </section>
 
 <!-- ══════════ WAITLIST ══════════ -->
-<section class="waitlist" id="waitlist" data-chapter="7" data-label="Request Early Access">
+<section class="waitlist" id="waitlist" data-chapter="7" data-label="The Waitlist">
   <div class="wrap">
     <h2 class="display display-sm">Be the first to know<br />when the light answers.</h2>
     <form class="wl-form" id="wlForm" novalidate>

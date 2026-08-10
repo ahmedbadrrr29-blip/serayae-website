@@ -55,12 +55,12 @@
     if (!points.length) return;
     const caller = points[Math.floor(Math.random() * points.length)];
     call = { p: caller, t: 0, life: 9000 };
-    const reach = Math.min(w, h) * (w < 640 ? 0.55 : 0.4);
+    const reach = Math.min(w, h) * (w < 640 ? 0.5 : 0.36);
     points.forEach(function (p) {
       p.responder = false;
       if (p === caller) return;
       const d = Math.hypot(p.hx - caller.hx, p.hy - caller.hy);
-      if (d < reach && Math.random() < 0.75) p.responder = true; // proximity as gravity
+      if (d < reach && Math.random() < 0.5) p.responder = true; // proximity as gravity
     });
   }
 
@@ -122,7 +122,7 @@
         // movement toward the one who called — distance closing is the message
         const dx = call.p.hx - p.hx, dy = call.p.hy - p.hy;
         const d = Math.hypot(dx, dy) || 1;
-        const closed = Math.min(0.72, (call.t / call.life) * 1.15) * p.warm;
+        const closed = Math.min(0.42, (call.t / call.life) * 0.7) * p.warm;
         tx = p.hx + (dx / d) * d * closed;
         ty = p.hy + (dy / d) * d * closed;
       }
@@ -134,15 +134,16 @@
       const breathe = 0.72 + Math.sin(p.phase) * 0.28 * (1 - p.steady * 0.5);
       const base = 0.26 + 0.3 * p.steady;
       const alpha = Math.min(1, base * breathe + p.warm * 0.6);
-      const rad = p.r * (1 + p.warm * 0.85);
+      const rad = p.r * (1 + p.warm * 0.6);
 
       if (p.warm > 0.03) {
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad * 9);
-        g.addColorStop(0, rgba(EMBER_HI, 0.4 * p.warm));
+        const gr = rad * 6.5;
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, gr);
+        g.addColorStop(0, rgba(EMBER_HI, 0.26 * p.warm));
         g.addColorStop(1, rgba(EMBER, 0));
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, rad * 9, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, gr, 0, Math.PI * 2);
         ctx.fill();
       }
 
