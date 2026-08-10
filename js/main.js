@@ -97,6 +97,30 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
+  /* ── warmth arc: after the daylight document (ch4), the night itself
+     warms imperceptibly as arrival approaches — light felt, never seen ── */
+  gsap.to('body', {
+    backgroundColor: '#17100a',
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#ch5',
+      start: 'top bottom',
+      endTrigger: '#waitlist',
+      end: 'bottom bottom',
+      scrub: 1.2
+    }
+  });
+
+  /* ── nav inverts while the ivory document is under it ── */
+  ScrollTrigger.create({
+    trigger: '#ch4',
+    start: 'top 60px',
+    end: 'bottom 60px',
+    onToggle: function (self) {
+      document.getElementById('nav').classList.toggle('daylight', self.isActive);
+    }
+  });
+
   /* ── generic reveals ── */
   const groups = [
     ['#ch1 .reveal', 0.16],
