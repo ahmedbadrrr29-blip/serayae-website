@@ -144,8 +144,20 @@ body.frozen .ember-light { opacity: 0.22 !important; }
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem;
   padding: 0 var(--gut);
-  background: linear-gradient(180deg, rgba(14, 12, 10, 0.92), rgba(14, 12, 10, 0));
+  background: transparent;
   backdrop-filter: none;
+}
+.nav::before {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0;
+  height: calc(var(--nav-h) * 1.7);
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(180deg,
+    rgba(14, 12, 10, 0.97) 0%,
+    rgba(14, 12, 10, 0.94) 45%,
+    rgba(14, 12, 10, 0.55) 72%,
+    rgba(14, 12, 10, 0) 100%);
 }
 .nav-mark { display: flex; align-items: center; gap: 0.6rem; }
 .mark { width: 26px; height: 26px; color: var(--ivory); flex: none; }
