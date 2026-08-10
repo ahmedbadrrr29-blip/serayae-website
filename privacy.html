@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SERAYAE — Privacy Policy</title>
-<meta name="description" content="SERAYAE Privacy Policy. Human Response Infrastructure, built for each other." />
+<meta name="description" content="SERAYAE Privacy Policy." />
 <meta name="robots" content="index,follow" />
 <meta name="theme-color" content="#0E0C0A" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -32,66 +32,89 @@
 <main class="doc">
   <p class="doc-kicker">SERAYAE &middot; Legal</p>
   <h1>Privacy Policy</h1>
-  <p class="doc-updated">Last updated: August 10, 2026</p>
-  <p>SERAYAE (formerly Solra) (&ldquo;we&rdquo;, &ldquo;our&rdquo;, &ldquo;us&rdquo;) is an emergency response mobile application. This Privacy Policy explains how we collect, use, store, and protect your personal data when you use SERAYAE. It applies to the SERAYAE mobile app and this website.</p>
+  <p class="doc-updated">Last updated: August 10, 2026 &middot; Applies to the SERAYAE app (formerly Solra) and this website</p>
+  <div class="doc-emergency" role="note">
+    <p>SERAYAE is a personal safety application. SERAYAE is not an emergency service and does not replace 122 (Police), 123 (Ambulance), or 180 (Fire). In life-threatening situations, always call official emergency services first.</p>
+  </div>
 
-  <h2>1. Data we collect</h2>
+  <h2>1. Who we are</h2>
+  <p>SERAYAE (formerly Solra) (&ldquo;we&rdquo;, &ldquo;our&rdquo;, &ldquo;us&rdquo;) is operated from Cairo, Egypt.<!-- LAUNCH-TODO: insert incorporated legal entity name, address, and registration number before store submission --> This Privacy Policy explains how we collect, use, store, share, and protect your personal data when you use the SERAYAE mobile application and this website, and the rights you have over that data.</p>
+
+  <h2>2. What SERAYAE does with your safety</h2>
+  <p>SERAYAE helps you reach the people who can help you: your trusted contacts (guardians) and nearby members of the SERAYAE community. It assists you in contacting help. It does not dispatch police, ambulance, or fire services, and it does not guarantee that anyone will respond or arrive.</p>
+
+  <h2>3. Data we collect</h2>
   <dl>
     <dt>Account data</dt><dd>Phone number, name, email (optional), gender (optional).</dd>
-    <dt>Location data</dt><dd>GPS coordinates &mdash; collected only during active emergencies and Walk With Me sessions, never continuously.</dd>
-    <dt>Medical profile</dt><dd>Blood type, allergies, medications, medical conditions, emergency notes &mdash; stored encrypted.</dd>
-    <dt>Trusted contacts</dt><dd>Names and phone numbers of your emergency contacts.</dd>
-    <dt>Emergency history</dt><dd>Records of past emergency events, kept for safety and legal purposes.</dd>
-    <dt>Device data</dt><dd>Device type, OS version, and app version, used for troubleshooting.</dd>
-    <dt>Waitlist data (this website)</dt><dd>Your email address and language preference, used only to send launch updates. Nothing else.</dd>
+    <dt>Precise location</dt><dd>GPS coordinates &mdash; collected only during active emergencies and Safe Walk sessions you start, and never continuously in the background outside those sessions. Never used for advertising. Never sold.</dd>
+    <dt>Medical profile (optional)</dt><dd>Blood type, allergies, medications, medical conditions, emergency notes &mdash; provided by you, shared with responders only when you trigger an SOS.</dd>
+    <dt>Trusted contacts</dt><dd>Names and phone numbers of the guardians you choose.</dd>
+    <dt>Emergency records and evidence</dt><dd>Records of emergency events, including their location, timeline, and any evidence you capture (photos, audio, video). During an active emergency, live voice/video sessions may be carried through our real-time provider.</dd>
+    <dt>Responder verification data</dt><dd>If you apply to become a responder: a photograph of your government ID and a selfie, used to review your identity. Stored securely and accessed through time-limited signed links.</dd>
+    <dt>Family safety data</dt><dd>If a parent or legal guardian enables family features: the child&rsquo;s name, live location during monitored sessions, safe zones, and related alerts &mdash; processed only under the parent&rsquo;s or guardian&rsquo;s consent and control.</dd>
+    <dt>Device and diagnostic data</dt><dd>Device type, OS version, app version, and error diagnostics used for troubleshooting and reliability.</dd>
+    <dt>Waitlist data (this website)</dt><dd>Your email address and language preference &mdash; used only to send launch updates. Nothing else.</dd>
   </dl>
 
-  <h2>2. How we use your data</h2>
+  <h2>4. How we use your data</h2>
   <ul>
-    <li>Matching you with nearby responders during emergencies.</li>
-    <li>Sending OTP verification codes via SMS.</li>
-    <li>Sharing your location with responders during active emergencies only.</li>
-    <li>Generating anonymized incident heatmaps &mdash; your identity is never shown.</li>
-    <li>Sharing medical information with emergency responders when you trigger SOS.</li>
+    <li>Alerting nearby available community members and your trusted contacts when you trigger an SOS.</li>
+    <li>Sharing your live location with those alerted &mdash; during active emergencies and Safe Walk sessions only.</li>
+    <li>Sharing your medical information with responders when you trigger an SOS.</li>
+    <li>Sending verification codes via SMS to sign you in.</li>
+    <li>Generating anonymized incident maps &mdash; locations are aggregated and small clusters are suppressed so individuals are never shown.</li>
+    <li>Reviewing responder applications.</li>
+    <li>Operating family safety features for accounts that enable them.</li>
+    <li>Diagnosing errors and keeping the service reliable.</li>
     <li>Sending launch updates to the email you gave us on the waitlist.</li>
   </ul>
 
-  <h2>3. Third-party services</h2>
+  <h2>5. Service providers we share data with</h2>
+  <p>We share data with the following processors, only to operate the service:</p>
   <dl>
-    <dt>Twilio</dt><dd>SMS delivery for OTP verification.</dd>
-    <dt>Google Maps</dt><dd>Map display and location services.</dd>
-    <dt>Firebase</dt><dd>Push notifications for emergency alerts.</dd>
-    <dt>Railway</dt><dd>Cloud hosting for our backend servers (US-based).</dd>
-    <dt>Supabase</dt><dd>Waitlist storage for this website (EU-based).</dd>
+    <dt>Twilio and Akedly</dt><dd>SMS delivery for sign-in verification codes.</dd>
+    <dt>Google Maps</dt><dd>Map display, geocoding, and walking routes.</dd>
+    <dt>Firebase (Google)</dt><dd>Push notifications for alerts.</dd>
+    <dt>Agora</dt><dd>Live voice and video sessions during active emergencies.</dd>
+    <dt>Cloudinary</dt><dd>Secure storage of evidence media and responder verification images, accessed via expiring signed links.</dd>
+    <dt>Sentry</dt><dd>Crash and error diagnostics; reports may include device and request metadata.</dd>
+    <dt>RevenueCat</dt><dd>Subscription management, if and when you purchase a subscription.</dd>
+    <dt>Railway</dt><dd>Cloud hosting of our backend (United States).</dd>
+    <dt>Supabase</dt><dd>Waitlist storage for this website (European Union).</dd>
   </dl>
+  <p>We do not sell your personal data. We do not share it with advertisers.</p>
 
-  <h2>4. Data security</h2>
-  <p>We use industry-standard security measures, including encrypted database connections, JWT token authentication, HTTPS for all communications, and rate limiting to prevent abuse. Medical data is stored with additional encryption.</p>
+  <h2>6. International transfers</h2>
+  <p>Our backend is hosted in the United States, so data you provide to the app is transferred to and processed there. We apply the safeguards described in this policy to all such processing and are working with counsel to maintain compliance with the Egyptian Personal Data Protection Law and, where applicable, GDPR.</p>
 
-  <h2>5. Your rights</h2>
-  <p>Under the Egyptian Personal Data Protection Law and GDPR, you have the right to:</p>
+  <h2>7. Security</h2>
+  <p>All communication with our servers uses HTTPS/TLS. Access to your data requires authenticated, revocable tokens; sensitive media is reachable only through expiring signed links; and our APIs enforce rate limiting and input validation. No system is perfectly secure, and we do not claim ours is &mdash; we design so that a single failure does not expose your data.</p>
+
+  <h2>8. Data retention</h2>
   <ul>
-    <li>Access your personal data.</li>
-    <li>Correct inaccurate data.</li>
-    <li>Request deletion of your account and data.</li>
-    <li>Export your data in a portable format.</li>
+    <li>Safe Walk location points are automatically deleted 90 days after the walk ends.</li>
+    <li>Emergency records, including their locations and evidence, are retained while your account is active, for your safety history and legal purposes, and are deleted when your account is deleted.</li>
+    <li>Account and medical profile data are deleted when you delete your account.</li>
+    <li>Waitlist emails are deleted on request, and after launch communications end.</li>
   </ul>
 
-  <h2>6. Data retention</h2>
-  <p>Emergency records are retained for legal and safety purposes. Account data is deleted upon request. Location data from completed emergencies is anonymized after 90 days. Waitlist emails are deleted on request and after launch communications end.</p>
+  <h2>9. Your rights</h2>
+  <p>Under the Egyptian Personal Data Protection Law and, where applicable, GDPR, you have the right to access your personal data, correct inaccurate data, delete your account and data, and export your data in a portable format. Account deletion is available directly <a href="delete-account.html">in the app and on the web</a>, and removes your personal data as described there.</p>
 
-  <h2>7. Children&rsquo;s privacy</h2>
-  <p>SERAYAE is not intended for users under 16 years of age. We do not knowingly collect data from children.</p>
+  <h2>10. Children</h2>
+  <p>SERAYAE accounts require you to be 18 or older. We do not knowingly collect data from children, with one exception: a parent or legal guardian may enable family safety features for their own child, in which case the child&rsquo;s data described in Section 3 is processed under that parent&rsquo;s or guardian&rsquo;s consent and control, and is deleted with the parent&rsquo;s account.</p>
 
-  <h2>8. Contact us</h2>
-  <p>For privacy concerns, contact us at <a href="mailto:privacy@solraapp.net">privacy@solraapp.net</a>.</p>
-  <!-- LAUNCH-TODO: switch contact addresses to the final SERAYAE domain when mail is set up -->
+  <h2>11. Changes to this policy</h2>
+  <p>We may update this policy. We will notify you of significant changes through the app and update the date at the top of this page.</p>
+
+  <h2>12. Contact us</h2>
+  <p>For privacy questions or to exercise your rights, contact <a href="mailto:privacy@solraapp.net">privacy@solraapp.net</a>.<!-- LAUNCH-TODO: switch to the final SERAYAE domain mailbox and verify it is monitored --></p>
 
   <p class="doc-contact">SERAYAE &middot; Cairo, Egypt &middot; privacy@solraapp.net</p>
 </main>
 <footer class="legal-footer">
   <span>&copy; 2026 SERAYAE &middot; Human Response Infrastructure</span>
-  <span><a href="privacy.html">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="terms.html">Terms of Service</a></span>
+  <span><a href="privacy.html">Privacy Policy</a> &nbsp;&middot;&nbsp; <a href="terms.html">Terms of Service</a> &nbsp;&middot;&nbsp; <a href="delete-account.html">Delete Your Account</a></span>
 </footer>
 </body>
 </html>
