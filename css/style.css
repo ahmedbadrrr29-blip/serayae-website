@@ -783,6 +783,30 @@ main { position: relative; z-index: 4; }
   border-top: 1px solid var(--ivory-16);
   padding: clamp(2.5rem, 6vh, 4rem) var(--gut);
 }
+.footer-social {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: 1.5rem 2rem;
+  margin-top: clamp(1.75rem, 4vh, 2.75rem);
+}
+.footer-social-k {
+  font-size: 0.5625rem;
+  letter-spacing: 0.26em;
+  color: var(--ivory-45);
+}
+.footer-social a {
+  color: var(--ivory-60);
+  text-decoration: none;
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.footer-social a:hover,
+.footer-social a:focus-visible {
+  color: var(--ivory);
+  border-bottom-color: var(--ember);
+}
+
 .footer-grid {
   display: flex; flex-wrap: wrap; align-items: center;
   gap: 1rem clamp(1.5rem, 5vw, 4rem);
