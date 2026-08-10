@@ -628,47 +628,101 @@ body.modal-open { overflow: hidden; }
   .voice-grid > :nth-child(6) { opacity: 0.82; }
 }
 
-/* mobile: the field becomes a small static strip; only 3 windows remain */
+/* ══════════ MOBILE: ONE HERO SCREEN + A CONSOLE STRIP ══════════
+   The field stops being a playground and becomes one horizontally
+   scroll-snapped console strip: 3 live windows, 2 field notes, 2 chips. */
 @media (max-width: 860px) {
-  .hero { min-height: 100svh; justify-content: flex-end; }
-  /* the headline still comes first; the field settles underneath it */
+  .hero {
+    min-height: 100svh;
+    justify-content: flex-start;
+    padding-top: calc(var(--nav-h) + clamp(1.25rem, 4.5vh, 2.5rem));
+    padding-bottom: clamp(1rem, 3vh, 2rem);
+  }
+  /* the headline still comes first; the strip settles underneath it */
   .hero .wrap.no-fade { order: 1; pointer-events: auto; }
   .field {
     order: 2;
     position: static;
+    pointer-events: auto;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: flex-start;
-    margin: clamp(1.6rem, 5vh, 2.5rem) auto 0;
-    padding-top: 0;
-    max-width: 1180px;
-    width: 100%;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.6rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100vw;
+    max-width: 100vw;
+    margin: clamp(1.1rem, 3.5vh, 2rem) calc(var(--gut) * -1) 0;
+    padding: 0.15rem var(--gut) 0.35rem;
+  }
+  .field::-webkit-scrollbar { display: none; }
+  .field > * {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    touch-action: auto;
   }
   .field .sigwin,
   .field .note,
-  .field .artifact { position: static; }
+  .field .artifact { position: static; transform: none !important; }
   .field .sigwin:not([data-mobile]),
-  .field .note-morse { display: none; }
-  .sigwin, .sigwin-wide, .sigwin-sm { width: calc(50% - 0.4rem); max-width: 190px; cursor: default; }
-  .sigwin .win-body { height: 66px; }
-  .field .note { cursor: default; padding: 0.55rem 0.7rem; }
-  .field .note p { font-size: 0.75rem; }
-  .field .note-ar .note-hand { font-size: 0.875rem; }
-  .artifact { cursor: pointer; flex-direction: row; align-items: center; gap: 0.5rem; padding: 0.35rem 0; }
-  .artifact svg { width: 22px; }
+  .field .note:not([data-mobile]) { display: none; }
+  .sigwin, .sigwin-wide, .sigwin-sm { width: 200px; max-width: 200px; cursor: default; }
+  .sigwin .win-body { height: 74px; }
+  .field .note {
+    cursor: default;
+    width: 148px;
+    min-height: 74px;
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 0.7rem;
+  }
+  .field .note p { font-size: 0.8125rem; }
+  .field .note-ar .note-hand { font-size: 0.9375rem; }
+  /* the easter eggs become tappable chips inside the same strip */
+  .field .artifact {
+    cursor: pointer;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--ivory-16);
+    border-radius: 999px;
+    background: rgba(245, 242, 236, 0.05);
+  }
+  .field .artifact svg { width: 16px; flex: none; }
+  .field .artifact .cap {
+    margin: 0;
+    white-space: nowrap;
+    font-size: 0.5625rem;
+    color: var(--ivory-70);
+  }
+  /* the scroll cue sits right under the strip, inside the first screen */
+  .hero .scroll-hint {
+    order: 3;
+    position: static;
+    transform: none;
+    align-self: center;
+    margin: clamp(0.9rem, 2.5vh, 1.5rem) 0 0;
+  }
   .gap-grid > * { min-width: 0; }
   .win-dispatch { max-width: 100%; width: 100%; }
   .beat-txt { word-break: break-word; }
 }
 @media (max-width: 620px) {
-  .ops-status { gap: 0.5rem; }
+  .ops { gap: 0.5rem; flex-wrap: nowrap; }
+  .ops-status { gap: 0.5rem; flex-wrap: nowrap; }
   .ops-clock-label { display: none; }
   /* the bar keeps only what a phone can read: mark, clock, the one CTA */
   .ops-wifi, .ops-presence, .ops-lantern { display: none; }
   .ops-clock { font-size: 0.6875rem; }
-  .nav-cta { white-space: nowrap; font-size: 0.5625rem; padding: 0.6rem 0.7rem; letter-spacing: 0.09em; }
-  .field .artifact { padding: 0.3rem 0; }
+  .nav-cta { white-space: nowrap; font-size: 0.6875rem; padding: 0.55rem 0.8rem; letter-spacing: 0.06em; }
+  .btn-ember.nav-cta { padding-left: 1.75rem; }
+  .btn-ember.nav-cta::before { left: 0.7rem; }
+  .btn-ember.nav-cta::after { left: 0.7rem; }
   .mosaic i { width: 2px; height: 2px; }
   .rec-foot { flex-direction: column; align-items: flex-start; }
 }

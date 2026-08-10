@@ -397,9 +397,21 @@ main { position: relative; z-index: 4; }
 .hero-h { font-size: clamp(3rem, 12.5vw, 11rem); }
 .hero .lede { max-width: 44ch; }
 .actions {
-  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem;
   margin-top: clamp(2.25rem, 5vh, 3.5rem);
 }
+/* the scroll is the story: a quiet cue, never a second button */
+.story-cue {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ivory-45);
+  padding: 0.35rem 0.1rem;
+  transition: color 0.35s var(--ease);
+}
+.story-cue:hover,
+.story-cue:focus-visible { color: var(--ivory-85); }
 .scroll-hint {
   position: absolute;
   bottom: 1.5rem; left: 50%; transform: translateX(-50%);
@@ -719,6 +731,24 @@ main { position: relative; z-index: 4; }
   text-align: left;
 }
 .wl-done { margin-top: clamp(2.5rem, 6vh, 3.5rem); }
+.wl-n {
+  color: var(--ember-hi);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* loading: the submit button holds a pulsing light while the signal goes out */
+.wl-form.sending .btn-ember { pointer-events: none; opacity: 0.9; }
+.wl-form.sending .btn-ember::after {
+  left: calc(50% - 0.2rem);
+  animation: sendPulse 1.05s var(--ease) infinite;
+}
+.wl-form.sending .btn-ember::before { opacity: 0; }
+@keyframes sendPulse {
+  0%, 100% { transform: scale(0.7); box-shadow: 0 0 8px 2px rgba(255, 177, 133, 0.6); }
+  50% { transform: scale(1.55); box-shadow: 0 0 20px 7px rgba(255, 177, 133, 0.95); }
+}
 .wl-done-h {
   font-family: var(--font-display); font-weight: 700;
   font-size: clamp(1.5rem, 3.4vw, 2.25rem);
@@ -729,6 +759,13 @@ main { position: relative; z-index: 4; }
 .wl-fine {
   margin: 1.75rem 0 0;
   font-size: 0.6875rem; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--ivory-45);
+}
+.wl-privacy {
+  margin: 1.5rem auto 0;
+  max-width: 42ch;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
   color: var(--ivory-45);
 }
 .waitlist::before {
@@ -779,17 +816,31 @@ html.js .freeze-copy p { opacity: 0; }
 @media (max-width: 900px) {
   .progress-label { display: none; }
 }
+/* ── mobile ops bar: a solid Night bar. Nothing may collide with it. ── */
+@media (max-width: 860px) {
+  .nav {
+    background: var(--night);
+    border-bottom: 1px solid var(--ivory-10);
+  }
+  .nav::before { display: none; }
+  .nav.daylight {
+    background: var(--ivory);
+    border-bottom-color: rgba(29, 36, 46, 0.14);
+  }
+}
+
 @media (max-width: 620px) {
   :root { --nav-h: 58px; }
   .nav-word { display: none; }
   .progress { display: none; }
-  .nav-cta { padding: 0.62rem 0.9rem; font-size: 0.625rem; letter-spacing: 0.1em; }
+  .nav-cta { padding: 0.55rem 0.8rem; font-size: 0.6875rem; letter-spacing: 0.08em; }
   .beat { font-size: 1rem; }
   .hero-h { font-size: clamp(3.25rem, 14vw, 5rem); letter-spacing: -0.03em; }
   .btn-lg { font-size: 0.875rem; padding: 1.15rem 1.6rem; }
   .btn-ember.btn-lg { padding-left: 2.6rem; }
-  .actions { flex-direction: column; align-items: stretch; }
+  .actions { flex-direction: column; align-items: stretch; gap: 0.35rem; }
   .actions .btn { width: 100%; }
+  .story-cue { text-align: center; padding: 0.55rem 0; }
   .wl-form { flex-direction: column; }
   .wl-form input, .wl-form .btn { width: 100%; flex: 0 0 auto; }
   .wl-error { text-align: center; }

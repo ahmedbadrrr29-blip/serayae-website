@@ -17,9 +17,10 @@
     items.forEach(function (el) {
       const rot = el.dataset.rot || '0';
       if (compact) {
+        /* the console strip is a straight, snapped row: no scatter, no rotation */
         el.style.left = '';
         el.style.top = '';
-        el.style.transform = 'rotate(' + (parseFloat(rot) * 0.5) + 'deg)';
+        el.style.transform = '';
         return;
       }
       if (!el.dataset.dragged) {

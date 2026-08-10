@@ -4,12 +4,22 @@
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 
-  /* ── waitlist (works with or without motion) ── */
+  /* ══════════ waitlist ══════════
+     A real induction: the email goes to the Supabase RPC, which answers with
+     the believer's position. Idempotent — the same email always gets the same N. */
   const form = document.getElementById('wlForm');
   const done = document.getElementById('wlDone');
   const err = document.getElementById('wlError');
   const input = document.getElementById('email');
+  const submitBtn = document.getElementById('wlSubmit');
+  const submitLabel = document.getElementById('wlSubmitLabel');
+  const numberEl = document.getElementById('wlNumber');
   const KEY = 'serayae.waitlist';
+
+  const WL_ENDPOINT = 'https://zxrnboyqvfefkclsurrb.supabase.co/rest/v1/rpc/serayae_join_waitlist';
+  const WL_KEY = 'sb_publishable_hGiNsEyzM1SNER7gq99WbQ_2VIHAMg6';
+  const WL_TIMEOUT = 8000;
+  const SUBMIT_LABEL = 'Request Early Access';
 
   /* Persistent store: browser storage when available (preview iframes block it),
      falling back to an in-memory record so the confirmation state always works. */
@@ -31,29 +41,89 @@
     }
   };
 
-  function showDone() {
+  function showDone(n, animate) {
+    if (numberEl) numberEl.textContent = '#' + (n === null || n === undefined ? '\u2014' : n);
     if (form) form.hidden = true;
     if (done) done.hidden = false;
+    if (animate && hasGSAP && !reduced) {
+      gsap.fromTo(done, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
+    }
   }
 
-  if (store.get(KEY)) showDone();
+  function setSending(on) {
+    if (!form) return;
+    form.classList.toggle('sending', on);
+    if (submitBtn) submitBtn.disabled = on;
+    if (submitLabel) submitLabel.textContent = on ? 'Sending signal\u2026' : SUBMIT_LABEL;
+  }
+
+  function fail(message) {
+    if (!err) return;
+    err.textContent = message;
+    err.hidden = false;
+  }
+
+  /* re-show the induction for a believer who already answered */
+  (function restore() {
+    const raw = store.get(KEY);
+    if (!raw) return;
+    let rec = null;
+    try { rec = JSON.parse(raw); } catch (e) { rec = null; }
+    if (!rec || !rec.email) return;
+    showDone(typeof rec.n === 'number' ? rec.n : null, false);
+  })();
+
+  function joinWaitlist(email) {
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = window.setTimeout(function () { if (ctrl) ctrl.abort(); }, WL_TIMEOUT);
+
+    return fetch(WL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'apikey': WL_KEY,
+        'Authorization': 'Bearer ' + WL_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ p_email: email }),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (res) {
+      window.clearTimeout(timer);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.text();
+    }).then(function (text) {
+      const n = parseInt(String(text).replace(/[^0-9-]/g, ''), 10);
+      if (!isFinite(n)) throw new Error('bad response');
+      return n;
+    }).catch(function (e) {
+      window.clearTimeout(timer);
+      throw e;
+    });
+  }
 
   if (form) {
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      if (form.classList.contains('sending')) return;
       const value = (input.value || '').trim();
       const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
       if (!ok) {
-        if (err) err.hidden = false;
+        fail('Enter an email we can reach you at.');
         input.focus();
         return;
       }
       if (err) err.hidden = true;
-      store.set(KEY, JSON.stringify({ email: value, at: new Date().toISOString() }));
-      showDone();
-      if (hasGSAP && !reduced) {
-        gsap.fromTo(done, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
-      }
+      setSending(true);
+
+      joinWaitlist(value).then(function (n) {
+        setSending(false);
+        store.set(KEY, JSON.stringify({ email: value, n: n, at: new Date().toISOString() }));
+        showDone(n, true);
+      }).catch(function () {
+        setSending(false);
+        fail('The signal didn\u2019t go through. Try again.');
+        input.focus();
+      });
     });
     input.addEventListener('input', function () { if (err) err.hidden = true; });
   }
@@ -131,7 +201,7 @@
     ['#ch6 .reveal', 0.07],
     ['#voices .reveal', 0.09],
     ['#ch7 .reveal', 0.16],
-    ['#waitlist .display, #waitlist .wl-form, #waitlist .wl-fine', 0.12]
+    ['#waitlist .display, #waitlist .wl-form, #waitlist .wl-privacy', 0.12]
   ];
 
   groups.forEach(function (g) {
