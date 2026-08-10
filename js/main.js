@@ -16,8 +16,8 @@
   const numberEl = document.getElementById('wlNumber');
   const KEY = 'serayae.waitlist';
 
-  const WL_ENDPOINT = 'https://zxrnboyqvfefkclsurrb.supabase.co/rest/v1/rpc/serayae_join_waitlist';
-  const WL_KEY = 'sb_publishable_hGiNsEyzM1SNER7gq99WbQ_2VIHAMg6';
+  const WL_ENDPOINT = 'https://vhtkslliqgbsjuebzhnc.supabase.co/rest/v1/rpc/join_waitlist';
+  const WL_KEY = 'sb_publishable_syI34SUvhcs_miaOEWOUug__ceKRXxu';
   const WL_TIMEOUT = 8000;
   const SUBMIT_LABEL = 'Request Early Access';
 
@@ -85,14 +85,20 @@
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({ p_email: email }),
+      body: JSON.stringify({ p_email: email, p_locale: (navigator.language || null) }),
       signal: ctrl ? ctrl.signal : undefined
     }).then(function (res) {
       window.clearTimeout(timer);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.text();
     }).then(function (text) {
-      const n = parseInt(String(text).replace(/[^0-9-]/g, ''), 10);
+      let n = NaN;
+      try {
+        const data = JSON.parse(text);
+        n = (data && typeof data === 'object') ? parseInt(data.believer_no, 10) : parseInt(data, 10);
+      } catch (e) {
+        n = parseInt(String(text).replace(/[^0-9-]/g, ''), 10);
+      }
       if (!isFinite(n)) throw new Error('bad response');
       return n;
     }).catch(function (e) {
