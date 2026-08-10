@@ -154,6 +154,15 @@
     opacity: marks[0].o
   });
 
+  /* the finale owns the only ember moment on screen: the light stays as ambient
+     warmth but its hard core dot steps aside so it can't read as part of the mark */
+  ScrollTrigger.create({
+    trigger: '#ch7',
+    start: 'top 88%',
+    onEnter: function () { if (ember) ember.classList.add('no-core'); },
+    onLeaveBack: function () { if (ember) ember.classList.remove('no-core'); }
+  });
+
   marks.forEach(function (m, i) {
     if (i === 0) return;
     gsap.to(ember, {

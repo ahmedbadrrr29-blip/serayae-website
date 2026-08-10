@@ -34,14 +34,14 @@
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const density = w < 640 ? 15000 : 11000;
-    const n = Math.max(26, Math.min(120, Math.round((w * h) / density)));
+    const density = w < 640 ? 11000 : 9000;
+    const n = Math.max(34, Math.min(150, Math.round((w * h) / density)));
     points = [];
     for (let i = 0; i < n; i++) {
       const x = Math.random() * w, y = Math.random() * h;
       points.push({
         hx: x, hy: y, x: x, y: y,
-        r: 1 + Math.random() * 1.1,
+        r: 1.3 + Math.random() * 1.2,
         phase: Math.random() * Math.PI * 2,
         speed: 0.5 + Math.random() * 0.6,
         steady: 0.35 + Math.random() * 0.65, // verification reads as steadiness
@@ -79,8 +79,8 @@
     ctx.clearRect(0, 0, w, h);
 
     // presence links — quiet structure
-    ctx.lineWidth = 1;
-    const linkDist = w < 640 ? 108 : 138;
+    ctx.lineWidth = 1.2;
+    const linkDist = w < 640 ? 132 : 158;
     for (let i = 0; i < points.length; i++) {
       for (let j = i + 1; j < points.length; j++) {
         const a = points[i], b = points[j];
@@ -92,7 +92,7 @@
         const warm = Math.max(a.warm, b.warm);
         ctx.strokeStyle = warm > 0.05
           ? rgba(EMBER_HI, 0.18 + fade * 0.6 * warm)
-          : 'rgba(245,242,236,' + (0.1 + fade * 0.26) + ')';
+          : 'rgba(245,242,236,' + (0.14 + fade * 0.3) + ')';
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -169,8 +169,8 @@
     ctx.clearRect(0, 0, w, h);
     running = false;
     // one calm composition for reduced motion
-    const linkDist = w < 640 ? 108 : 138;
-    ctx.lineWidth = 1;
+    const linkDist = w < 640 ? 132 : 158;
+    ctx.lineWidth = 1.2;
     for (let i = 0; i < points.length; i++) {
       for (let j = i + 1; j < points.length; j++) {
         const a = points[i], b = points[j];
