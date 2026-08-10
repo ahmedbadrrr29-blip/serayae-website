@@ -11,8 +11,12 @@
 <meta property="og:description" content="The internet solved communication. It never solved response." />
 <meta property="og:type" content="website" />
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://api.fontshare.com/v2/css?f[]=boska@700,500&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/console.css" />
 <script>
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.classList.add('js');
@@ -26,9 +30,10 @@
 <div class="ember-light" id="emberLight" aria-hidden="true"><span class="ember-core"></span></div>
 <div class="grain" aria-hidden="true"></div>
 
-<header class="nav" id="nav">
+<!-- ══════════ OPERATIONS BAR ══════════ -->
+<header class="nav ops" id="nav">
   <a class="nav-mark" href="#ch1" aria-label="SERAYAE — home">
-    <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+    <svg class="mark mark-breathe" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
       <g stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
         <path d="M33 12.5C33 6.8 24.6 5 18.6 8.2C11.6 11.4 11.8 18.2 18.6 21" />
         <path d="M32 28.8C38.8 31.8 39 39 32 42C26 44.6 18 43 15.6 37.6" />
@@ -37,20 +42,162 @@
     </svg>
     <span class="nav-word">SERAYAE</span>
   </a>
+
+  <nav class="ops-chapters" aria-label="Chapters">
+    <a href="#ch3">The Gap</a>
+    <a href="#ch4">The Category</a>
+    <a href="#ch5">The Network</a>
+    <a href="#ch6">The Product</a>
+  </nav>
+
   <nav class="progress" aria-label="Chapter progress">
     <span class="progress-label" id="progressLabel">01 — The Promise</span>
     <span class="ticks" aria-hidden="true">
       <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
     </span>
   </nav>
-  <a class="btn btn-ember nav-cta" href="#waitlist">Request Early Access</a>
+
+  <div class="ops-status">
+    <!-- signal: hover flyout + click toggles the ambient listening rhythm -->
+    <button class="ops-item" id="signalBtn" type="button" aria-pressed="false" aria-label="listen — ambient network rhythm">
+      <svg class="ops-ico" viewBox="0 0 16 16" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M8 12.6v0.2"/><path d="M5.6 10.4a3.4 3.4 0 0 1 4.8 0"/><path d="M3.2 8a6.8 6.8 0 0 1 9.6 0"/></g></svg>
+      <span class="ops-pop" role="tooltip">
+        <span class="mono ops-pop-k">NETWORK · LISTENING</span>
+        <span class="viz" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="mono ops-pop-hint">click to listen</span>
+      </span>
+    </button>
+
+    <!-- presence: hover flyout -->
+    <span class="ops-item" tabindex="0" role="img" aria-label="Presence: 3 guardians linked">
+      <svg class="ops-ico" viewBox="0 0 16 16" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><circle cx="6" cy="6" r="2.4"/><path d="M2 13.2c0-2.2 1.8-3.4 4-3.4s4 1.2 4 3.4"/><path d="M10.8 4.2a2.4 2.4 0 0 1 0 4"/><path d="M12 10c1.4.4 2.2 1.5 2.2 3.2"/></g></svg>
+      <span class="ops-pop" role="tooltip">
+        <span class="mono ops-pop-k">3 guardians linked <b class="ok">✓</b></span>
+      </span>
+    </span>
+
+    <!-- real ticking clock -->
+    <span class="ops-clock">
+      <span class="mono ops-clock-label">CAIRO</span>
+      <time class="mono ops-clock-t" id="opsClock" aria-live="off">--:--:--</time>
+    </span>
+
+    <!-- lantern easter egg: light = someone is there -->
+    <button class="ops-item ops-lantern" id="lanternBtn" type="button" aria-label="Lantern — warm the page">
+      <svg class="ops-ico" viewBox="0 0 16 16" aria-hidden="true"><g stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"><path d="M5.6 3.2h4.8"/><path d="M6.2 3.2 4.9 12.4h6.2L9.8 3.2"/><path d="M4.9 12.4h6.2"/><path d="M8 1.4v1.6"/></g><circle class="lantern-flame" cx="8" cy="8.2" r="1.5" fill="currentColor"/></svg>
+    </button>
+
+    <a class="btn btn-ember nav-cta" href="#waitlist">Request Early Access</a>
+  </div>
 </header>
+<div class="lantern-ripple" id="lanternRipple" aria-hidden="true"></div>
+<div class="listen-pulse" id="listenPulse" aria-hidden="true"></div>
 
 <main>
 
 <!-- ══════════ CHAPTER 01 ══════════ -->
 <section class="chapter hero" id="ch1" data-chapter="1" data-label="01 — The Promise">
-  <div class="wrap">
+
+  <!-- ── live signal field: draggable console windows, field notes, artifacts ── -->
+  <div class="field" id="field" data-drag-zone>
+
+    <div class="sigwin draggable" data-x="1.5" data-y="9" data-rot="-2.4" data-mobile="1">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-sos">
+          <span class="sig-ring"></span><span class="sig-ring"></span><span class="sig-ring"></span>
+          <span class="sig-core"></span>
+          <span class="mono sig-tag">04:47 · signal out</span>
+        </div>
+      </div>
+      <p class="mono cap">sos-0447.sig</p>
+    </div>
+
+    <div class="sigwin draggable" data-x="20" data-y="4" data-rot="2.8">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-trace">
+          <svg viewBox="0 0 160 84" preserveAspectRatio="none" aria-hidden="true">
+            <path class="trace-path" id="tracePath" d="M8 74 C40 66 44 34 74 30 C104 26 112 18 148 14" fill="none" />
+            <circle class="trace-target" cx="148" cy="14" r="3" />
+            <circle class="trace-dot" id="traceDot" cx="8" cy="74" r="2.6" />
+          </svg>
+          <span class="mono sig-dist" id="traceDist">420m</span>
+        </div>
+      </div>
+      <p class="mono cap">responder.trace</p>
+    </div>
+
+    <div class="sigwin sigwin-wide draggable" data-x="41" data-y="12" data-rot="-1.8" data-mobile="1">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-log"><div class="log-lines mono" id="logLines"></div></div>
+      </div>
+      <p class="mono cap">guardian-link.log</p>
+    </div>
+
+    <div class="sigwin sigwin-wide draggable" data-x="66" data-y="3" data-rot="2">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-ledger"><table class="mono ledger-rows" id="ledgerRows"><tbody></tbody></table></div>
+      </div>
+      <p class="mono cap">ledger.rec</p>
+    </div>
+
+    <div class="sigwin sigwin-sm draggable" data-x="87" data-y="31" data-rot="-3.2">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-glow">
+          <span class="glow-dot" id="glowDot"></span>
+          <span class="mono sig-morse" id="glowMorse">···</span>
+        </div>
+      </div>
+      <p class="mono cap">lantern.glow</p>
+    </div>
+
+    <div class="sigwin sigwin-wide draggable" data-x="72" data-y="52" data-rot="-2.2" data-mobile="1">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-ecg"><canvas id="ecg" aria-hidden="true"></canvas><span class="mono sig-bpm" id="bpm">62 bpm</span></div>
+      </div>
+      <p class="mono cap">heartbeat.mon</p>
+    </div>
+
+    <!-- field notes: quiet human traces -->
+    <div class="note draggable" data-x="12" data-y="38" data-rot="-4" data-mobile="1">
+      <p class="note-hand">someone was there.</p>
+    </div>
+    <div class="note note-ar draggable" data-x="33" data-y="45" data-rot="3.4" data-mobile="1">
+      <p class="note-hand" lang="ar" dir="rtl">كان هناك أحد</p>
+    </div>
+    <div class="note note-morse draggable" data-x="57" data-y="43" data-rot="-2.6">
+      <p class="mono">··· · ·−· ·− −·−− ·− ·</p>
+    </div>
+
+    <!-- easter-egg artifacts -->
+    <button class="artifact artifact-lantern draggable" id="foundingBtn" type="button" data-x="91" data-y="70" data-rot="0" aria-label="Open founding-signal.txt">
+      <svg viewBox="0 0 32 40" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round">
+          <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
+        </g>
+        <circle class="art-flame" cx="16" cy="21" r="4" fill="currentColor" />
+      </svg>
+      <span class="mono cap">founding-signal.txt</span>
+    </button>
+
+    <button class="artifact artifact-ledger draggable" id="responseBtn" type="button" data-x="64" data-y="76" data-rot="2.4" aria-label="Open first-response.rec">
+      <svg viewBox="0 0 34 34" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="27" height="27" rx="2" stroke="currentColor" stroke-width="1.3" fill="none" />
+        <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+          <path d="M8 11h12" /><path d="M8 17h16" /><path d="M8 23h9" />
+        </g>
+        <circle cx="25" cy="23" r="2.4" fill="currentColor" class="art-flame" />
+      </svg>
+      <span class="mono cap">first-response.rec</span>
+    </button>
+  </div>
+
+  <div class="wrap no-fade">
     <p class="chapter-no reveal">01 — The Promise</p>
     <h1 class="display hero-h reveal">THE PROMISE<br />DIDN’T.</h1>
     <p class="lede reveal">For thousands of years,<br />a light in the distance meant one thing.<br /><span class="warm">Someone was there.</span></p>
@@ -103,13 +250,24 @@
     <p class="chapter-no reveal">03 — The Gap</p>
     <h2 class="display display-sm reveal">Everything worked.<br /><span class="dim">Except the last step.</span></h2>
 
-    <ol class="beats" id="beats">
-      <li class="beat"><span class="tick" aria-hidden="true">✓</span><span>Message delivered</span></li>
-      <li class="beat"><span class="tick" aria-hidden="true">✓</span><span>Location shared</span></li>
-      <li class="beat"><span class="tick" aria-hidden="true">✓</span><span>Call connected</span></li>
-      <li class="beat beat-stop"><span class="tick tick-red" aria-hidden="true">—</span><span>No one came</span></li>
-    </ol>
+    <!-- scroll-scrubbed dispatch transcript: types forward and backward with scroll -->
+    <div class="win win-dispatch">
+      <div class="win-bar">
+        <span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span>
+        <span class="mono win-name">dispatch.log</span>
+        <span class="mono win-meta" id="dispatchMeta">live</span>
+      </div>
+      <div class="win-body">
+        <ol class="beats mono" id="beats">
+          <li class="beat" data-t="03:12" data-full="message delivered ✓"><span class="beat-t">03:12</span><span class="beat-txt">message delivered ✓</span></li>
+          <li class="beat" data-t="03:12" data-full="location shared ✓"><span class="beat-t">03:12</span><span class="beat-txt">location shared ✓</span></li>
+          <li class="beat" data-t="03:13" data-full="call connected ✓"><span class="beat-t">03:13</span><span class="beat-txt">call connected ✓</span></li>
+          <li class="beat beat-stop" data-t="03:14" data-full="someone is com"><span class="beat-t">03:14</span><span class="beat-txt">someone is com</span><span class="caret" id="beatCaret" aria-hidden="true"></span></li>
+        </ol>
+      </div>
+    </div>
     <div class="freeze-line" id="freezeLine" aria-hidden="true"></div>
+    <p class="nobody" id="nobody">No one came.</p>
    </div>
 
    <div class="freeze-copy" id="freezeCopy">
@@ -186,6 +344,41 @@
   </div>
 </section>
 
+<!-- ══════════ SIGNALS FROM THE WAITLIST ══════════ -->
+<section class="voices" id="voices" data-chapter="6" data-label="Signals from the waitlist">
+  <div class="wrap">
+    <p class="chapter-no reveal">Signals from the waitlist</p>
+    <h2 class="display display-sm reveal">Before launch,<br /><span class="dim">people are already waiting.</span></h2>
+    <div class="voice-grid">
+      <article class="win voice reveal">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">signal-001</span></div>
+        <div class="win-body"><p>Finally someone is building the last step.</p><p class="mono voice-by">early believer · Cairo</p></div>
+      </article>
+      <article class="win voice voice-alt reveal">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">signal-002</span></div>
+        <div class="win-body"><p>I have three people I would drop everything for. I want them on this.</p><p class="mono voice-by">guardian · beta</p></div>
+      </article>
+      <article class="win voice reveal">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">signal-003</span></div>
+        <div class="win-body"><p>Delivered was never the point. Someone arriving is.</p><p class="mono voice-by">paramedic · Alexandria</p></div>
+      </article>
+      <article class="win voice voice-alt reveal">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">signal-004</span></div>
+        <div class="win-body"><p>My mother lives alone. That is the whole reason I signed up.</p><p class="mono voice-by">waitlist · Amman</p></div>
+      </article>
+      <article class="win voice reveal">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">signal-005</span></div>
+        <div class="win-body"><p>Infrastructure is the right word. Everything else was an app.</p><p class="mono voice-by">early believer · Berlin</p></div>
+      </article>
+      <article class="win voice voice-alt reveal">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">signal-006</span></div>
+        <div class="win-body"><p>I want to be one of the people who comes.</p><p class="mono voice-by">first responder · waitlist</p></div>
+      </article>
+    </div>
+    <p class="note reveal">Pre-launch voices from the waitlist. No customers yet — only people who want this to exist.</p>
+  </div>
+</section>
+
 <!-- ══════════ CHAPTER 07 ══════════ -->
 <section class="chapter ending" id="ch7" data-chapter="7" data-label="07 — Built For Each Other">
   <div class="wrap">
@@ -238,11 +431,76 @@
     <p class="footer-tag">Built For Each Other.</p>
     <p class="footer-c">© 2026 SERAYAE</p>
   </div>
+
+  <!-- dot-matrix mosaic, built from the same ember/ivory atom as the network -->
+  <div class="mosaic-row">
+    <span class="mosaic-lantern lit" aria-hidden="true">
+      <svg viewBox="0 0 32 40">
+        <g stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round">
+          <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
+        </g>
+        <circle cx="16" cy="21" r="4.4" fill="currentColor" />
+      </svg>
+    </span>
+    <div class="mosaic" id="mosaic" role="img" aria-label="SERAYAE"></div>
+  </div>
 </footer>
+
+<!-- ══════════ EASTER-EGG MODALS ══════════ -->
+<div class="modal" id="modalFounding" hidden>
+  <div class="modal-scrim" data-close></div>
+  <div class="win modal-win" role="dialog" aria-modal="true" aria-label="founding-signal.txt">
+    <div class="win-bar">
+      <span class="lights" aria-hidden="true"><i></i><button class="em close" type="button" data-close aria-label="Close founding-signal.txt"></button><i></i></span>
+      <span class="mono win-name">founding-signal.txt</span>
+      <span class="mono win-meta">read-only</span>
+    </div>
+    <div class="win-body modal-body">
+      <pre class="mono type" id="foundingType" aria-live="polite"></pre>
+      <p class="mono modal-foot">— the founding signal · SERAYAE</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalResponse" hidden>
+  <div class="modal-scrim" data-close></div>
+  <div class="win modal-win modal-win-wide" role="dialog" aria-modal="true" aria-label="first-response.rec">
+    <div class="win-bar">
+      <span class="lights" aria-hidden="true"><i></i><button class="em close" type="button" data-close aria-label="Close first-response.rec"></button><i></i></span>
+      <span class="mono win-name">first-response.rec</span>
+      <span class="mono win-meta" id="recClock">00:00</span>
+    </div>
+    <div class="win-body modal-body">
+      <div class="rec-stage">
+        <svg class="rec-svg" id="recSvg" viewBox="0 0 520 260" aria-hidden="true">
+          <g class="rec-links" stroke="#1d242e" stroke-width="1" fill="none">
+            <path d="M110 190 L250 130" /><path d="M410 70 L250 130" /><path d="M420 200 L250 130" /><path d="M96 70 L250 130" />
+          </g>
+          <path class="rec-route" id="recRoute" d="M420 200 C360 196 320 168 250 130" fill="none" />
+          <circle class="rec-pulse" id="recPulse" cx="250" cy="130" r="6" fill="none" />
+          <circle class="rec-caller" cx="250" cy="130" r="4.4" />
+          <circle class="rec-node g1" cx="110" cy="190" r="3.2" />
+          <circle class="rec-node g2" cx="410" cy="70" r="3.2" />
+          <circle class="rec-node g3" cx="96" cy="70" r="3.2" />
+          <circle class="rec-responder" id="recResponder" cx="420" cy="200" r="4" />
+        </svg>
+        <ol class="mono rec-log" id="recLog"></ol>
+      </div>
+      <div class="rec-foot">
+        <p class="mono rec-result" id="recResult"></p>
+        <button class="btn btn-ghost btn-sm" type="button" id="recReplay">Replay</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="js/network.js"></script>
+<script src="js/ops.js"></script>
+<script src="js/artifacts.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/mosaic.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

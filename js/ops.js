@@ -1,0 +1,80 @@
+/* ═══ Operations bar ═══
+   A real clock, real flyouts, and a lantern that means something:
+   light = someone is there. */
+
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── live clock · CAIRO ── */
+  const clock = document.getElementById('opsClock');
+  if (clock) {
+    let fmt = null;
+    try {
+      fmt = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Africa/Cairo',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      });
+    } catch (e) { fmt = null; }
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function tick() {
+      /* the Chapter 03 freeze is a genuine full stop — even the clock holds */
+      if (document.body.classList.contains('frozen')) return;
+      const now = new Date();
+      let text;
+      if (fmt) {
+        text = fmt.format(now);
+      } else {
+        text = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      }
+      clock.textContent = text;
+      clock.setAttribute('datetime', now.toISOString());
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ── lantern: click warms the whole page for ~2s ── */
+  const lantern = document.getElementById('lanternBtn');
+  const ripple = document.getElementById('lanternRipple');
+  let warmTimer = null;
+
+  if (lantern && ripple) {
+    lantern.addEventListener('click', function () {
+      const r = lantern.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+
+      document.body.classList.remove('warmed');
+      // force restart of the warm settle animation
+      void document.body.offsetWidth;
+      document.body.classList.add('warmed');
+
+      if (!reduced) {
+        const span = Math.max(window.innerWidth, window.innerHeight) * 2.4;
+        ripple.style.transition = 'none';
+        ripple.style.transform = 'translate(' + cx + 'px,' + cy + 'px) scale(1)';
+        ripple.style.opacity = '0.9';
+        void ripple.offsetWidth;
+        ripple.style.transition = 'transform 2s cubic-bezier(0.22,0.61,0.24,1), opacity 2s cubic-bezier(0.22,0.61,0.24,1)';
+        ripple.style.transform = 'translate(' + cx + 'px,' + cy + 'px) scale(' + (span / 10) + ')';
+        ripple.style.opacity = '0';
+      }
+
+      clearTimeout(warmTimer);
+      warmTimer = setTimeout(function () {
+        document.body.classList.remove('warmed');
+      }, 2200);
+    });
+  }
+
+  /* ── signal icon: toggles the ambient listening rhythm (visual only) ── */
+  const signalBtn = document.getElementById('signalBtn');
+  if (signalBtn) {
+    signalBtn.addEventListener('click', function () {
+      const on = document.body.classList.toggle('signalOn');
+      signalBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+})();

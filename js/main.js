@@ -92,6 +92,7 @@
     ['#ch4 .reveal', 0.1],
     ['#ch5 .reveal', 0.08],
     ['#ch6 .reveal', 0.07],
+    ['#voices .reveal', 0.09],
     ['#ch7 .reveal', 0.16],
     ['#waitlist .display, #waitlist .wl-form, #waitlist .wl-fine', 0.12]
   ];
@@ -128,6 +129,7 @@
     { sel: '#ch4', x: 0.32, y: 0.1, s: 0.5, o: 0.5 },
     { sel: '#ch5', x: -0.04, y: 0.0, s: 1.05, o: 0.7 },
     { sel: '#ch6', x: -0.3, y: 0.12, s: 0.55, o: 0.55 },
+    { sel: '#voices', x: 0.34, y: 0.06, s: 0.6, o: 0.4 },
     { sel: '#ch7', x: 0, y: -0.02, s: 1.9, o: 1 },
     { sel: '#waitlist', x: 0, y: -0.22, s: 2.3, o: 0.75 }
   ];
@@ -174,10 +176,44 @@
     }
   );
 
-  /* ── 03 · everything succeeds, then everything stops ── */
+  /* ── 03 · the dispatch transcript types with the scroll, then stops mid-word ── */
   const beats = gsap.utils.toArray('#beats .beat');
+  const caret = document.getElementById('beatCaret');
+  const dispatchMeta = document.getElementById('dispatchMeta');
   const freezeLine = document.getElementById('freezeLine');
   const freezeLines = gsap.utils.toArray('#freezeCopy p');
+  const nobody = document.getElementById('nobody');
+
+  const fulls = beats.map(function (b) { return b.dataset.full || b.textContent; });
+  const totalChars = fulls.reduce(function (a, s) { return a + s.length; }, 0);
+  const TYPE_START = 0.03;
+  const TYPE_END = 0.25; /* typing completes just before the freeze */
+
+  function renderTranscript(p) {
+    const t = Math.max(0, Math.min(1, (p - TYPE_START) / (TYPE_END - TYPE_START)));
+    let remaining = Math.round(t * totalChars);
+    beats.forEach(function (el, i) {
+      const full = fulls[i];
+      const n = Math.max(0, Math.min(full.length, remaining));
+      remaining -= full.length;
+      const txt = el.querySelector('.beat-txt');
+      if (txt) txt.textContent = full.slice(0, n);
+      el.style.opacity = n > 0 ? '1' : '0';
+      if (i === beats.length - 1 && caret) caret.style.opacity = n > 0 ? '1' : '0';
+    });
+  }
+
+  /* start empty — the transcript is written by the reader's own scroll */
+  renderTranscript(0);
+
+  ScrollTrigger.create({
+    trigger: '#ch3',
+    start: 'top top',
+    end: 'bottom 92%',
+    scrub: true,
+    onUpdate: function (self) { renderTranscript(self.progress); },
+    onRefresh: function (self) { renderTranscript(self.progress); }
+  });
 
   const gapTl = gsap.timeline({
     scrollTrigger: {
@@ -190,20 +226,29 @@
     }
   });
 
-  beats.slice(0, 3).forEach(function (b) {
-    gapTl.fromTo(b, { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' });
-  });
+  /* the time it takes to type — nothing moves but the text */
+  gapTl.to({}, { duration: 1.8 });
 
-  gapTl.add(function () { document.body.classList.add('frozen'); });
+  gapTl.add(function () {
+    document.body.classList.add('frozen');
+    if (dispatchMeta) dispatchMeta.textContent = 'no signal';
+  });
   gapTl.to({}, { duration: 0.35 });
   gapTl.fromTo(freezeLine, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.9, ease: 'power2.inOut' });
-  gapTl.fromTo(beats[3], { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.4');
+  gapTl.fromTo(nobody, { opacity: 0 }, { opacity: 1, duration: 0.5 }, '-=0.3');
   gapTl.to(freezeLine, { opacity: 0.8, duration: 0.6 });
   freezeLines.forEach(function (p) {
     gapTl.fromTo(p, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });
   });
-  gapTl.add(function () { document.body.classList.remove('frozen'); });
+  gapTl.add(function () {
+    document.body.classList.remove('frozen');
+    if (dispatchMeta) dispatchMeta.textContent = 'held';
+  });
   gapTl.to(freezeLine, { opacity: 0.25, duration: 0.6 });
+
+  gapTl.eventCallback('onReverseComplete', function () {
+    if (dispatchMeta) dispatchMeta.textContent = 'live';
+  });
 
   /* ── 04 · the void row weighs more ── */
   gsap.fromTo('.ledger-row--void dt',
