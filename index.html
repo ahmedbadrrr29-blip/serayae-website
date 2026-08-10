@@ -59,7 +59,7 @@
 
   <div class="ops-status">
     <!-- signal: hover flyout + click toggles the ambient listening rhythm -->
-    <button class="ops-item" id="signalBtn" type="button" aria-pressed="false" aria-label="listen — ambient network rhythm">
+    <button class="ops-item ops-wifi" id="signalBtn" type="button" aria-pressed="false" aria-label="listen — ambient network rhythm">
       <svg class="ops-ico" viewBox="0 0 16 16" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M8 12.6v0.2"/><path d="M5.6 10.4a3.4 3.4 0 0 1 4.8 0"/><path d="M3.2 8a6.8 6.8 0 0 1 9.6 0"/></g></svg>
       <span class="ops-pop" role="tooltip">
         <span class="mono ops-pop-k">NETWORK · LISTENING</span>
@@ -69,7 +69,7 @@
     </button>
 
     <!-- presence: hover flyout -->
-    <span class="ops-item" tabindex="0" role="img" aria-label="Presence: 3 guardians linked">
+    <span class="ops-item ops-presence" tabindex="0" role="img" aria-label="Presence: 3 guardians linked">
       <svg class="ops-ico" viewBox="0 0 16 16" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><circle cx="6" cy="6" r="2.4"/><path d="M2 13.2c0-2.2 1.8-3.4 4-3.4s4 1.2 4 3.4"/><path d="M10.8 4.2a2.4 2.4 0 0 1 0 4"/><path d="M12 10c1.4.4 2.2 1.5 2.2 3.2"/></g></svg>
       <span class="ops-pop" role="tooltip">
         <span class="mono ops-pop-k">3 guardians linked <b class="ok">✓</b></span>
@@ -144,7 +144,7 @@
       <p class="mono cap">ledger.rec</p>
     </div>
 
-    <div class="sigwin sigwin-sm draggable" data-x="87" data-y="31" data-rot="-3.2">
+    <div class="sigwin sigwin-sm draggable" data-x="88" data-y="19" data-rot="-3.2">
       <div class="win">
         <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
         <div class="win-body sig-glow">
@@ -164,18 +164,18 @@
     </div>
 
     <!-- field notes: quiet human traces -->
-    <div class="note draggable" data-x="12" data-y="38" data-rot="-4" data-mobile="1">
+    <div class="note draggable" data-x="25" data-y="23.5" data-rot="-4" data-mobile="1">
       <p class="note-hand">someone was there.</p>
     </div>
-    <div class="note note-ar draggable" data-x="33" data-y="45" data-rot="3.4" data-mobile="1">
+    <div class="note note-ar draggable" data-x="46" data-y="25.5" data-rot="3.4" data-mobile="1">
       <p class="note-hand" lang="ar" dir="rtl">كان هناك أحد</p>
     </div>
-    <div class="note note-morse draggable" data-x="57" data-y="43" data-rot="-2.6">
+    <div class="note note-morse draggable" data-x="66" data-y="20" data-rot="-2.6">
       <p class="mono">··· · ·−· ·− −·−− ·− ·</p>
     </div>
 
     <!-- easter-egg artifacts -->
-    <button class="artifact artifact-lantern draggable" id="foundingBtn" type="button" data-x="91" data-y="70" data-rot="0" aria-label="Open founding-signal.txt">
+    <button class="artifact artifact-lantern draggable" id="foundingBtn" type="button" data-x="88" data-y="72" data-rot="0" aria-label="Open founding-signal.txt">
       <svg viewBox="0 0 32 40" aria-hidden="true">
         <g stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round">
           <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
@@ -185,7 +185,7 @@
       <span class="mono cap">founding-signal.txt</span>
     </button>
 
-    <button class="artifact artifact-ledger draggable" id="responseBtn" type="button" data-x="64" data-y="76" data-rot="2.4" aria-label="Open first-response.rec">
+    <button class="artifact artifact-ledger draggable" id="responseBtn" type="button" data-x="66" data-y="78" data-rot="2.4" aria-label="Open first-response.rec">
       <svg viewBox="0 0 34 34" aria-hidden="true">
         <rect x="3.5" y="3.5" width="27" height="27" rx="2" stroke="currentColor" stroke-width="1.3" fill="none" />
         <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
@@ -451,7 +451,7 @@
   <div class="modal-scrim" data-close></div>
   <div class="win modal-win" role="dialog" aria-modal="true" aria-label="founding-signal.txt">
     <div class="win-bar">
-      <span class="lights" aria-hidden="true"><i></i><button class="em close" type="button" data-close aria-label="Close founding-signal.txt"></button><i></i></span>
+      <span class="lights"><i aria-hidden="true"></i><button class="em close" type="button" data-close aria-label="Close founding-signal.txt"></button><i aria-hidden="true"></i></span>
       <span class="mono win-name">founding-signal.txt</span>
       <span class="mono win-meta">read-only</span>
     </div>
@@ -466,7 +466,7 @@
   <div class="modal-scrim" data-close></div>
   <div class="win modal-win modal-win-wide" role="dialog" aria-modal="true" aria-label="first-response.rec">
     <div class="win-bar">
-      <span class="lights" aria-hidden="true"><i></i><button class="em close" type="button" data-close aria-label="Close first-response.rec"></button><i></i></span>
+      <span class="lights"><i aria-hidden="true"></i><button class="em close" type="button" data-close aria-label="Close first-response.rec"></button><i aria-hidden="true"></i></span>
       <span class="mono win-name">first-response.rec</span>
       <span class="mono win-meta" id="recClock">00:00</span>
     </div>

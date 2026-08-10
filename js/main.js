@@ -189,8 +189,11 @@
   const TYPE_START = 0.03;
   const TYPE_END = 0.25; /* typing completes just before the freeze */
 
+  const reducedType = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   function renderTranscript(p) {
-    const t = Math.max(0, Math.min(1, (p - TYPE_START) / (TYPE_END - TYPE_START)));
+    /* no motion preference: the log is simply already written */
+    const t = reducedType ? 1 : Math.max(0, Math.min(1, (p - TYPE_START) / (TYPE_END - TYPE_START)));
     let remaining = Math.round(t * totalChars);
     beats.forEach(function (el, i) {
       const full = fulls[i];

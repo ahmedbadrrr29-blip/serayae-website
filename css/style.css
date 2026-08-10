@@ -209,6 +209,7 @@ body.frozen .ember-light { opacity: 0.22 !important; }
 }
 .btn-ember:hover { background: var(--ember-soft); }
 .btn-ghost {
+  background: transparent;
   border-color: var(--ivory-24);
   color: var(--ivory-70);
 }
