@@ -806,6 +806,18 @@ main { position: relative; z-index: 4; }
   color: var(--ivory);
   border-bottom-color: var(--ember);
 }
+.footer-legal {
+  display: inline-flex; gap: 1.5rem;
+  margin-left: auto;
+}
+.footer-legal a { color: var(--ivory-45); font-size: 0.75rem; }
+.wl-privacy-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(245, 242, 236, 0.3);
+  text-underline-offset: 3px;
+}
+.wl-privacy-link:hover { text-decoration-color: var(--ember); }
 
 .footer-grid {
   display: flex; flex-wrap: wrap; align-items: center;
