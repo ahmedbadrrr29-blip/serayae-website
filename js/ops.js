@@ -102,8 +102,13 @@
     f.title = 'دايماً مع بعض — Always Together';
     f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
     f.setAttribute('allowfullscreen', '');
-    f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    f.setAttribute('referrerpolicy', 'origin');
     screen.appendChild(f);
+    /* if the surrounding environment blocks embedded playback, offer the way out */
+    window.setTimeout(function () {
+      var hint = document.getElementById('radioHint');
+      if (hint) hint.hidden = false;
+    }, 6000);
     widget.classList.add('playing');
     btn.setAttribute('aria-pressed', 'true');
     if (icoPlay) icoPlay.hidden = true;

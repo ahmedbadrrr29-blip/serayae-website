@@ -849,3 +849,11 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 560px) {
   .radio-widget { right: 12px; }
 }
+.radio-hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: var(--ivory-45);
+}
+.radio-hint a { color: var(--ivory-60); }
+.radio-hint a:hover { color: var(--ivory); }
