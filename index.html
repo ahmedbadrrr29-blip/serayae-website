@@ -30,10 +30,11 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
 <link href="https://api.fontshare.com/v2/css?f[]=boska@700,500&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css?v=10" />
-<link rel="stylesheet" href="css/console.css?v=10" />
-<link rel="stylesheet" href="css/media.css?v=10" />
-<link rel="stylesheet" href="css/day.css?v=10" />
+<link rel="stylesheet" href="css/style.css?v=11" />
+<link rel="stylesheet" href="css/console.css?v=11" />
+<link rel="stylesheet" href="css/media.css?v=11" />
+<link rel="stylesheet" href="css/day.css?v=11" />
+<link rel="stylesheet" href="css/hero.css?v=11" />
 <script>
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.classList.add('js');
@@ -149,19 +150,69 @@
   <!-- ── live signal field: draggable console windows, field notes, artifacts ── -->
   <div class="field" id="field" data-drag-zone>
 
-    <div class="sigwin draggable" data-x="16" data-y="89" data-rot="-2.4" data-mobile="1" aria-hidden="true">
+    <!-- ── SIX LIVE FILM WINDOWS: the fold is awake ── -->
+    <div class="filmwin filmwin-v draggable" data-r="4.5" data-y="5.5" data-rot="-1.8" data-mobile="1">
       <div class="win">
-        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
-        <div class="win-body sig-sos">
-          <span class="sig-ring"></span><span class="sig-ring"></span><span class="sig-ring"></span>
-          <span class="sig-core"></span>
-          <span class="mono sig-tag">04:47 · signal out</span>
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">live</span></div>
+        <div class="clipbody">
+          <video class="clip" data-clip="media/clips/walkhome.mp4?v=11" muted loop playsinline autoplay preload="metadata" tabindex="-1" aria-label="A woman walking home on a warm night street glances back and smiles."></video>
         </div>
       </div>
-      <p class="mono cap" aria-hidden="true">sos-0447.sig</p>
+      <p class="mono cap" aria-hidden="true">she-made-it-home.mov</p>
     </div>
 
-    <div class="sigwin draggable" data-x="85" data-y="15" data-rot="2.8" aria-hidden="true">
+    <div class="filmwin draggable" data-r="22" data-y="6.5" data-rot="1.6" data-mobile="1">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">live</span></div>
+        <div class="clipbody">
+          <video class="clip" data-clip="media/clips/lantern.mp4?v=11" muted loop playsinline autoplay preload="metadata" tabindex="-1" aria-label="Hands strike a match and light a lantern; the glow blooms."></video>
+        </div>
+      </div>
+      <p class="mono cap" aria-hidden="true">first-light.mov</p>
+    </div>
+
+    <div class="filmwin filmwin-v draggable" data-r="39" data-y="6" data-rot="2.2" data-mobile="1" aria-hidden="true">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">live</span></div>
+        <div class="clipbody">
+          <video class="clip" data-clip="media/clips/door.mp4?v=11" muted loop playsinline autoplay preload="metadata" tabindex="-1"></video>
+        </div>
+      </div>
+      <p class="mono cap" aria-hidden="true">the-door-opens.mov</p>
+    </div>
+
+    <div class="filmwin draggable" data-r="1.5" data-y="67" data-rot="-1.4" aria-hidden="true">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">live</span></div>
+        <div class="clipbody">
+          <video class="clip" data-clip="media/clips/responder.mp4?v=11" muted loop playsinline autoplay preload="metadata" tabindex="-1"></video>
+        </div>
+      </div>
+      <p class="mono cap" aria-hidden="true">on-his-way.mov</p>
+    </div>
+
+    <div class="filmwin filmwin-s draggable" data-x="1.2" data-y="68.5" data-rot="-2.6" data-mobile="1" aria-hidden="true">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">live</span></div>
+        <div class="clipbody">
+          <video class="clip" data-clip="media/clips/tea.mp4?v=11" muted loop playsinline autoplay preload="metadata" tabindex="-1"></video>
+        </div>
+      </div>
+      <p class="mono cap" aria-hidden="true">for-the-guest.mov</p>
+    </div>
+
+    <div class="filmwin filmwin-s draggable" data-x="1.2" data-y="83" data-rot="2.8" aria-hidden="true">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span><span class="mono win-name">live</span></div>
+        <div class="clipbody">
+          <video class="clip" data-clip="media/clips/cat.mp4?v=11" muted loop playsinline autoplay preload="metadata" tabindex="-1"></video>
+        </div>
+      </div>
+      <p class="mono cap" aria-hidden="true">guard-duty.mov</p>
+    </div>
+
+    <!-- ── the two surviving signal windows ── -->
+    <div class="sigwin draggable" data-r="8" data-y="38.5" data-rot="2.8" data-mobile="1" aria-hidden="true">
       <div class="win">
         <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
         <div class="win-body sig-trace">
@@ -176,7 +227,7 @@
       <p class="mono cap" aria-hidden="true">responder.trace</p>
     </div>
 
-    <div class="sigwin sigwin-wide draggable" data-x="78" data-y="49" data-rot="-1.8" data-mobile="1" aria-hidden="true">
+    <div class="sigwin sigwin-wide draggable" data-r="4" data-y="53" data-rot="-1.8" data-mobile="1" aria-hidden="true">
       <div class="win">
         <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
         <div class="win-body sig-log"><div class="log-lines mono" id="logLines"></div></div>
@@ -184,56 +235,41 @@
       <p class="mono cap" aria-hidden="true">guardian-link.log</p>
     </div>
 
-    <div class="sigwin sigwin-wide draggable mobile-only" data-x="66" data-y="3" data-rot="2" data-mobile="1" aria-hidden="true">
-      <div class="win">
-        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
-        <div class="win-body sig-ledger"><table class="mono ledger-rows" id="ledgerRows"><tbody></tbody></table></div>
-      </div>
-      <p class="mono cap" aria-hidden="true">ledger.rec</p>
-    </div>
-
-    <div class="sigwin sigwin-sm draggable" data-x="1.5" data-y="74" data-rot="-3.2" aria-hidden="true">
-      <div class="win">
-        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
-        <div class="win-body sig-glow">
-          <span class="glow-dot" id="glowDot"></span>
-          <span class="mono sig-morse" id="glowMorse">···</span>
-        </div>
-      </div>
-      <p class="mono cap" aria-hidden="true">lantern.glow</p>
-    </div>
-
-    <div class="sigwin sigwin-wide draggable mobile-only" data-x="72" data-y="52" data-rot="-2.2" data-mobile="1" aria-hidden="true">
-      <div class="win">
-        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
-        <div class="win-body sig-ecg"><canvas id="ecg" aria-hidden="true"></canvas><span class="mono sig-bpm" id="bpm">62 bpm</span></div>
-      </div>
-      <p class="mono cap" aria-hidden="true">heartbeat.mon</p>
-    </div>
-
-    <!-- field notes: quiet human traces -->
-    <div class="note draggable" data-x="68" data-y="2" data-rot="-4" data-mobile="1">
+    <!-- ── field notes: quiet human traces ── -->
+    <div class="note draggable" data-r="25.5" data-y="30" data-rot="-4" data-mobile="1">
       <p class="note-hand">someone was there.</p>
     </div>
-    <div class="note note-ar draggable" data-x="75" data-y="33" data-rot="3.4" data-mobile="1">
+    <div class="note note-ar draggable" data-r="30.5" data-y="37" data-rot="3.4" data-mobile="1">
       <p class="note-hand" lang="ar" dir="rtl">كان هناك أحد</p>
     </div>
-    <div class="note note-morse draggable" data-x="57" data-y="95" data-rot="-2.6" aria-hidden="true">
+    <div class="note note-morse draggable" data-r="26" data-y="89" data-rot="-2.6" aria-hidden="true">
       <p class="mono morse-shimmer">··· · ·−· ·− −·−− ·− ·</p>
     </div>
 
-    <!-- photographic layer: instant photos, hand-scattered, draggable -->
-    <figure class="photo draggable" data-x="1.5" data-y="54" data-rot="-5" data-mobile="1">
+    <!-- ── photographic layer ── -->
+    <figure class="photo draggable" data-x="0.8" data-y="51.5" data-rot="-5" data-mobile="1">
       <img src="media/photos/hands.jpg" width="640" height="480" loading="lazy" decoding="async" alt="A hand passing a single lit match to another hand in darkness." />
       <figcaption class="mono">the light is passed</figcaption>
     </figure>
-    <figure class="photo draggable" data-x="84" data-y="64" data-rot="4.5" data-mobile="1">
+    <figure class="photo photo-sm draggable" data-x="22" data-y="84" data-rot="4.5" data-mobile="1">
       <img src="media/photos/cat.jpg" width="640" height="480" loading="lazy" decoding="async" alt="A cat sitting upright on a windowsill at night, rim-lit by a warm bulb." />
       <figcaption class="mono">on duty</figcaption>
     </figure>
 
-    <!-- easter-egg artifacts -->
-    <button class="artifact artifact-lantern draggable" id="foundingBtn" type="button" data-x="91" data-y="86" data-rot="0" aria-haspopup="dialog" aria-label="Open founding-signal.txt">
+    <!-- ── stickers: things stuck to the desk ── -->
+    <div class="sticker sticker-stamp draggable" data-r="12" data-y="88.5" data-rot="6" aria-hidden="true">
+      <img src="media/stickers/stamp.png?v=11" width="320" height="320" loading="lazy" decoding="async" alt="" />
+    </div>
+    <div class="sticker sticker-moon draggable" data-r="33" data-y="26" data-rot="-8" aria-hidden="true">
+      <img src="media/stickers/moon.png?v=11" width="260" height="260" loading="lazy" decoding="async" alt="" />
+    </div>
+    <button class="sticker sticker-cassette draggable" id="cassetteSticker" type="button" data-x="42" data-y="5.4" data-rot="-5"
+            aria-label="Night radio — play the SERAYAE score" aria-haspopup="dialog">
+      <img src="media/stickers/cassette.png?v=11" width="340" height="227" loading="lazy" decoding="async" alt="" />
+    </button>
+
+    <!-- ── easter-egg artifacts ── -->
+    <button class="artifact artifact-lantern draggable" id="foundingBtn" type="button" data-x="15" data-y="55" data-rot="0" aria-haspopup="dialog" aria-label="Open founding-signal.txt">
       <svg viewBox="0 0 32 40" aria-hidden="true">
         <g stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round">
           <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
@@ -243,7 +279,7 @@
       <span class="mono cap" aria-hidden="true">founding-signal.txt</span>
     </button>
 
-    <button class="artifact artifact-ledger draggable" id="responseBtn" type="button" data-x="5" data-y="91" data-rot="2.4" aria-haspopup="dialog" aria-label="Open first-response.rec">
+    <button class="artifact artifact-ledger draggable" id="responseBtn" type="button" data-r="2" data-y="85" data-rot="2.4" aria-haspopup="dialog" aria-label="Open first-response.rec">
       <svg viewBox="0 0 34 34" aria-hidden="true">
         <rect x="3.5" y="3.5" width="27" height="27" rx="2" stroke="currentColor" stroke-width="1.3" fill="none" />
         <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
@@ -252,6 +288,30 @@
         <circle cx="25" cy="23" r="2.4" fill="currentColor" class="art-flame" />
       </svg>
       <span class="mono cap" aria-hidden="true">first-response.rec</span>
+    </button>
+  </div>
+
+  <!-- ── THE SHELF: five objects on a warm strip at the hero's bottom edge ── -->
+  <div class="shelf" id="shelf" role="group" aria-label="The shelf — five objects">
+    <button class="shelf-item" id="shelfLantern" type="button" aria-label="Lantern — warm the page">
+      <svg viewBox="0 0 24 30" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M12 1.5v3"/><path d="M7.5 4.5h9"/><path d="M8.4 4.5 6.4 24.5h11.2L15.6 4.5"/><path d="M6.4 24.5h11.2"/><path d="M9.8 27h4.4"/></g><circle class="shelf-flame" cx="12" cy="15" r="3.1" fill="currentColor"/></svg>
+      <span class="mono shelf-tip">lantern</span>
+    </button>
+    <button class="shelf-item" id="shelfLedger" type="button" aria-haspopup="dialog" aria-label="Open first-response.rec">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M7 9.5h10"/><path d="M7 14h14"/><path d="M7 18.5h7.5"/></g><circle cx="20.5" cy="18.5" r="2" fill="currentColor" class="shelf-flame"/></svg>
+      <span class="mono shelf-tip">first-response.rec</span>
+    </button>
+    <button class="shelf-item" id="shelfSignal" type="button" aria-haspopup="dialog" aria-label="Open founding-signal.txt">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M14 21.5v.2"/><path d="M9.6 17.4a6 6 0 0 1 8.8 0"/><path d="M5.6 13a11.4 11.4 0 0 1 16.8 0"/><path d="M2 8.6a17 17 0 0 1 24 0"/></g><circle cx="14" cy="22" r="1.9" fill="currentColor" class="shelf-flame"/></svg>
+      <span class="mono shelf-tip">founding-signal.txt</span>
+    </button>
+    <button class="shelf-item" id="shelfRadio" type="button" aria-haspopup="dialog" aria-label="Night radio — play the SERAYAE score">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"><rect x="2.5" y="7.5" width="23" height="13" rx="2"/><circle cx="9" cy="14" r="2.6"/><circle cx="19" cy="14" r="2.6"/><path d="M11.6 14h4.8"/></g></svg>
+      <span class="mono shelf-tip">night-radio.fm</span>
+    </button>
+    <button class="shelf-item" id="shelfEnvelope" type="button" aria-label="Request early access — go to the waitlist">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"><rect x="2.5" y="6" width="23" height="16" rx="2"/><path d="M2.5 8 14 16 25.5 8"/></g></svg>
+      <span class="mono shelf-tip">request access</span>
     </button>
   </div>
 
@@ -468,7 +528,28 @@
     <p class="ticker mono reveal" aria-hidden="true">distance: <span id="tickerV">420m</span> <span class="ticker-k">closing</span></p>
     <p class="note reveal">The app is in closed development. Nothing here is a screenshot.</p>
   </div>
-  <div class="photo-field" data-drag-zone>
+  <div class="photo-field ch6-field" id="ch6Field" data-drag-zone>
+    <!-- the two signal panes that used to crowd the hero now report from the product floor -->
+    <div class="sigwin draggable" data-x="2" data-y="14" data-rot="-2.4" aria-hidden="true">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-sos">
+          <span class="sig-ring"></span><span class="sig-ring"></span><span class="sig-ring"></span>
+          <span class="sig-core"></span>
+          <span class="mono sig-tag">04:47 · signal out</span>
+        </div>
+      </div>
+      <p class="mono cap" aria-hidden="true">sos-0447.sig</p>
+    </div>
+
+    <div class="sigwin sigwin-wide draggable" data-x="1.5" data-y="62" data-rot="2" aria-hidden="true">
+      <div class="win">
+        <div class="win-bar"><span class="lights" aria-hidden="true"><i></i><i class="em"></i><i></i></span></div>
+        <div class="win-body sig-ledger"><table class="mono ledger-rows" id="ledgerRows"><tbody></tbody></table></div>
+      </div>
+      <p class="mono cap" aria-hidden="true">ledger.rec</p>
+    </div>
+
     <figure class="photo photo-sm draggable" data-x="80" data-y="10" data-rot="4.4">
       <img src="media/photos/tinylantern.jpg" width="640" height="480" loading="lazy" decoding="async" alt="A row of vintage matchboxes on a shelf, one open with matches at attention." />
       <figcaption class="mono">one is always awake</figcaption>
@@ -678,14 +759,16 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script defer src="js/network.js?v=10"></script>
-<script defer src="js/ops.js?v=10"></script>
-<script defer src="js/artifacts.js?v=10"></script>
-<script defer src="js/modals.js?v=10"></script>
-<script defer src="js/mosaic.js?v=10"></script>
-<script defer src="js/film.js?v=10"></script>
-<script defer src="js/photos.js?v=10"></script>
-<script defer src="js/ambient.js?v=10"></script>
-<script defer src="js/main.js?v=10"></script>
+<script defer src="js/network.js?v=11"></script>
+<script defer src="js/ops.js?v=11"></script>
+<script defer src="js/artifacts.js?v=11"></script>
+<script defer src="js/modals.js?v=11"></script>
+<script defer src="js/mosaic.js?v=11"></script>
+<script defer src="js/film.js?v=11"></script>
+<script defer src="js/clips.js?v=11"></script>
+<script defer src="js/shelf.js?v=11"></script>
+<script defer src="js/photos.js?v=11"></script>
+<script defer src="js/ambient.js?v=11"></script>
+<script defer src="js/main.js?v=11"></script>
 </body>
 </html>

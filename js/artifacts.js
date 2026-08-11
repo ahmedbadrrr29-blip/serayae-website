@@ -19,13 +19,24 @@
       if (compact) {
         /* the console strip is a straight, snapped row: no scatter, no rotation */
         el.style.left = '';
+        el.style.right = '';
         el.style.top = '';
         el.style.transform = '';
         return;
       }
       if (!el.dataset.dragged) {
-        el.style.left = el.dataset.x + '%';
-        el.style.top = el.dataset.y + '%';
+        /* right-anchored artifacts hold their distance from the viewport edge,
+           so the composition survives every desktop width */
+        if (el.dataset.r !== undefined) {
+          el.style.right = el.dataset.r + '%';
+          el.style.left = 'auto';
+        } else {
+          el.style.left = el.dataset.x + '%';
+          el.style.right = 'auto';
+        }
+        /* nothing rides under the fixed masthead, however short the screen gets */
+        const topPx = (parseFloat(el.dataset.y) / 100) * field.clientHeight;
+        el.style.top = Math.max(topPx, 78) + 'px';
       }
       el.style.transform = 'rotate(' + rot + 'deg)';
     });
@@ -51,6 +62,7 @@
       ox = el.offsetLeft; oy = el.offsetTop;
       el.classList.add('dragging');
       el.style.zIndex = ++z;
+      el.style.right = 'auto';
       el.style.left = ox + 'px';
       el.style.top = oy + 'px';
       el.dataset.dragged = '1';
@@ -319,10 +331,17 @@
     logStatic();
     ledgerStatic();
     if ('IntersectionObserver' in window) {
+      /* the hero field and the two panes that moved down to Chapter 06 share
+         one loop and one observer: it runs only while one of them is on screen */
+      const zones = [field, document.getElementById('ch6Field')].filter(Boolean);
+      const seen = new Set();
       const io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) { if (e.isIntersecting) start(); else stop(); });
+        entries.forEach(function (e) {
+          if (e.isIntersecting) seen.add(e.target); else seen.delete(e.target);
+        });
+        if (seen.size) start(); else stop();
       }, { rootMargin: '120px' });
-      io.observe(field);
+      zones.forEach(function (z) { io.observe(z); });
     } else {
       start();
     }
