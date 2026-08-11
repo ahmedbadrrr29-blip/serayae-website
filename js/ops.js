@@ -113,10 +113,13 @@
 
   audio.addEventListener('play', syncUI);
   audio.addEventListener('pause', syncUI);
+  function fmt(s) {
+    s = Math.floor(s);
+    return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+  }
   audio.addEventListener('timeupdate', function () {
-    if (!timeEl || audio.paused) return;
-    var t = Math.floor(audio.currentTime);
-    timeEl.textContent = '0:' + (t < 10 ? '0' : '') + t + ' / 1:00 · loops';
+    if (!timeEl || audio.paused || !isFinite(audio.duration)) return;
+    timeEl.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration) + ' · loops';
   });
 
   document.addEventListener('keydown', function (e) {
