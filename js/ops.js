@@ -5,16 +5,33 @@
 (function () {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ── live clock · CAIRO ── */
+  /* ── live world clock — the network is awake everywhere ── */
   const clock = document.getElementById('opsClock');
+  const clockLabel = document.querySelector('.ops-clock-label');
+  const CITIES = [
+    ['CAIRO', 'Africa/Cairo'],
+    ['LONDON', 'Europe/London'],
+    ['NEW YORK', 'America/New_York'],
+    ['DELHI', 'Asia/Kolkata']
+  ];
+  let cityIdx = 0;
   if (clock) {
     let fmt = null;
-    try {
-      fmt = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Africa/Cairo',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-      });
-    } catch (e) { fmt = null; }
+    function makeFmt(tz) {
+      try {
+        return new Intl.DateTimeFormat('en-GB', {
+          timeZone: tz,
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        });
+      } catch (e) { return null; }
+    }
+    fmt = makeFmt(CITIES[0][1]);
+    /* rotate cities every 7s — SERAYAE is global from day one */
+    window.setInterval(function () {
+      cityIdx = (cityIdx + 1) % CITIES.length;
+      fmt = makeFmt(CITIES[cityIdx][1]);
+      if (clockLabel) clockLabel.textContent = CITIES[cityIdx][0];
+    }, 7000);
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
