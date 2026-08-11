@@ -269,17 +269,17 @@
     </button>
 
     <!-- ── easter-egg artifacts ── -->
-    <button class="artifact artifact-lantern draggable" id="foundingBtn" type="button" data-x="15" data-y="55" data-rot="0" aria-haspopup="dialog" aria-label="Open founding-signal.txt">
+    <div class="artifact artifact-lantern draggable" data-x="15" data-y="55" data-rot="0">
       <svg viewBox="0 0 32 40" aria-hidden="true">
         <g stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round">
           <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
         </g>
         <circle class="art-flame" cx="16" cy="21" r="4" fill="currentColor" />
       </svg>
-      <span class="mono cap" aria-hidden="true">founding-signal.txt</span>
-    </button>
+      <span class="mono cap" aria-hidden="true">the first signal</span>
+    </div>
 
-    <button class="artifact artifact-ledger draggable" id="responseBtn" type="button" data-r="2" data-y="85" data-rot="2.4" aria-haspopup="dialog" aria-label="Open first-response.rec">
+    <div class="artifact artifact-ledger draggable" data-r="2" data-y="85" data-rot="2.4">
       <svg viewBox="0 0 34 34" aria-hidden="true">
         <rect x="3.5" y="3.5" width="27" height="27" rx="2" stroke="currentColor" stroke-width="1.3" fill="none" />
         <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
@@ -287,31 +287,23 @@
         </g>
         <circle cx="25" cy="23" r="2.4" fill="currentColor" class="art-flame" />
       </svg>
-      <span class="mono cap" aria-hidden="true">first-response.rec</span>
-    </button>
+      <span class="mono cap" aria-hidden="true">someone answered</span>
+    </div>
   </div>
 
   <!-- ── THE SHELF: five objects on a warm strip at the hero's bottom edge ── -->
-  <div class="shelf" id="shelf" role="group" aria-label="The shelf — five objects">
+  <div class="shelf" id="shelf" role="group" aria-label="The shelf — three objects">
     <button class="shelf-item" id="shelfLantern" type="button" aria-label="Lantern — warm the page">
       <svg viewBox="0 0 24 30" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M12 1.5v3"/><path d="M7.5 4.5h9"/><path d="M8.4 4.5 6.4 24.5h11.2L15.6 4.5"/><path d="M6.4 24.5h11.2"/><path d="M9.8 27h4.4"/></g><circle class="shelf-flame" cx="12" cy="15" r="3.1" fill="currentColor"/></svg>
-      <span class="mono shelf-tip">lantern</span>
-    </button>
-    <button class="shelf-item" id="shelfLedger" type="button" aria-haspopup="dialog" aria-label="Open first-response.rec">
-      <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M7 9.5h10"/><path d="M7 14h14"/><path d="M7 18.5h7.5"/></g><circle cx="20.5" cy="18.5" r="2" fill="currentColor" class="shelf-flame"/></svg>
-      <span class="mono shelf-tip">first-response.rec</span>
-    </button>
-    <button class="shelf-item" id="shelfSignal" type="button" aria-haspopup="dialog" aria-label="Open founding-signal.txt">
-      <svg viewBox="0 0 28 28" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"><path d="M14 21.5v.2"/><path d="M9.6 17.4a6 6 0 0 1 8.8 0"/><path d="M5.6 13a11.4 11.4 0 0 1 16.8 0"/><path d="M2 8.6a17 17 0 0 1 24 0"/></g><circle cx="14" cy="22" r="1.9" fill="currentColor" class="shelf-flame"/></svg>
-      <span class="mono shelf-tip">founding-signal.txt</span>
+      <span class="mono shelf-tip">light the lantern</span>
     </button>
     <button class="shelf-item" id="shelfRadio" type="button" aria-haspopup="dialog" aria-label="Night radio — play the SERAYAE score">
       <svg viewBox="0 0 28 28" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"><rect x="2.5" y="7.5" width="23" height="13" rx="2"/><circle cx="9" cy="14" r="2.6"/><circle cx="19" cy="14" r="2.6"/><path d="M11.6 14h4.8"/></g></svg>
-      <span class="mono shelf-tip">night-radio.fm</span>
+      <span class="mono shelf-tip">night radio</span>
     </button>
     <button class="shelf-item" id="shelfEnvelope" type="button" aria-label="Request early access — go to the waitlist">
       <svg viewBox="0 0 28 28" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"><rect x="2.5" y="6" width="23" height="16" rx="2"/><path d="M2.5 8 14 16 25.5 8"/></g></svg>
-      <span class="mono shelf-tip">request access</span>
+      <span class="mono shelf-tip">join the waitlist</span>
     </button>
   </div>
 
@@ -666,7 +658,6 @@
     <p class="footer-cat">Human Response Infrastructure</p>
     <p class="footer-tag">Built For Each Other.</p>
     <p class="footer-c">© 2026 SERAYAE</p>
-    <p class="footer-credits mono">hero footage: Alan W · Svita Nova · 雄一 田山 · cottonbro · Volkan Yılmaz · Yan Krukau, via Pexels</p>
   </div>
 
   <nav class="wrap footer-social" aria-label="SERAYAE elsewhere">
@@ -696,52 +687,7 @@
 </footer>
 
 <!-- ══════════ EASTER-EGG MODALS ══════════ -->
-<div class="modal" id="modalFounding" hidden>
-  <div class="modal-scrim" data-close></div>
-  <div class="win modal-win" role="dialog" aria-modal="true" aria-label="founding-signal.txt">
-    <div class="win-bar">
-      <span class="lights"><i aria-hidden="true"></i><button class="em close" type="button" data-close aria-label="Close founding-signal.txt"></button><i aria-hidden="true"></i></span>
-      <span class="mono win-name">founding-signal.txt</span>
-      <span class="mono win-meta">read-only</span>
-    </div>
-    <div class="win-body modal-body">
-      <pre class="mono type" id="foundingType" aria-live="polite"></pre>
-      <p class="mono modal-foot">— the founding signal · SERAYAE</p>
-    </div>
-  </div>
-</div>
 
-<div class="modal" id="modalResponse" hidden>
-  <div class="modal-scrim" data-close></div>
-  <div class="win modal-win modal-win-wide" role="dialog" aria-modal="true" aria-label="first-response.rec">
-    <div class="win-bar">
-      <span class="lights"><i aria-hidden="true"></i><button class="em close" type="button" data-close aria-label="Close first-response.rec"></button><i aria-hidden="true"></i></span>
-      <span class="mono win-name">first-response.rec</span>
-      <span class="mono win-meta" id="recClock">00:00</span>
-    </div>
-    <div class="win-body modal-body">
-      <div class="rec-stage">
-        <svg class="rec-svg" id="recSvg" viewBox="0 0 520 260" aria-hidden="true">
-          <g class="rec-links" stroke="rgba(245,242,236,0.26)" stroke-width="1.2" fill="none">
-            <path d="M110 190 L250 130" /><path d="M410 70 L250 130" /><path d="M420 200 L250 130" /><path d="M96 70 L250 130" />
-          </g>
-          <path class="rec-route" id="recRoute" d="M420 200 C360 196 320 168 250 130" fill="none" />
-          <circle class="rec-pulse" id="recPulse" cx="250" cy="130" r="6" fill="none" />
-          <circle class="rec-caller" cx="250" cy="130" r="4.4" />
-          <circle class="rec-node g1" cx="110" cy="190" r="3.2" />
-          <circle class="rec-node g2" cx="410" cy="70" r="3.2" />
-          <circle class="rec-node g3" cx="96" cy="70" r="3.2" />
-          <circle class="rec-responder" id="recResponder" cx="420" cy="200" r="4" />
-        </svg>
-        <ol class="mono rec-log" id="recLog"></ol>
-      </div>
-      <div class="rec-foot">
-        <p class="mono rec-result" id="recResult"></p>
-        <button class="btn btn-ghost btn-sm" type="button" id="recReplay"><span>Replay</span></button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ══════ THE FILM · FULL-BLEED LIGHTBOX ══════ -->
 <div class="modal film-modal" id="filmModal" hidden>
@@ -763,11 +709,11 @@
 <script defer src="js/network.js?v=12"></script>
 <script defer src="js/ops.js?v=12"></script>
 <script defer src="js/artifacts.js?v=12"></script>
-<script defer src="js/modals.js?v=12"></script>
+<script defer src="js/modals.js?v=13"></script>
 <script defer src="js/mosaic.js?v=12"></script>
 <script defer src="js/film.js?v=12"></script>
 <script defer src="js/clips.js?v=12"></script>
-<script defer src="js/shelf.js?v=12"></script>
+<script defer src="js/shelf.js?v=13"></script>
 <script defer src="js/photos.js?v=12"></script>
 <script defer src="js/ambient.js?v=12"></script>
 <script defer src="js/main.js?v=12"></script>

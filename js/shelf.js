@@ -13,12 +13,6 @@
   var lantern = document.getElementById('shelfLantern');
   if (lantern) lantern.addEventListener('click', function () { click('lanternBtn'); });
 
-  var ledger = document.getElementById('shelfLedger');
-  if (ledger) ledger.addEventListener('click', function () { click('responseBtn'); });
-
-  var signal = document.getElementById('shelfSignal');
-  if (signal) signal.addEventListener('click', function () { click('foundingBtn'); });
-
   /* the radio closes itself on any outside click, and our own click is still
      bubbling toward document — so open it on the next tick, after that pass */
   function openRadioDeferred() {

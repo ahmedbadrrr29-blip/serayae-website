@@ -906,10 +906,3 @@ html.js .freeze-copy p { opacity: 0; }
   .freeze-line { opacity: 0.8; transform: none; }
   .ember-light { left: 74%; top: 30%; opacity: 0.55; width: 20vmin; height: 20vmin; margin: -10vmin 0 0 -10vmin; }
 }
-.footer-credits {
-  width: 100%;
-  margin: 0.35rem 0 0;
-  font-size: 0.5625rem;
-  letter-spacing: 0.08em;
-  color: var(--ivory-45);
-}
