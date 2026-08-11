@@ -1,7 +1,0 @@
-shelf lantern (body.warmed) : PASS
-shelf ledger (#modalResponse): PASS
-  esc closes                : PASS
-shelf signal (#modalFounding): PASS | typing: 3
-shelf radio (#radioWidget)  : FAIL | aria-expanded false
-cassette sticker            : FAIL
-shelf envelope (waitlist)   : PASS | focus: INPUT.email
