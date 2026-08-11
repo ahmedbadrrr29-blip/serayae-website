@@ -24,7 +24,7 @@
   --ivory-85: rgba(29, 36, 46, 0.92);
   --ivory-70: rgba(29, 36, 46, 0.78);
   --ivory-60: rgba(29, 36, 46, 0.68);
-  --ivory-45: rgba(29, 36, 46, 0.62);
+  --ivory-45: rgba(29, 36, 46, 0.66);
   --ivory-32: rgba(29, 36, 46, 0.4);
   --ivory-24: rgba(29, 36, 46, 0.3);
   --ivory-16: rgba(29, 36, 46, 0.18);
@@ -74,7 +74,6 @@
 .day .photo figcaption { text-shadow: none; }
 .day .artifact { color: rgba(29, 36, 46, 0.8); }
 .day .artifact:hover { color: var(--ink); }
-.day .artifact .cap { color: rgba(29, 36, 46, 0.62); }
 
 /* ── ghost button on paper ── */
 .day .btn-ghost {
@@ -118,7 +117,7 @@
 .day .field .note-morse p { color: rgba(29, 36, 46, 0.8); }
 
 /* ══════════ 01 · HERO ══════════ */
-#ch1.day .scroll-hint { color: rgba(29, 36, 46, 0.62); }
+#ch1.day .scroll-hint { color: rgba(29, 36, 46, 0.66); }
 
 /* ══════════ 02 · THE ROADS, DRAWN IN INK ══════════ */
 /* dark lines on paper: a hand-drawn map coming alive */
@@ -130,6 +129,16 @@
     rgba(245, 242, 236, 0.72) 42%,
     rgba(245, 242, 236, 0) 72%);
 }
+
+/* ── AA on paper: the document's original ink alphas were tuned for a page
+   that only appeared once. On the new ivory ground every one of them is body
+   copy, so they all clear 4.5:1. ── */
+#ch4.day .chapter-no,
+#ch4.day .category { color: rgba(29, 36, 46, 0.66); }
+#ch4.day .ledger-row dd { color: rgba(29, 36, 46, 0.66); }
+#ch4.day .seal-k { color: rgba(29, 36, 46, 0.66); }
+#ch6.day .ticker-k { color: rgba(29, 36, 46, 0.66); }
+.day .artifact .cap { color: rgba(29, 36, 46, 0.66); }
 
 /* ══════════ 04 · THE FOUNDING DOCUMENT ══════════ */
 /* it now shares the ground, so it keeps its identity with a hairline frame
@@ -149,7 +158,6 @@
 #ch6.day .g-eye .g-pupil { fill: var(--ember); }
 #ch6.day .g-flow circle { stroke: var(--ember); }
 #ch6.day .sos-dot { box-shadow: 0 0 14px 3px rgba(189, 49, 3, 0.28); }
-#ch6.day .ticker-k { color: rgba(29, 36, 46, 0.5); }
 
 /* ══════════ THE PERSISTENT EMBER LIGHT ON PAPER ══════════ */
 /* On night it glows behind the page. On ivory the page is opaque, so the light
@@ -158,16 +166,16 @@
 body:not(.night-ground) .ember-light {
   z-index: 6;
   background: radial-gradient(circle,
-    rgba(189, 49, 3, 0.2) 0%,
-    rgba(189, 49, 3, 0.09) 32%,
-    rgba(189, 49, 3, 0) 66%);
+    rgba(189, 49, 3, 0.1) 0%,
+    rgba(189, 49, 3, 0.04) 22%,
+    rgba(189, 49, 3, 0) 48%);
 }
 body:not(.night-ground) .ember-core {
-  box-shadow:
-    0 0 0 1px rgba(189, 49, 3, 0.5),
-    0 0 12px 3px rgba(217, 88, 31, 0.75),
-    0 0 34px 10px rgba(189, 49, 3, 0.3);
+  width: 7px; height: 7px;
   background: var(--ember);
+  box-shadow:
+    0 0 0 3px rgba(189, 49, 3, 0.14),
+    0 0 10px 2px rgba(217, 88, 31, 0.45);
 }
 
 /* ══════════ THE OPS BAR ══════════ */
