@@ -519,9 +519,10 @@ html:not(.js) .nobody { opacity: 1; }
   width: clamp(7px, 1.05vw, 15px);
   height: clamp(9px, 1.3vw, 19px);
   border-radius: 1.5px;
-  /* unlit windows: a paler ember than the lit ones — dawn glass */
-  background: rgba(232, 128, 31, 0.09);
-  box-shadow: inset 0 0 0 1px rgba(189, 49, 3, 0.08);
+  /* unlit cells are invisible — the word is made only of lit windows,
+     but hovering the empty air still turns a light on */
+  background: transparent;
+  box-shadow: none;
   transition: background 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
 /* hover any dark window: the light comes on */
@@ -540,14 +541,6 @@ html.js .mosaic.go i.on { animation: windowOn 0.5s var(--ease) forwards; }
   0% { opacity: 0; }
   55% { opacity: 1; box-shadow: 0 0 14px 3px rgba(255, 146, 87, 0.5); }
   100% { opacity: 1; }
-}
-.mosaic-cap {
-  margin: 1.75rem 0 0;
-  text-align: center;
-  font-size: 0.5625rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--ivory-32);
 }
 @media (prefers-reduced-motion: reduce) {
   html.js .mosaic i.on, html.js .mosaic.go i.on { opacity: 1; animation: none; }

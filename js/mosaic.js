@@ -35,6 +35,12 @@
       if (col && col[r]) {
         dot.className = 'on';
         dot.style.animationDelay = (ci * 0.032 + Math.random() * 0.14).toFixed(3) + 's';
+        /* hand-placed feel: each window sits slightly off-true */
+        var jr = (Math.random() * 7 - 3.5).toFixed(2);
+        var js_ = (0.94 + Math.random() * 0.16).toFixed(3);
+        var jx = (Math.random() * 2.4 - 1.2).toFixed(2);
+        var jy = (Math.random() * 2.4 - 1.2).toFixed(2);
+        dot.style.transform = 'translate(' + jx + 'px,' + jy + 'px) rotate(' + jr + 'deg) scale(' + js_ + ')';
       }
       frag.appendChild(dot);
     }
