@@ -84,9 +84,35 @@
       <span class="ops-pop" role="tooltip">
         <span class="mono ops-pop-k">NETWORK · LISTENING</span>
         <span class="viz" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-        <span class="mono ops-pop-hint">click to listen</span>
+        <span class="mono ops-pop-hint">all signals monitored</span>
       </span>
     </button>
+
+    <!-- night radio: real music player (the film's score) -->
+    <button class="ops-item ops-radio" id="radioBtn" type="button" aria-pressed="false" aria-expanded="false" aria-controls="radioWidget" aria-label="night radio — play the SERAYAE score">
+      <svg class="ops-ico" viewBox="0 0 16 16" aria-hidden="true"><g stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5V8a5 5 0 0 1 10 0v1.5"/><rect x="2" y="9.5" width="2.6" height="4" rx="1.1"/><rect x="11.4" y="9.5" width="2.6" height="4" rx="1.1"/></g></svg>
+      <span class="ops-pop" role="tooltip">
+        <span class="mono ops-pop-k">NIGHT RADIO</span>
+        <span class="mono ops-pop-hint">click to play</span>
+      </span>
+    </button>
+
+    <div class="radio-widget" id="radioWidget" hidden>
+      <div class="console-chrome" aria-hidden="true"><i></i><i class="lit"></i><i></i></div>
+      <p class="mono radio-file">night-radio.fm</p>
+      <div class="radio-row">
+        <button class="radio-play" id="radioPlay" type="button" aria-label="Play">
+          <svg viewBox="0 0 16 16" aria-hidden="true" class="radio-ico-play"><path fill="currentColor" d="M5 3.5v9l7.5-4.5z"/></svg>
+          <svg viewBox="0 0 16 16" aria-hidden="true" class="radio-ico-pause" hidden><path fill="currentColor" d="M4.5 3.5h2.5v9H4.5zM9 3.5h2.5v9H9z"/></svg>
+        </button>
+        <div class="radio-meta">
+          <span class="radio-title">Built For Each Other — Original Score</span>
+          <span class="mono radio-sub" id="radioTime">60s · loops</span>
+        </div>
+        <span class="radio-eq" id="radioEq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+      <audio id="radioAudio" src="media/night-radio.m4a" loop preload="none"></audio>
+    </div>
 
     <!-- presence: hover flyout -->
     <span class="ops-item ops-presence" tabindex="0" role="img" aria-label="Presence: 3 guardians linked">

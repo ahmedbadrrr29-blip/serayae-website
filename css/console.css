@@ -746,6 +746,7 @@ body.modal-open { overflow: hidden; }
   .ops-clock-label { display: none; }
   /* the bar keeps only what a phone can read: mark, clock, the one CTA */
   .ops-wifi, .ops-presence, .ops-lantern { display: none; }
+  .ops-radio { display: flex; } /* music survives the phone */
   .ops-clock { font-size: 0.6875rem; }
   .nav-cta { white-space: nowrap; font-size: 0.6875rem; padding: 0.55rem 0.8rem; letter-spacing: 0.06em; }
   .btn-ember.nav-cta { padding-left: 1.75rem; }
@@ -767,4 +768,72 @@ body.modal-open { overflow: hidden; }
   .nobody { opacity: 1; }
   .mosaic i.on { background: var(--ivory-45); }
   body.signalOn .listen-pulse { animation: none; opacity: 0.5; }
+}
+
+/* ═══ night radio ═══ */
+.radio-widget {
+  position: fixed;
+  top: calc(var(--nav-h, 64px) + 10px);
+  right: var(--gut);
+  z-index: 30;
+  width: min(340px, calc(100vw - 24px));
+  background: var(--ink);
+  border: 1px solid rgba(245, 242, 236, 0.16);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem 0.9rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+.radio-widget .console-chrome { display: flex; gap: 5px; margin-bottom: 0.55rem; }
+.radio-widget .console-chrome i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(245, 242, 236, 0.22);
+}
+.radio-widget .console-chrome i.lit { background: var(--ember); }
+.radio-file {
+  margin: 0 0 0.6rem;
+  font-size: 0.625rem; letter-spacing: 0.22em;
+  color: var(--ivory-45);
+  text-transform: uppercase;
+}
+.radio-row { display: flex; align-items: center; gap: 0.8rem; }
+.radio-play {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: var(--ember); color: var(--ivory);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.25s var(--ease), transform 0.25s var(--ease);
+  flex: none;
+}
+.radio-play:hover { background: var(--ember-soft); transform: scale(1.05); }
+.radio-play svg { width: 16px; height: 16px; }
+.radio-meta { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.radio-title {
+  font-size: 0.8125rem; font-weight: 500; color: var(--ivory);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.radio-sub { font-size: 0.625rem; letter-spacing: 0.14em; color: var(--ivory-45); }
+.radio-eq { display: flex; align-items: flex-end; gap: 2.5px; height: 16px; margin-left: auto; flex: none; }
+.radio-eq i {
+  width: 2.5px; height: 4px; border-radius: 1px;
+  background: var(--ivory-24);
+}
+.radio-widget.playing .radio-eq i {
+  background: var(--ember);
+  animation: eqDance 0.9s ease-in-out infinite;
+}
+.radio-widget.playing .radio-eq i:nth-child(2) { animation-delay: 0.15s; }
+.radio-widget.playing .radio-eq i:nth-child(3) { animation-delay: 0.3s; }
+.radio-widget.playing .radio-eq i:nth-child(4) { animation-delay: 0.1s; }
+.radio-widget.playing .radio-eq i:nth-child(5) { animation-delay: 0.25s; }
+@keyframes eqDance {
+  0%, 100% { height: 4px; }
+  50% { height: 14px; }
+}
+.ops-radio[aria-pressed="true"] { color: var(--ember-soft); }
+@media (prefers-reduced-motion: reduce) {
+  .radio-widget.playing .radio-eq i { animation: none; height: 10px; }
+  .radio-play { transition: none; }
+}
+@media (max-width: 560px) {
+  .radio-widget { right: 12px; }
 }

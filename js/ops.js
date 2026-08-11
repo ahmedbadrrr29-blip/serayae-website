@@ -78,3 +78,58 @@
     });
   }
 })();
+
+/* ── night radio: the film's score, played on request ── */
+(function () {
+  var btn = document.getElementById('radioBtn');
+  var widget = document.getElementById('radioWidget');
+  var play = document.getElementById('radioPlay');
+  var audio = document.getElementById('radioAudio');
+  if (!btn || !widget || !play || !audio) return;
+  var icoPlay = play.querySelector('.radio-ico-play');
+  var icoPause = play.querySelector('.radio-ico-pause');
+  var timeEl = document.getElementById('radioTime');
+  audio.volume = 0.65;
+
+  function syncUI() {
+    var playing = !audio.paused;
+    widget.classList.toggle('playing', playing);
+    btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    play.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    if (icoPlay) icoPlay.hidden = playing;
+    if (icoPause) icoPause.hidden = !playing;
+  }
+
+  btn.addEventListener('click', function () {
+    var open = widget.hidden;
+    widget.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  play.addEventListener('click', function () {
+    if (audio.paused) { audio.play().catch(function () {}); }
+    else { audio.pause(); }
+  });
+
+  audio.addEventListener('play', syncUI);
+  audio.addEventListener('pause', syncUI);
+  audio.addEventListener('timeupdate', function () {
+    if (!timeEl || audio.paused) return;
+    var t = Math.floor(audio.currentTime);
+    timeEl.textContent = '0:' + (t < 10 ? '0' : '') + t + ' / 1:00 · loops';
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !widget.hidden) {
+      widget.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+  });
+  document.addEventListener('click', function (e) {
+    if (!widget.hidden && !widget.contains(e.target) && !btn.contains(e.target)) {
+      widget.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
