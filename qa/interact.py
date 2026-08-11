@@ -34,33 +34,31 @@ with sync_playwright() as p:
     a, b = drag(pg, ".note", 60, 70)
     print("drag note          :", ok(abs(b["y"] - a["y"]) > 30), a["y"], "->", b["y"])
 
-    # shelf: lantern (day theme toggle)
-    day0 = pg.evaluate("document.body.classList.contains('day') || document.querySelector('.hero').classList.contains('day')")
-    pg.click("#shelfLantern")
-    pg.wait_for_timeout(700)
-    day1 = pg.evaluate("document.body.classList.contains('day') || document.querySelector('.hero').classList.contains('day')")
-    print("shelf lantern      :", ok(day0 != day1), day0, "->", day1)
-    pg.click("#shelfLantern")
-    pg.wait_for_timeout(500)
+    # ── shelf: five real actions, each checked against its own target state ──
+    pg.evaluate("document.body.classList.remove('warmed')")
+    pg.click("#shelfLantern"); pg.wait_for_timeout(400)
+    print("shelf lantern      :", ok(pg.evaluate("document.body.classList.contains('warmed')")), "body.warmed")
 
-    def modal_open():
-        return pg.evaluate(
-            "[...document.querySelectorAll('.modal,[role=dialog],.ops-pop')].some(m=>m.classList.contains('open')||m.getAttribute('aria-hidden')==='false'||getComputedStyle(m).display!=='none'&&getComputedStyle(m).visibility!=='hidden'&&m.getBoundingClientRect().height>40)"
-        )
+    pg.click("#shelfLedger"); pg.wait_for_timeout(500)
+    print("shelf ledger       :", ok(pg.evaluate("!document.getElementById('modalResponse').hidden")), "#modalResponse open")
+    pg.keyboard.press("Escape"); pg.wait_for_timeout(400)
+    print("  escape closes it :", ok(pg.evaluate("document.getElementById('modalResponse').hidden")))
 
-    for name, sel in [("ledger", "#shelfLedger"), ("signal", "#shelfSignal"), ("radio", "#shelfRadio")]:
-        pg.keyboard.press("Escape")
-        pg.wait_for_timeout(300)
-        before = modal_open()
-        pg.click(sel)
-        pg.wait_for_timeout(800)
-        print(f"shelf {name:<12}:", ok(modal_open() and not before), "modal open =", modal_open())
-    pg.keyboard.press("Escape")
-    pg.wait_for_timeout(400)
+    pg.click("#shelfSignal"); pg.wait_for_timeout(700)
+    print("shelf signal       :", ok(pg.evaluate("!document.getElementById('modalFounding').hidden")),
+          "#modalFounding open, typing", pg.evaluate("document.getElementById('foundingType').textContent.length"), "chars")
+    pg.keyboard.press("Escape"); pg.wait_for_timeout(400)
 
-    pg.click("#shelfEnvelope")
-    pg.wait_for_timeout(1400)
-    print("shelf envelope     :", ok(pg.evaluate("(()=>{const w=document.querySelector('#waitlist');const r=w.getBoundingClientRect();return r.top<window.innerHeight*0.8 && r.bottom>0})()")))
+    pg.click("#shelfRadio"); pg.wait_for_timeout(700)
+    print("shelf radio        :", ok(pg.evaluate("!document.getElementById('radioWidget').hidden")), "#radioWidget open")
+    pg.click("#cassetteSticker"); pg.wait_for_timeout(500)
+    print("cassette sticker   :", ok(pg.evaluate("!document.getElementById('radioWidget').hidden")), "radio stays open")
+    pg.click("#radioBtn"); pg.wait_for_timeout(300)
+
+    pg.evaluate("window.scrollTo(0,0)"); pg.wait_for_timeout(500)
+    pg.click("#shelfEnvelope"); pg.wait_for_timeout(2200)
+    print("shelf envelope     :", ok(pg.evaluate("(()=>{const r=document.getElementById('waitlist').getBoundingClientRect();return r.top<window.innerHeight&&r.bottom>0})()")),
+          "waitlist in view, focus", pg.evaluate("document.activeElement.tagName"))
 
     # offscreen pausing
     pg.evaluate("window.scrollTo(0,0)")
@@ -97,7 +95,8 @@ with sync_playwright() as p:
         pg.locator(sel).scroll_into_view_if_needed()
         pg.locator(sel).tap()
         pg.wait_for_timeout(700)
-        print(f"mobile {sel:<12}:", ok(pg.evaluate("[...document.querySelectorAll('.modal,[role=dialog]')].some(m=>m.getBoundingClientRect().height>40&&getComputedStyle(m).visibility!=='hidden')")))
+        target = "modalResponse" if sel == "#shelfLedger" else "radioWidget"
+        print(f"mobile {sel:<12}:", ok(pg.evaluate(f"!document.getElementById('{target}').hidden")), target, "open")
     pg.keyboard.press("Escape")
     pg.wait_for_timeout(300)
     pg.evaluate("window.scrollTo(0, document.body.scrollHeight)")
