@@ -171,8 +171,9 @@
   font-size: 0.5rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ivory-85);
-  background: var(--night);
+  /* literal values: this chip is always night-on-ivory, immune to day-theme var remapping */
+  color: rgba(245, 242, 236, 0.92);
+  background: #0e0c0a;
   border: 1px solid rgba(245, 242, 236, 0.16);
   border-radius: 3px;
   opacity: 0;
