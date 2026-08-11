@@ -256,8 +256,8 @@
   z-index: -1;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(14, 12, 10, 0.92) 0%, rgba(14, 12, 10, 0.34) 34%, rgba(14, 12, 10, 0.55) 72%, rgba(14, 12, 10, 0.96) 100%),
-    radial-gradient(60% 60% at 62% 44%, rgba(189, 49, 3, 0.16), transparent 70%);
+    linear-gradient(180deg, rgba(14, 12, 10, 0.72) 0%, rgba(14, 12, 10, 0.12) 34%, rgba(14, 12, 10, 0.3) 72%, rgba(14, 12, 10, 0.88) 100%),
+    radial-gradient(60% 60% at 62% 44%, rgba(189, 49, 3, 0.12), transparent 70%);
 }
 .band-copy { max-width: 1180px; }
 .band-line {
