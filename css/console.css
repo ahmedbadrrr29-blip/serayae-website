@@ -512,18 +512,16 @@ html:not(.js) .nobody { opacity: 1; }
   gap: clamp(3px, 0.55vw, 7px);
   grid-auto-flow: column;
   grid-template-rows: repeat(7, auto);
-  padding: clamp(10px, 1.4vw, 18px);
-  background: #14100c;
-  border: 1px solid rgba(245, 242, 236, 0.08);
-  border-radius: 4px;
+  padding: 0;
 }
 .mosaic i {
   display: block;
   width: clamp(7px, 1.05vw, 15px);
   height: clamp(9px, 1.3vw, 19px);
   border-radius: 1.5px;
-  background: rgba(245, 242, 236, 0.05);
-  box-shadow: inset 0 0 0 1px rgba(245, 242, 236, 0.07);
+  /* unlit windows: a paler ember than the lit ones — dawn glass */
+  background: rgba(232, 128, 31, 0.09);
+  box-shadow: inset 0 0 0 1px rgba(189, 49, 3, 0.08);
   transition: background 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
 /* hover any dark window: the light comes on */
@@ -533,8 +531,8 @@ html:not(.js) .nobody { opacity: 1; }
   transition-duration: 0.08s;
 }
 .mosaic i.on {
-  background: linear-gradient(180deg, #ffe4c8 0%, #ee9a3e 70%, #d9581f 100%);
-  box-shadow: 0 0 9px 1px rgba(255, 146, 87, 0.28);
+  background: linear-gradient(180deg, #ffc98f 0%, #e8801f 55%, #bd3103 100%);
+  box-shadow: 0 0 12px 2px rgba(217, 88, 31, 0.45);
 }
 html.js .mosaic i.on { opacity: 0; }
 html.js .mosaic.go i.on { animation: windowOn 0.5s var(--ease) forwards; }
@@ -544,7 +542,7 @@ html.js .mosaic.go i.on { animation: windowOn 0.5s var(--ease) forwards; }
   100% { opacity: 1; }
 }
 .mosaic-cap {
-  margin: 0.9rem 0 0;
+  margin: 1.75rem 0 0;
   text-align: center;
   font-size: 0.5625rem;
   letter-spacing: 0.18em;
