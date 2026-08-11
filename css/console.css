@@ -880,3 +880,13 @@ body.modal-open { overflow: hidden; }
 }
 .radio-hint a { color: var(--ivory-60); }
 .radio-hint a:hover { color: var(--ivory); }
+
+/* english whisper under the arabic field notes */
+.field .note-en {
+  font-size: 0.5rem !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(29, 36, 46, 0.48);
+  margin-top: 3px !important;
+  text-align: center;
+}
