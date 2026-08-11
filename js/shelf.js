@@ -62,3 +62,10 @@
     });
   }
 })();
+
+/* release focus after mouse clicks so tooltips never stick open */
+document.querySelectorAll('.shelf-item').forEach(function (el) {
+  el.addEventListener('click', function () {
+    window.setTimeout(function () { el.blur(); }, 80);
+  });
+});
