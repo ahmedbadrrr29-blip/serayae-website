@@ -34,11 +34,24 @@
       const dot = document.createElement('i');
       if (col && col[r]) {
         dot.className = 'on';
-        dot.style.animationDelay = (ci * 0.055).toFixed(3) + 's';
+        dot.style.animationDelay = (ci * 0.032 + Math.random() * 0.14).toFixed(3) + 's';
       }
       frag.appendChild(dot);
     }
   });
   host.style.gridTemplateRows = 'repeat(' + ROWS + ', auto)';
   host.appendChild(frag);
+
+  /* light the building only when it scrolls into view */
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) {
+        host.classList.add('go');
+        io.disconnect();
+      }
+    }, { threshold: 0.25 });
+    io.observe(host);
+  } else {
+    host.classList.add('go');
+  }
 })();

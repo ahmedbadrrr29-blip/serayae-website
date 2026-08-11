@@ -906,3 +906,117 @@ html.js .freeze-copy p { opacity: 0; }
   .freeze-line { opacity: 0.8; transform: none; }
   .ember-light { left: 74%; top: 30%; opacity: 0.55; width: 20vmin; height: 20vmin; margin: -10vmin 0 0 -10vmin; }
 }
+
+/* ══════════ THE LETTER — a note from the founder ══════════ */
+.letter-ch {
+  padding: clamp(5rem, 12vh, 9rem) 0 clamp(5rem, 12vh, 9rem);
+}
+.letter {
+  max-width: 40rem;
+  margin: 2.5rem auto 0;
+  background: #fbf9f3;
+  border: 1px solid rgba(29, 36, 46, 0.12);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 2px rgba(29, 36, 46, 0.06),
+    0 24px 48px -24px rgba(29, 36, 46, 0.35);
+  transform: rotate(-0.35deg);
+}
+.letter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid rgba(29, 36, 46, 0.1);
+}
+.letter-lights { display: inline-flex; gap: 5px; }
+.letter-lights i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: rgba(29, 36, 46, 0.14);
+}
+.letter-lights i:first-child { background: rgba(189, 49, 3, 0.55); }
+.letter-name {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(29, 36, 46, 0.55);
+}
+.letter-body {
+  padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1.25rem, 5vw, 3rem) 0.5rem;
+}
+.letter-body p {
+  margin: 0 0 1.15em;
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  line-height: 1.65;
+  color: rgba(29, 36, 46, 0.88);
+}
+.letter-body .letter-list { color: rgba(29, 36, 46, 0.62); }
+.letter-body mark {
+  background: rgba(189, 49, 3, 0.13);
+  color: #8c2402;
+  padding: 0.1em 0.25em;
+  border-radius: 2px;
+}
+.letter-body strong { font-weight: 700; color: var(--ink, #1d242e); }
+.letter-body .letter-q {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+  line-height: 1.35;
+  color: var(--ink, #1d242e);
+}
+.letter-sig {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem clamp(1.25rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.25rem);
+}
+.letter-face {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(29, 36, 46, 0.15);
+}
+.letter-who {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink, #1d242e);
+}
+.letter-who em {
+  font-style: normal;
+  font-weight: 400;
+  color: rgba(29, 36, 46, 0.55);
+}
+.letter-hand {
+  margin-left: auto;
+  font-family: 'Caveat', cursive;
+  font-weight: 600;
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  color: #a82b03;
+  transform: rotate(-4deg);
+}
+@media (max-width: 560px) {
+  .letter { transform: none; }
+  .letter-hand { font-size: 1.6rem; }
+}
+
+/* ══════════ EMBER CURSOR TRAIL — the light follows you ══════════ */
+.trail-ember {
+  position: fixed;
+  left: 0; top: 0;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 80;
+  background: radial-gradient(circle at 35% 35%, #ffd9b8 0%, #ff9257 45%, #bd3103 100%);
+  box-shadow: 0 0 10px 2px rgba(255, 146, 87, 0.35);
+  opacity: 0;
+  animation: trail-fade 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes trail-fade {
+  0%   { opacity: 0.9; transform: translate(-50%, -50%) scale(0.55); }
+  100% { opacity: 0;   transform: translate(-50%, -62%) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trail-ember { display: none; }
+}

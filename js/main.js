@@ -234,6 +234,7 @@
     ['#ch4 .reveal', 0.1],
     ['#ch5 .reveal', 0.08],
     ['#ch6 .reveal', 0.07],
+    ['#letter .reveal', 0.12],
     ['#voices .reveal', 0.09],
     ['#ch7 .reveal', 0.16],
     ['#waitlist .display, #waitlist .wl-form, #waitlist .wl-privacy', 0.12]

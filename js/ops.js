@@ -28,9 +28,15 @@
     fmt = makeFmt(CITIES[0][1]);
     /* rotate cities every 7s — SERAYAE is global from day one */
     window.setInterval(function () {
+      /* if the city label is hidden (mobile), a silently changing timezone
+         would just look like a broken clock — stay on Cairo there */
+      if (!clockLabel || clockLabel.offsetParent === null) {
+        if (cityIdx !== 0) { cityIdx = 0; fmt = makeFmt(CITIES[0][1]); }
+        return;
+      }
       cityIdx = (cityIdx + 1) % CITIES.length;
       fmt = makeFmt(CITIES[cityIdx][1]);
-      if (clockLabel) clockLabel.textContent = CITIES[cityIdx][0];
+      clockLabel.textContent = CITIES[cityIdx][0];
     }, 7000);
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
