@@ -1,0 +1,185 @@
+/* ═══ SERAYAE V7 — THE DAWN FLIP ═══
+   Ivory is now the ground. Night is reserved for the emotional core
+   (ch3 · the band · ch5 · voices → ch7 → waitlist → footer).
+   Hard cuts only: every ivory section paints an opaque ground, so the
+   boundary between grounds is a cut, never a gradient.
+   Zero per-frame cost: pure CSS + the existing GSAP boundary triggers. */
+
+/* ══════════ THE IVORY GROUND ══════════ */
+.day {
+  position: relative;
+  background-color: #f5f2ec;
+  /* Clicky-style wallpaper: ink dot grid, plus a whisper of ink grain.
+     Static background layers — nothing animates, nothing recomputes on scroll. */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23d)' opacity='0.085'/%3E%3C/svg%3E"),
+    radial-gradient(rgba(29, 36, 46, 0.13) 1px, transparent 1px);
+  background-size: 170px 170px, 26px 26px;
+  background-position: 0 0, 0 0;
+  background-repeat: repeat, repeat;
+  color: var(--ink);
+
+  /* ivory-XX text tokens become ink at matching (AA-verified) alphas */
+  --ivory: #1d242e;
+  --ivory-85: rgba(29, 36, 46, 0.92);
+  --ivory-70: rgba(29, 36, 46, 0.78);
+  --ivory-60: rgba(29, 36, 46, 0.68);
+  --ivory-45: rgba(29, 36, 46, 0.62);
+  --ivory-32: rgba(29, 36, 46, 0.4);
+  --ivory-24: rgba(29, 36, 46, 0.3);
+  --ivory-16: rgba(29, 36, 46, 0.18);
+  --ivory-10: rgba(29, 36, 46, 0.1);
+  /* the light still reads as ember on paper — just deeper, so it passes AA */
+  --ember-hi: #a82b03;
+  --ember-lit: #8c2402;
+}
+
+/* dark console panes keep the night inside them (Clicky contrast:
+   ink windows sitting on the light ground) — restore the night tokens */
+.day .win,
+.day .modal,
+.day .ops-pop {
+  --ivory: #f5f2ec;
+  --ivory-85: rgba(245, 242, 236, 0.85);
+  --ivory-70: rgba(245, 242, 236, 0.7);
+  --ivory-60: rgba(245, 242, 236, 0.6);
+  --ivory-45: rgba(245, 242, 236, 0.45);
+  --ivory-32: rgba(245, 242, 236, 0.32);
+  --ivory-24: rgba(245, 242, 236, 0.24);
+  --ivory-16: rgba(245, 242, 236, 0.16);
+  --ivory-10: rgba(245, 242, 236, 0.1);
+  --ember-hi: #ff9257;
+  --ember-lit: #ffc39c;
+  color: var(--ivory-85);
+}
+/* the ink pane needs to lift off the paper */
+.day .sigwin .win,
+.day .film-win {
+  box-shadow: 0 22px 40px -26px rgba(29, 36, 46, 0.75), 0 2px 10px -4px rgba(29, 36, 46, 0.28);
+}
+
+/* the hero's warm bloom behind the film is a night device — soften it on paper */
+.day .film::before { opacity: 0.35; }
+
+/* ══════════ TEXT ON PAPER ══════════ */
+.day .warm { color: #a82b03; }
+.day .tick { color: var(--ember); }
+.day ::selection { background: var(--ember); color: #fff; }
+
+/* captions live on the paper, not inside a window: no night glow */
+.day .sigwin > .cap,
+.day .artifact .cap,
+.day .film-cap,
+.day .note-morse p,
+.day .photo figcaption { text-shadow: none; }
+.day .artifact { color: rgba(29, 36, 46, 0.8); }
+.day .artifact:hover { color: var(--ink); }
+.day .artifact .cap { color: rgba(29, 36, 46, 0.62); }
+
+/* ── ghost button on paper ── */
+.day .btn-ghost {
+  background: rgba(29, 36, 46, 0.035);
+  border-color: rgba(29, 36, 46, 0.34);
+  color: rgba(29, 36, 46, 0.92);
+}
+.day .btn-ghost::after { background: var(--ink); }
+.day .btn-ghost:hover,
+.day .btn-ghost:focus-visible {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: rgba(29, 36, 46, 0.06);
+}
+
+/* ══════════ PHYSICAL OBJECTS ON PAPER ══════════ */
+/* polaroids: a soft shadow + an ink hairline so they separate from the ground */
+.day .photo {
+  box-shadow:
+    0 18px 30px -18px rgba(29, 36, 46, 0.5),
+    0 3px 8px -3px rgba(29, 36, 46, 0.16),
+    0 0 0 1px rgba(29, 36, 46, 0.1);
+}
+.day .photo:hover {
+  box-shadow:
+    0 24px 38px -18px rgba(29, 36, 46, 0.55),
+    0 0 0 1px rgba(189, 49, 3, 0.55),
+    0 0 26px -6px rgba(189, 49, 3, 0.35);
+}
+/* field notes: warmer paper than the ground, and a heavier shadow —
+   they must read as objects lying ON the page */
+.day .field .note {
+  background: linear-gradient(180deg, #fdf7e8 0%, #f4ecd9 100%);
+  box-shadow:
+    0 18px 26px -14px rgba(29, 36, 46, 0.55),
+    0 3px 8px -3px rgba(29, 36, 46, 0.18),
+    0 0 0 1px rgba(29, 36, 46, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+}
+.day .field .note-morse { background: none; box-shadow: none; }
+.day .field .note-morse p { color: rgba(29, 36, 46, 0.8); }
+
+/* ══════════ 01 · HERO ══════════ */
+#ch1.day .scroll-hint { color: rgba(29, 36, 46, 0.62); }
+
+/* ══════════ 02 · THE ROADS, DRAWN IN INK ══════════ */
+/* dark lines on paper: a hand-drawn map coming alive */
+#ch2.day .road-lines path { stroke: rgba(29, 36, 46, 0.34); }
+#ch2.day .road-nodes circle { fill: #1d242e; }
+#ch2.day::before {
+  background: radial-gradient(80% 70% at 18% 62%,
+    rgba(245, 242, 236, 0.95) 0%,
+    rgba(245, 242, 236, 0.72) 42%,
+    rgba(245, 242, 236, 0) 72%);
+}
+
+/* ══════════ 04 · THE FOUNDING DOCUMENT ══════════ */
+/* it now shares the ground, so it keeps its identity with a hairline frame
+   and its own paper grain instead of the wallpaper grid */
+#ch4.day {
+  background-color: #f5f2ec;
+  background-image: none;
+  border-top: 1px solid rgba(29, 36, 46, 0.24);
+  border-bottom: 1px solid rgba(29, 36, 46, 0.24);
+}
+
+/* ══════════ 06 · THE PRODUCT ══════════ */
+#ch6.day .row-g .g { stroke: rgba(29, 36, 46, 0.62); }
+#ch6.day .row:hover .row-g .g { stroke: var(--ember); }
+#ch6.day .g-move .g-mover,
+#ch6.day .g-sos .g-core,
+#ch6.day .g-eye .g-pupil { fill: var(--ember); }
+#ch6.day .g-flow circle { stroke: var(--ember); }
+#ch6.day .sos-dot { box-shadow: 0 0 14px 3px rgba(189, 49, 3, 0.28); }
+#ch6.day .ticker-k { color: rgba(29, 36, 46, 0.5); }
+
+/* ══════════ THE PERSISTENT EMBER LIGHT ON PAPER ══════════ */
+/* On night it glows behind the page. On ivory the page is opaque, so the light
+   steps in front as a small warm dot with a soft bloom and a halo ring.
+   Pointer-events stay off; nothing here runs per frame. */
+body:not(.night-ground) .ember-light {
+  z-index: 6;
+  background: radial-gradient(circle,
+    rgba(189, 49, 3, 0.2) 0%,
+    rgba(189, 49, 3, 0.09) 32%,
+    rgba(189, 49, 3, 0) 66%);
+}
+body:not(.night-ground) .ember-core {
+  box-shadow:
+    0 0 0 1px rgba(189, 49, 3, 0.5),
+    0 0 12px 3px rgba(217, 88, 31, 0.75),
+    0 0 34px 10px rgba(189, 49, 3, 0.3);
+  background: var(--ember);
+}
+
+/* ══════════ THE OPS BAR ══════════ */
+/* daylight is the default state now (set in the markup); the dark bar is
+   applied over the night grounds by the boundary triggers in main.js */
+.nav.daylight .ops-chapters a:hover { color: var(--ink); }
+.nav.daylight .ops-item:hover,
+.nav.daylight .ops-item:focus-visible { color: var(--ink); }
+.nav.daylight .ops-lantern:hover .lantern-flame { color: var(--ember); }
+.nav.daylight .mark-piece { fill: currentColor; }
+
+/* ══════════ REDUCED MOTION ══════════ */
+@media (prefers-reduced-motion: reduce) {
+  body:not(.night-ground) .ember-light { opacity: 0.5; }
+}

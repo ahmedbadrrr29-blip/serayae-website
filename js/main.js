@@ -169,9 +169,48 @@
     });
   }
 
-  if (!hasGSAP || reduced) return;
+  /* ══════════ THE GROUNDS ══════════
+     V7: ivory is the ground; night is reserved for the emotional core.
+     The ops bar is daylight by default and flips to the dark bar while a
+     night ground passes under it. Boundary triggers only — no per-frame work,
+     and this runs even in the reduced-motion path so the bar is never wrong. */
+  if (hasGSAP) {
+    gsap.registerPlugin(ScrollTrigger);
 
-  gsap.registerPlugin(ScrollTrigger);
+    const nav = document.getElementById('nav');
+    const nightRegions = [
+      { start: '#ch3', end: '#ch3' },
+      { start: '.band-walk', end: '#ch5' },
+      { start: '#voices', end: 'footer' }
+    ];
+    let nightCount = 0;
+
+    function applyGround() {
+      const night = nightCount > 0;
+      if (nav) nav.classList.toggle('daylight', !night);
+      document.body.classList.toggle('night-ground', night);
+    }
+
+    nightRegions.forEach(function (r) {
+      const startEl = document.querySelector(r.start);
+      const endEl = document.querySelector(r.end);
+      if (!startEl || !endEl) return;
+      ScrollTrigger.create({
+        trigger: startEl,
+        endTrigger: endEl,
+        start: 'top top+=32',
+        end: 'bottom top+=32',
+        onToggle: function (self) {
+          nightCount += self.isActive ? 1 : -1;
+          if (nightCount < 0) nightCount = 0;
+          applyGround();
+        }
+      });
+    });
+    applyGround();
+  }
+
+  if (!hasGSAP || reduced) return;
 
   /* ── warmth arc: after the daylight document (ch4), the night itself
      warms imperceptibly as arrival approaches — light felt, never seen ── */
@@ -184,16 +223,6 @@
       endTrigger: '#waitlist',
       end: 'bottom bottom',
       scrub: 1.2
-    }
-  });
-
-  /* ── nav inverts while the ivory document is under it ── */
-  ScrollTrigger.create({
-    trigger: '#ch4',
-    start: 'top 60px',
-    end: 'bottom 60px',
-    onToggle: function (self) {
-      document.getElementById('nav').classList.toggle('daylight', self.isActive);
     }
   });
 
