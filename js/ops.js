@@ -79,20 +79,28 @@
   }
 })();
 
-/* ── night radio: the film's score, played on request ── */
+/* ── night radio: embedded YouTube player (دايماً مع بعض) ── */
 (function () {
+  var VIDEO_ID = 'G-eWMlgZkJo';
   var btn = document.getElementById('radioBtn');
   var widget = document.getElementById('radioWidget');
   var play = document.getElementById('radioPlay');
-  var audio = document.getElementById('radioAudio');
-  if (!btn || !widget || !play || !audio) return;
+  var screen = document.getElementById('radioScreen');
+  var screenWrap = document.getElementById('radioScreenWrap');
+  if (!btn || !widget || !play || !screen) return;
   var icoPlay = play.querySelector('.radio-ico-play');
   var icoPause = play.querySelector('.radio-ico-pause');
   var timeEl = document.getElementById('radioTime');
-  audio.volume = 0.65;
+  var player = null;
+  var apiLoading = false;
+  var wantPlay = false;
 
-  function syncUI() {
-    var playing = !audio.paused;
+  function fmt(s) {
+    s = Math.floor(s || 0);
+    return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+  }
+
+  function setPlaying(playing) {
     widget.classList.toggle('playing', playing);
     btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
     play.setAttribute('aria-label', playing ? 'Pause' : 'Play');
@@ -100,30 +108,73 @@
     if (icoPause) icoPause.hidden = !playing;
   }
 
+  var ticker = null;
+  function tick() {
+    if (player && player.getCurrentTime && timeEl) {
+      try {
+        timeEl.textContent = fmt(player.getCurrentTime()) + ' / ' + fmt(player.getDuration()) + ' · via YouTube';
+      } catch (e) { /* player not ready */ }
+    }
+  }
+
+  function createPlayer() {
+    if (screenWrap) screenWrap.hidden = false;
+    player = new YT.Player('radioScreen', {
+      host: 'https://www.youtube-nocookie.com',
+      videoId: VIDEO_ID,
+      width: '100%',
+      height: '100%',
+      playerVars: {
+        autoplay: 1,
+        loop: 1,
+        playlist: VIDEO_ID,
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1
+      },
+      events: {
+        onReady: function () { if (wantPlay) player.playVideo(); },
+        onStateChange: function (e) {
+          var playing = e.data === YT.PlayerState.PLAYING;
+          setPlaying(playing);
+          if (playing && !ticker) ticker = window.setInterval(tick, 1000);
+          if (!playing && ticker) { window.clearInterval(ticker); ticker = null; }
+        }
+      }
+    });
+  }
+
+  function ensureAPI() {
+    if (window.YT && window.YT.Player) { createPlayer(); return; }
+    if (apiLoading) return;
+    apiLoading = true;
+    var prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function () {
+      if (prev) prev();
+      createPlayer();
+    };
+    var s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  }
+
   btn.addEventListener('click', function () {
     var open = widget.hidden;
     widget.hidden = !open;
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open && !player) { wantPlay = false; ensureAPI(); }
   });
 
   play.addEventListener('click', function () {
-    if (audio.paused) { audio.play().catch(function () {}); }
-    else { audio.pause(); }
-  });
-
-  audio.addEventListener('play', syncUI);
-  audio.addEventListener('pause', syncUI);
-  function fmt(s) {
-    s = Math.floor(s);
-    return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
-  }
-  audio.addEventListener('timeupdate', function () {
-    if (!timeEl || audio.paused || !isFinite(audio.duration)) return;
-    timeEl.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration) + ' · loops';
+    if (!player || !player.playVideo) { wantPlay = true; ensureAPI(); return; }
+    var state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+    else player.playVideo();
   });
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !widget.hidden) {
+      if (player && player.pauseVideo) { try { player.pauseVideo(); } catch (err) {} }
       widget.hidden = true;
       btn.setAttribute('aria-expanded', 'false');
       btn.focus();
@@ -133,6 +184,8 @@
     if (!widget.hidden && !widget.contains(e.target) && !btn.contains(e.target)) {
       widget.hidden = true;
       btn.setAttribute('aria-expanded', 'false');
+      /* music keeps playing when tucked away — it is a radio */
+      if (widget.classList.contains('playing')) btn.setAttribute('aria-pressed', 'true');
     }
   });
 })();

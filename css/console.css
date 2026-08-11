@@ -795,6 +795,16 @@ body.modal-open { overflow: hidden; }
   color: var(--ivory-45);
   text-transform: uppercase;
 }
+.radio-screen {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--night);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.7rem;
+}
+.radio-screen[hidden] { display: none; }
+.radio-screen iframe, .radio-screen div { width: 100%; height: 100%; display: block; border: 0; }
 .radio-row { display: flex; align-items: center; gap: 0.8rem; }
 .radio-play {
   width: 40px; height: 40px; border-radius: 50%;
