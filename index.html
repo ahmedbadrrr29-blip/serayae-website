@@ -726,10 +726,34 @@
     </span>
   </nav>
 
-  <!-- the building: SERAYAE spelled in lit windows — every window is someone -->
-  <div class="mosaic-row">
-    <div class="mosaic" id="mosaic" role="img" aria-label="SERAYAE spelled in lit apartment windows"></div>
+  <!-- الزينة — a string of fanous lanterns across the street, the name beneath -->
+  <div class="zeena-row" aria-hidden="true">
+    <svg class="zeena" id="zeena" viewBox="0 0 1200 210" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="fglow" cx="0.5" cy="0.55" r="0.65">
+          <stop offset="0" stop-color="#fff3cf"/><stop offset="0.45" stop-color="#ffc670"/><stop offset="1" stop-color="#e8801f"/>
+        </radialGradient>
+        <linearGradient id="fmetal" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#a0430f"/><stop offset="1" stop-color="#6e2606"/>
+        </linearGradient>
+        <linearGradient id="fsheen" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity="0.7"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.08"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+        <g id="fanous">
+          <path d="M10 1.2 C7.4 1.2 5.8 2.8 5.8 4.6 L7.4 4.6 C7.4 3.6 8.4 2.8 10 2.8 C11.6 2.8 12.6 3.6 12.6 4.6 L14.2 4.6 C14.2 2.8 12.6 1.2 10 1.2 Z" fill="url(#fmetal)"/>
+          <rect x="4.6" y="4.4" width="10.8" height="2.6" rx="1.2" fill="url(#fmetal)"/>
+          <rect x="3.4" y="7" width="13.2" height="14.6" rx="2.4" fill="url(#fglow)" class="fanous-glass"/>
+          <rect x="3.4" y="7" width="13.2" height="14.6" rx="2.4" fill="url(#fsheen)"/>
+          <rect x="3.4" y="7" width="13.2" height="14.6" rx="2.4" fill="none" stroke="#7c2d08" stroke-width="1.1"/>
+          <path d="M10 11.2 C11.1 12.6 11.7 13.6 11.7 14.8 C11.7 16 10.9 16.9 10 16.9 C9.1 16.9 8.3 16 8.3 14.8 C8.3 13.6 8.9 12.6 10 11.2 Z" fill="#fff8e2" class="fanous-flame"/>
+          <rect x="2.4" y="21.4" width="15.2" height="3.4" rx="1.6" fill="url(#fmetal)"/>
+          <rect x="6" y="24.8" width="8" height="1.8" rx="0.9" fill="#5c1f05"/>
+        </g>
+      </defs>
+      <path id="zeenaWire" class="zeena-wire" d="M-10 26 Q 300 78 610 44 T 1210 38" fill="none"/>
+    </svg>
   </div>
+  <p class="footer-word display">SERAYAE</p>
 </footer>
 
 <!-- ══════════ EASTER-EGG MODALS ══════════ -->
@@ -756,7 +780,7 @@
 <script defer src="js/ops.js?v=14"></script>
 <script defer src="js/artifacts.js?v=12"></script>
 <script defer src="js/modals.js?v=13"></script>
-<script defer src="js/mosaic.js?v=22"></script>
+<script defer src="js/mosaic.js?v=24"></script>
 <script defer src="js/trail.js?v=14"></script>
 <script defer src="js/film.js?v=12"></script>
 <script defer src="js/clips.js?v=12"></script>
