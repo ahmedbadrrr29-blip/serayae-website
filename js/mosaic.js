@@ -1,63 +1,94 @@
-/* ═══ Footer mosaic ═══
-   SERAYAE spelled from the same dot the network is made of. A slow wave
-   travels through it, left to right, like a light passing down a road. */
+/* ═══ Footer word ═══
+   "serayae" traced from a real bold letterform and rebuilt as a pile of
+   lit-window icons — dense strokes, overlapping objects, hand-placed
+   jitter. One-time build after fonts load; zero per-frame work. */
 
 (function () {
-  const host = document.getElementById('mosaic');
+  var host = document.getElementById('mosaic');
   if (!host) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const G = {
-    S: ['01111', '10000', '10000', '01110', '00001', '00001', '11110'],
-    E: ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
-    R: ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
-    A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
-    Y: ['10001', '10001', '01010', '00100', '00100', '00100', '00100']
-  };
-  const WORD = 'SERAYAE';
-  const ROWS = 7;
-
-  // build a single column-major grid: each letter, then one blank column
-  const cols = [];
-  WORD.split('').forEach(function (ch, li) {
-    const g = G[ch];
-    for (let c = 0; c < 5; c++) {
-      const col = [];
-      for (let r = 0; r < ROWS; r++) col.push(g[r][c] === '1');
-      cols.push(col);
+  function build() {
+    var W = 840, H = 150;
+    var canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+    ctx.fillStyle = '#000';
+    ctx.textBaseline = 'middle';
+    var WORD = 'serayae';
+    function setFont(px) { ctx.font = '700 ' + px + 'px Satoshi, "Satoshi Fallback", ui-sans-serif, sans-serif'; }
+    /* size the word to fill ~96% of the canvas, with breathing room between letters */
+    var fs = 100;
+    setFont(fs);
+    function wordWidth(gap) {
+      var w = 0;
+      for (var k = 0; k < WORD.length; k++) w += ctx.measureText(WORD[k]).width + (k < WORD.length - 1 ? gap : 0);
+      return w;
     }
-    if (li < WORD.length - 1) cols.push(null); // letter gap
-  });
-
-  const frag = document.createDocumentFragment();
-  cols.forEach(function (col, ci) {
-    for (let r = 0; r < ROWS; r++) {
-      const dot = document.createElement('i');
-      if (col && col[r]) {
-        dot.className = 'on';
-        dot.style.animationDelay = (ci * 0.032 + Math.random() * 0.14).toFixed(3) + 's';
-        /* hand-placed feel: each window sits slightly off-true */
-        var jr = (Math.random() * 7 - 3.5).toFixed(2);
-        var js_ = (0.94 + Math.random() * 0.16).toFixed(3);
-        var jx = (Math.random() * 2.4 - 1.2).toFixed(2);
-        var jy = (Math.random() * 2.4 - 1.2).toFixed(2);
-        dot.style.transform = 'translate(' + jx + 'px,' + jy + 'px) rotate(' + jr + 'deg) scale(' + js_ + ')';
-      }
-      frag.appendChild(dot);
+    var gap0 = fs * 0.1;
+    fs = Math.floor(fs * (W * 0.96) / wordWidth(gap0));
+    setFont(fs);
+    var gap = fs * 0.1;
+    var x0 = (W - wordWidth(gap)) / 2;
+    for (var k2 = 0; k2 < WORD.length; k2++) {
+      ctx.fillText(WORD[k2], x0 + ctx.measureText(WORD[k2]).width / 2, H / 2 + fs * 0.04);
+      x0 += ctx.measureText(WORD[k2]).width + gap;
     }
-  });
-  host.style.gridTemplateRows = 'repeat(' + ROWS + ', auto)';
-  host.appendChild(frag);
 
-  /* light the building only when it scrolls into view */
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) {
-        host.classList.add('go');
-        io.disconnect();
+    var data;
+    try {
+      data = ctx.getImageData(0, 0, W, H).data;
+    } catch (e) { return; }
+
+    var step = 9;
+    var pts = [];
+    for (var py = 3; py < H; py += step) {
+      for (var px = 3; px < W; px += step) {
+        var a = data[(py * W + px) * 4 + 3];
+        if (a > 120) pts.push([px / W, py / H]);
       }
-    }, { threshold: 0.25 });
-    io.observe(host);
+    }
+    if (!pts.length) return;
+
+    /* shuffle so overlaps layer organically, not in scan order */
+    for (var i = pts.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = pts[i]; pts[i] = pts[j]; pts[j] = t;
+    }
+
+    var frag = document.createDocumentFragment();
+    pts.forEach(function (p) {
+      var el = document.createElement('i');
+      el.style.left = (p[0] * 100 + (Math.random() - 0.5) * 0.7).toFixed(2) + '%';
+      el.style.top = (p[1] * 100 + (Math.random() - 0.5) * 4).toFixed(2) + '%';
+      el.style.setProperty('--rot', (Math.random() * 16 - 8).toFixed(1) + 'deg');
+      el.style.setProperty('--sc', (0.88 + Math.random() * 0.3).toFixed(2));
+      if (!reduced) {
+        /* the word lights left to right, each window on its own beat */
+        el.style.animationDelay = (p[0] * 1.1 + Math.random() * 0.3).toFixed(2) + 's';
+      }
+      frag.appendChild(el);
+    });
+    host.appendChild(frag);
+
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) {
+          host.classList.add('go');
+          io.disconnect();
+        }
+      }, { threshold: 0.3 });
+      io.observe(host);
+    } else {
+      host.classList.add('go');
+    }
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(build);
   } else {
-    host.classList.add('go');
+    build();
   }
 })();
