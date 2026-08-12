@@ -543,17 +543,6 @@ html.js .zeena.go .fl:nth-child(14) { animation-delay: 0.65s; }
 .fl-off:hover use { filter: none; }
 .fl-off:hover use { filter: drop-shadow(0 0 14px rgba(255, 170, 90, 0.9)); }
 
-/* the name, said plainly beneath the lights */
-.footer p.footer-word {
-  margin: clamp(0.5rem, 2vh, 1.5rem) 0 0;
-  text-align: center;
-  font-size: clamp(3.2rem, 10.5vw, 8.5rem);
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  color: var(--ivory);
-}
 @media (prefers-reduced-motion: reduce) {
   html.js .zeena .fl, html.js .zeena.go .fl { opacity: 1; animation: none; }
   .zeena.go .fl-sway, .zeena.go .fl:nth-child(3n) .fl-sway { animation: none; }
