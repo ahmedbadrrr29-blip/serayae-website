@@ -719,13 +719,12 @@ body.modal-open { overflow: hidden; }
   .btn-ember.nav-cta { padding-left: 1.75rem; }
   .btn-ember.nav-cta::before { left: 0.7rem; }
   .btn-ember.nav-cta::after { left: 0.7rem; }
-  .mosaic i { width: 2px; height: 2px; }
   .rec-foot { flex-direction: column; align-items: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mark-breathe, .viz i, .lantern-flame, .art-flame,
-  .sig-ring, .caret, .type .cur, .mosaic i.on,
+  .sig-ring, .caret, .type .cur,
   .log-lines .new, .ledger-rows tr, .rec-log li { animation: none !important; }
   .sig-ring { opacity: 0.35; transform: scale(0.6); }
   .sig-ring:nth-child(2) { transform: scale(0.8); opacity: 0.22; }
@@ -733,7 +732,6 @@ body.modal-open { overflow: hidden; }
   .glow-dot { opacity: 0.9; }
   .sigwin, .field .note, .artifact { cursor: default; }
   .nobody { opacity: 1; }
-  .mosaic i.on { background: var(--ivory-45); }
   body.signalOn .listen-pulse { animation: none; opacity: 0.5; }
 }
 
