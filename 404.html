@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SERAYAE — Page not found</title>
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#F5F2EC" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+<link href="https://api.fontshare.com/v2/css?f[]=boska@700,500&f[]=satoshi@300,400,500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f2ec;
+    background-image: radial-gradient(rgba(29, 36, 46, 0.13) 1px, transparent 1px);
+    background-size: 26px 26px;
+    color: #1d242e;
+    font-family: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
+    text-align: center;
+    padding: 2rem;
+  }
+  .lost { max-width: 30rem; }
+  .lantern {
+    width: 44px; height: auto;
+    margin: 0 auto 1.75rem;
+    display: block;
+    color: rgba(29, 36, 46, 0.45);
+  }
+  .lantern .flame {
+    fill: #bd3103;
+    animation: breathe 2.8s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.55; transform: scale(0.92); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) { .lantern .flame { animation: none; } }
+  .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    color: rgba(29, 36, 46, 0.55);
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-family: 'Boska', 'Iowan Old Style', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 7vw, 3.25rem);
+    line-height: 1.08;
+    margin-bottom: 1rem;
+  }
+  p { font-size: 1rem; line-height: 1.6; color: rgba(29, 36, 46, 0.68); margin-bottom: 2rem; }
+  a.home {
+    display: inline-block;
+    padding: 0.85rem 1.6rem;
+    background: #bd3103;
+    color: #f5f2ec;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    transition: background 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  a.home:hover { background: #a82b03; }
+  a.home:focus-visible { outline: 2px solid #bd3103; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main class="lost">
+  <svg class="lantern" viewBox="0 0 32 40" aria-hidden="true">
+    <g stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round">
+      <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
+    </g>
+    <circle class="flame" cx="16" cy="21" r="4" />
+  </svg>
+  <p class="k">404 &middot; NO LIGHT AT THIS ADDRESS</p>
+  <h1>This street doesn&rsquo;t exist.</h1>
+  <p>The page you&rsquo;re looking for isn&rsquo;t here &mdash; but the light is still on at home.</p>
+  <a class="home" href="/">Walk back home</a>
+</main>
+</body>
+</html>
