@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 114">
+  <!-- the cassette that carries the night radio's song -->
+  <rect x="3" y="3" width="164" height="108" rx="9" fill="#bd3103"/>
+  <rect x="3" y="3" width="164" height="108" rx="9" fill="none" stroke="#8c2402" stroke-width="2.5"/>
+  <rect x="16" y="16" width="138" height="46" rx="5" fill="#f5f2ec"/>
+  <rect x="16" y="16" width="138" height="20" rx="5" fill="#f0ead9"/>
+  <text x="85" y="30.5" text-anchor="middle" font-family="Courier New, monospace" font-size="10" letter-spacing="1.5" fill="#1d242e">دايماً مع بعض</text>
+  <circle cx="52" cy="49" r="8.5" fill="none" stroke="#1d242e" stroke-width="3"/>
+  <circle cx="118" cy="49" r="8.5" fill="none" stroke="#1d242e" stroke-width="3"/>
+  <rect x="60.5" y="46" width="49" height="6" fill="#1d242e" opacity="0.75"/>
+  <path d="M30 96 l10 -18 h90 l10 18 Z" fill="#a82b03"/>
+  <circle cx="52" cy="88" r="3" fill="#ffd9a0"/>
+  <circle cx="118" cy="88" r="3" fill="#ffd9a0"/>
+  <rect x="76" y="84" width="18" height="8" rx="2" fill="#ffd9a0" opacity="0.6"/>
+</svg>

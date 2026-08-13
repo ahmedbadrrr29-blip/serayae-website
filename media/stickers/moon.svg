@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 130">
+  <!-- hilal: the crescent that starts every Egyptian night, with one companion star -->
+  <path d="M84 14 A52 52 0 1 0 84 116 A42 42 0 1 1 84 14 Z" fill="#1d242e"/>
+  <path d="M84 14 A52 52 0 1 0 84 116 A42 42 0 1 1 84 14 Z" fill="none" stroke="#1d242e" stroke-width="2"/>
+  <path d="M96 52 l3.2 8.2 8.2 3.2 -8.2 3.2 -3.2 8.2 -3.2 -8.2 -8.2 -3.2 8.2 -3.2 Z" fill="#e8801f"/>
+</svg>

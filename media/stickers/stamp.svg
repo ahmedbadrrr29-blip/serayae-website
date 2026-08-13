@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+  <!-- postage stamp: perforated edge, lantern at center — the founding letter's stamp -->
+  <defs>
+    <mask id="perf">
+      <rect width="160" height="160" fill="white"/>
+      <g fill="black">
+        <circle cx="0" cy="0" r="7"/><circle cx="26.6" cy="0" r="7"/><circle cx="53.3" cy="0" r="7"/><circle cx="80" cy="0" r="7"/><circle cx="106.6" cy="0" r="7"/><circle cx="133.3" cy="0" r="7"/><circle cx="160" cy="0" r="7"/>
+        <circle cx="0" cy="160" r="7"/><circle cx="26.6" cy="160" r="7"/><circle cx="53.3" cy="160" r="7"/><circle cx="80" cy="160" r="7"/><circle cx="106.6" cy="160" r="7"/><circle cx="133.3" cy="160" r="7"/><circle cx="160" cy="160" r="7"/>
+        <circle cx="0" cy="26.6" r="7"/><circle cx="0" cy="53.3" r="7"/><circle cx="0" cy="80" r="7"/><circle cx="0" cy="106.6" r="7"/><circle cx="0" cy="133.3" r="7"/>
+        <circle cx="160" cy="26.6" r="7"/><circle cx="160" cy="53.3" r="7"/><circle cx="160" cy="80" r="7"/><circle cx="160" cy="106.6" r="7"/><circle cx="160" cy="133.3" r="7"/>
+      </g>
+    </mask>
+  </defs>
+  <rect width="160" height="160" fill="#f0ead9" mask="url(#perf)"/>
+  <rect x="14" y="14" width="132" height="132" fill="none" stroke="#bd3103" stroke-width="2" mask="url(#perf)"/>
+  <g stroke="#1d242e" stroke-width="3.2" fill="none" stroke-linecap="round">
+    <path d="M80 38v7"/><path d="M66 45h28"/><path d="M68.5 45 63 106h34L91.5 45"/><path d="M63 106h34"/><path d="M73 113h14"/>
+  </g>
+  <circle cx="80" cy="76" r="9" fill="#e8801f"/>
+  <circle cx="80" cy="76" r="4.5" fill="#ffd9a0"/>
+  <text x="80" y="136" text-anchor="middle" font-family="Courier New, monospace" font-size="10.5" letter-spacing="2" fill="#1d242e">SERAYAE</text>
+  <text x="132" y="34" text-anchor="middle" font-family="Courier New, monospace" font-size="12" fill="#bd3103">1</text>
+</svg>
