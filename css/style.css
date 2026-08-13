@@ -165,7 +165,7 @@ body.frozen .ember-light { opacity: 0.22 !important; }
   gap: 1rem;
   padding: 0 var(--gut);
   background: transparent;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
 }
 .nav::before {
   content: "";

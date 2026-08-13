@@ -512,7 +512,7 @@ html:not(.js) .nobody { opacity: 1; }
 .modal-scrim {
   position: absolute; inset: 0;
   background: rgba(8, 7, 6, 0.86);
-  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
   border: 0;
   cursor: pointer;
 }
