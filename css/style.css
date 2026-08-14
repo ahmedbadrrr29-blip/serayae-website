@@ -20,8 +20,8 @@
   --ember-hi: #ff9257;
   --ember-lit: #ffc39c;
 
-  --font-display: 'Boska', 'Iowan Old Style', Georgia, serif;
-  --font-body: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Boska', 'Boska-fallback', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Satoshi', 'Satoshi-fallback', ui-sans-serif, system-ui, sans-serif;
 
   --ease: cubic-bezier(0.22, 0.61, 0.24, 1);
   --gut: clamp(1.25rem, 5vw, 6rem);
