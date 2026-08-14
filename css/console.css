@@ -832,3 +832,20 @@ body.modal-open { overflow: hidden; }
   margin-top: 3px !important;
   text-align: center;
 }
+
+/* ── signal: real connectivity ── */
+#signalBtn.sigOff { color: rgba(29, 36, 46, 0.28); }
+#signalBtn.sigOff .ops-ico { opacity: 0.55; }
+
+/* ── radio menubar icon: live playback state ── */
+.ops-radio .ops-radio-bars { display: none; align-items: flex-end; gap: 2px; height: 10px; margin-left: 4px; }
+.ops-radio .ops-radio-bars i { width: 2px; background: var(--ember-soft); border-radius: 1px; height: 4px; }
+.ops-radio.playing { color: var(--ember-soft); }
+.ops-radio.playing .ops-radio-bars { display: inline-flex; }
+.ops-radio.playing .ops-radio-bars i { animation: radioBar 0.9s ease-in-out infinite; }
+.ops-radio.playing .ops-radio-bars i:nth-child(2) { animation-delay: 0.2s; }
+.ops-radio.playing .ops-radio-bars i:nth-child(3) { animation-delay: 0.45s; }
+@keyframes radioBar { 0%, 100% { height: 3px; } 50% { height: 10px; } }
+@media (prefers-reduced-motion: reduce) {
+  .ops-radio.playing .ops-radio-bars i { animation: none; height: 7px; }
+}

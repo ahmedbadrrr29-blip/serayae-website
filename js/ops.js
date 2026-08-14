@@ -5,39 +5,19 @@
 (function () {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ── live world clock — the network is awake everywhere ── */
+  /* ── live clock — the visitor's own time and place ── */
   const clock = document.getElementById('opsClock');
   const clockLabel = document.querySelector('.ops-clock-label');
-  const CITIES = [
-    ['CAIRO', 'Africa/Cairo'],
-    ['LONDON', 'Europe/London'],
-    ['NEW YORK', 'America/New_York'],
-    ['DELHI', 'Asia/Kolkata']
-  ];
-  let cityIdx = 0;
   if (clock) {
     let fmt = null;
-    function makeFmt(tz) {
-      try {
-        return new Intl.DateTimeFormat('en-GB', {
-          timeZone: tz,
-          hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-        });
-      } catch (e) { return null; }
-    }
-    fmt = makeFmt(CITIES[0][1]);
-    /* rotate cities every 7s — SERAYAE is global from day one */
-    window.setInterval(function () {
-      /* if the city label is hidden (mobile), a silently changing timezone
-         would just look like a broken clock — stay on Cairo there */
-      if (!clockLabel || clockLabel.offsetParent === null) {
-        if (cityIdx !== 0) { cityIdx = 0; fmt = makeFmt(CITIES[0][1]); }
-        return;
-      }
-      cityIdx = (cityIdx + 1) % CITIES.length;
-      fmt = makeFmt(CITIES[cityIdx][1]);
-      clockLabel.textContent = CITIES[cityIdx][0];
-    }, 7000);
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      const city = tz.split('/').pop().replace(/_/g, ' ').toUpperCase();
+      if (clockLabel && city) clockLabel.textContent = city;
+      fmt = new Intl.DateTimeFormat('en-GB', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      });
+    } catch (e) { if (clockLabel) clockLabel.textContent = 'LOCAL'; }
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
@@ -45,60 +25,32 @@
       /* the Chapter 03 freeze is a genuine full stop — even the clock holds */
       if (document.body.classList.contains('frozen')) return;
       const now = new Date();
-      let text;
-      if (fmt) {
-        text = fmt.format(now);
-      } else {
-        text = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-      }
-      clock.textContent = text;
+      clock.textContent = fmt ? fmt.format(now)
+        : pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
       clock.setAttribute('datetime', now.toISOString());
     }
     tick();
     setInterval(tick, 1000);
   }
 
-  /* ── lantern: click warms the whole page for ~2s ── */
-  const lantern = document.getElementById('lanternBtn');
-  const ripple = document.getElementById('lanternRipple');
-  let warmTimer = null;
-
-  if (lantern && ripple) {
-    lantern.addEventListener('click', function () {
-      const r = lantern.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-
-      document.body.classList.remove('warmed');
-      // force restart of the warm settle animation
-      void document.body.offsetWidth;
-      document.body.classList.add('warmed');
-
-      if (!reduced) {
-        const span = Math.max(window.innerWidth, window.innerHeight) * 2.4;
-        ripple.style.transition = 'none';
-        ripple.style.transform = 'translate(' + cx + 'px,' + cy + 'px) scale(1)';
-        ripple.style.opacity = '0.9';
-        void ripple.offsetWidth;
-        ripple.style.transition = 'transform 2s cubic-bezier(0.22,0.61,0.24,1), opacity 2s cubic-bezier(0.22,0.61,0.24,1)';
-        ripple.style.transform = 'translate(' + cx + 'px,' + cy + 'px) scale(' + (span / 10) + ')';
-        ripple.style.opacity = '0';
-      }
-
-      clearTimeout(warmTimer);
-      warmTimer = setTimeout(function () {
-        document.body.classList.remove('warmed');
-      }, 2200);
-    });
-  }
-
-  /* ── signal icon: toggles the ambient listening rhythm (visual only) ── */
   const signalBtn = document.getElementById('signalBtn');
   if (signalBtn) {
     signalBtn.addEventListener('click', function () {
       const on = document.body.classList.toggle('signalOn');
       signalBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    /* real connectivity: if the visitor drops offline, the signal dims */
+    function netState() {
+      const off = !navigator.onLine;
+      signalBtn.classList.toggle('sigOff', off);
+      const k = signalBtn.querySelector('.ops-pop-k');
+      const h = signalBtn.querySelector('.ops-pop-hint');
+      if (k) k.textContent = off ? 'NETWORK · OFFLINE' : 'NETWORK · LISTENING';
+      if (h) h.textContent = off ? 'connection lost — reconnecting' : 'all signals monitored';
+    }
+    window.addEventListener('online', netState);
+    window.addEventListener('offline', netState);
+    netState();
   }
 })();
 
@@ -121,12 +73,30 @@
     if (screenWrap) screenWrap.hidden = false;
     var f = document.createElement('iframe');
     f.src = 'https://www.youtube.com/embed/' + VIDEO_ID +
-            '?loop=1&playlist=' + VIDEO_ID + '&rel=0&playsinline=1';
+            '?loop=1&playlist=' + VIDEO_ID + '&rel=0&playsinline=1&enablejsapi=1&origin=' +
+            encodeURIComponent(location.origin);
     f.title = 'دايماً مع بعض — Always Together';
     f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
     f.setAttribute('allowfullscreen', '');
     f.setAttribute('referrerpolicy', 'origin');
     screen.appendChild(f);
+    /* subscribe to real player state so the menubar icon can breathe with the music */
+    f.addEventListener('load', function () {
+      try {
+        f.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'serayae-radio' }), '*');
+      } catch (e) {}
+    });
+    window.addEventListener('message', function (e) {
+      if (e.origin.indexOf('youtube.com') === -1) return;
+      var d;
+      try { d = JSON.parse(e.data); } catch (err) { return; }
+      var st = d && d.info && typeof d.info.playerState === 'number' ? d.info.playerState
+             : (d && typeof d.info === 'number' && d.event === 'onStateChange' ? d.info : null);
+      if (st === null || st === undefined) return;
+      var playing = st === 1;
+      btn.classList.toggle('playing', playing);
+      widget.classList.toggle('playing', playing);
+    });
     /* if the surrounding environment blocks embedded playback, offer the way out */
     window.setTimeout(function () {
       var hint = document.getElementById('radioHint');
