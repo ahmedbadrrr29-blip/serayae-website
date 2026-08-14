@@ -22,11 +22,20 @@
     preview.defaultMuted = true;
     preview.removeAttribute('controls');
 
-    if (reduced) {
-      /* stillness respected: the poster frame stands in for the loop */
+    /* on phones (or Save-Data), the 2.2MB loop is a luxury the visitor pays for:
+       the poster stands in, and the film streams only when they choose to watch */
+    var saveData = navigator.connection && navigator.connection.saveData;
+    var phone = window.matchMedia('(max-width: 700px)').matches;
+    if (reduced || saveData || phone) {
+      /* stillness (or data) respected: the poster frame stands in for the loop */
       preview.removeAttribute('autoplay');
+      preview.preload = 'none';
       preview.pause();
+      var srcEl = preview.querySelector('source');
+      if (srcEl) { srcEl.removeAttribute('src'); try { preview.load(); } catch (e) {} }
     } else {
+      /* desktop: upgrade the cheap default and let the loop live */
+      preview.preload = 'metadata';
       const tryPlay = function () {
         const p = preview.play();
         if (p && p.catch) p.catch(function () { /* poster stands in */ });

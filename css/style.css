@@ -1049,3 +1049,22 @@ html.js .freeze-copy p { opacity: 0; }
   color: rgba(29, 36, 46, 0.48);
 }
 @media (max-width: 860px) { .note-ch7 { display: none; } }
+
+/* ── mobile footer: the social row settles into a clean centered stack ── */
+@media (max-width: 620px) {
+  .footer-social {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+  .footer-social > a { font-size: 0.875rem; padding: 0.2rem 0.4rem; }
+  .footer-social-k { order: -1; }
+  .footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.2rem;
+    margin-top: 0.5rem;
+  }
+}
