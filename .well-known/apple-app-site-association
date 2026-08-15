@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.serayae.app",
+        "paths": ["/emergency/*", "/referral", "/circles/*", "/children/*", "/safety-pins/*", "/onboarding*", "/download"]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.serayae.app"]
+  }
+}
