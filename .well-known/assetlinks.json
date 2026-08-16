@@ -1,11 +1,13 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.solrasafety.app",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_PLAY_APP_SIGNING_SHA256_FINGERPRINT"
+        "07:A6:07:BF:FC:FD:51:E0:E6:33:6A:10:06:F8:B3:2A:3C:67:8F:47:41:99:97:9D:1E:AD:33:C5:D7:6A:8C:9B"
       ]
     }
   }
