@@ -22,13 +22,35 @@
   */
   (function () {
     var m = window.location.pathname.match(/^\/track\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i);
-    if (m) window.location.replace('/track/?t=' + m[1] + window.location.hash);
+    if (m) {
+      window.location.replace('/track/?t=' + m[1] + window.location.hash);
+      return;
+    }
+
+    /*
+      Fonts are injected here rather than declared as <link> tags so they do NOT
+      load on the rescue path above. Live testing showed a guardian opening
+      /track/<token> firing requests to Fontshare and Google Fonts on their way
+      through this page. No token reached them — browsers send origin-only
+      Referer cross-origin — but /track/ is deliberately built to make zero
+      third-party requests, and routing through here quietly broke that. The
+      ordinary 404 page still gets its webfonts.
+    */
+    var head = document.head;
+    [
+      ['preconnect', 'https://api.fontshare.com', true],
+      ['preconnect', 'https://cdn.fontshare.com', true],
+      ['stylesheet', 'https://api.fontshare.com/v2/css?f[]=boska@700,500&f[]=satoshi@300,400,500&display=swap', false],
+      ['stylesheet', 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap', false]
+    ].forEach(function (spec) {
+      var link = document.createElement('link');
+      link.rel = spec[0];
+      link.href = spec[1];
+      if (spec[2]) link.crossOrigin = 'anonymous';
+      head.appendChild(link);
+    });
   })();
 </script>
-<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
-<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
-<link href="https://api.fontshare.com/v2/css?f[]=boska@700,500&f[]=satoshi@300,400,500&display=swap" rel="stylesheet" />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   * { margin: 0; box-sizing: border-box; }
   body {

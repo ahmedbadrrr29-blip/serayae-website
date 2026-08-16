@@ -337,8 +337,18 @@
           return;
         }
         if (status === 404 || status === 400) {
-          renderUnknown();
-          return;
+          // Only OUR api says "no such link". A 404 from anything else means we
+          // never reached the API at all — and telling a guardian their link is
+          // bad when the service is simply down is the exact false calm this
+          // page exists to avoid. Seen for real: the backend host currently
+          // answers Railway's {"status":"error","code":404,"message":
+          // "Application not found"} at every path, which is indistinguishable
+          // from a missing link unless the body shape is checked.
+          if (body && body.success === false && typeof body.error === 'string') {
+            renderUnknown();
+            return;
+          }
+          throw new Error('404 from something that is not the SERAYAE api');
         }
         throw new Error('unexpected status ' + status);
       })
