@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Following someone — SERAYAE</title>
+
+<!--
+  Guardian tracking view.
+
+  Someone shared a live location link. This page is what they see.
+
+  Privacy rules this page must not break:
+   - noindex/nofollow: a tracking URL must never enter a search index.
+   - referrer: no-referrer. Without it, tapping "Open in Maps" would send the
+     full URL — token included — to Google in the Referer header, handing a
+     live-location credential to a third party.
+   - The token is never written into the page, a log, or an analytics call.
+   - No third-party script, font, map tile, or beacon loads here. Every other
+     page on this site pulls webfonts from a CDN; this one deliberately does
+     not, because a tile or font request from this page would tell an outside
+     server that someone is watching an emergency right now. System fonts only.
+-->
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<meta name="theme-color" content="#0e0c0a" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+
+<style>
+  :root {
+    --night: #0e0c0a;
+    --ivory: #f5f2ec;
+    --ink: #1d242e;
+    --ember: #bd3103;
+    --red: #dc2626;
+    --ivory-70: rgba(245, 242, 236, 0.7);
+    --ivory-45: rgba(245, 242, 236, 0.45);
+    --ivory-16: rgba(245, 242, 236, 0.16);
+    --ivory-10: rgba(245, 242, 236, 0.1);
+    /* System stack: no webfont request from a page about someone in danger. */
+    --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { margin: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--ivory);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(1.25rem, 5vw, 3rem);
+  }
+
+  .wrap { width: 100%; max-width: 30rem; margin: auto 0; }
+
+  header.mark {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: clamp(1.75rem, 6vw, 2.75rem);
+  }
+  .lantern { width: 22px; height: auto; color: var(--ivory-45); flex: none; }
+  .lantern .flame { fill: var(--ember); }
+  .wordmark {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem; letter-spacing: 0.24em;
+    color: var(--ivory-45); text-transform: uppercase;
+  }
+
+  /* Status pill — never colour alone; each state also says what it means. */
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono); font-size: 0.625rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 0.4rem 0.7rem; border-radius: 2px;
+    border: 1px solid var(--ivory-16); color: var(--ivory-70);
+    margin-bottom: 1.25rem;
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+  .pill.is-live { color: #ffb08a; border-color: rgba(189, 49, 3, 0.55); }
+  .pill.is-live .dot { background: var(--ember); animation: pulse 2s ease-in-out infinite; }
+  .pill.is-alarm { color: #ff9d9d; border-color: rgba(220, 38, 38, 0.5); }
+  .pill.is-alarm .dot { background: var(--red); animation: pulse 1.4s ease-in-out infinite; }
+  .pill.is-over { color: var(--ivory-45); }
+
+  @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .pill .dot { animation: none !important; } }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.75rem, 6.5vw, 2.5rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.85rem;
+  }
+  .lede { font-size: 0.9375rem; line-height: 1.65; color: var(--ivory-70); }
+  .lede + .lede { margin-top: 0.75rem; }
+
+  .facts {
+    margin-top: 1.75rem;
+    border-top: 1px solid var(--ivory-10);
+  }
+  .fact {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    padding: 0.85rem 0; border-bottom: 1px solid var(--ivory-10);
+  }
+  .fact dt {
+    font-family: var(--font-mono); font-size: 0.625rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--ivory-45);
+  }
+  .fact dd { font-size: 0.9375rem; text-align: end; }
+
+  .actions { margin-top: 1.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.95rem 1.5rem;
+    font-size: 0.8125rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-decoration: none; border-radius: 2px; border: 1px solid transparent;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s;
+  }
+  .btn-primary { background: var(--ember); color: var(--ivory); }
+  .btn-primary:hover { background: #a82b03; }
+  .btn-ghost { background: transparent; color: var(--ivory-70); border-color: var(--ivory-16); }
+  .btn-ghost:hover { border-color: var(--ivory-45); color: var(--ivory); }
+  .btn:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
+
+  .note {
+    margin-top: 1.5rem; font-size: 0.75rem; line-height: 1.6;
+    color: var(--ivory-45);
+  }
+  .note strong { color: var(--ivory-70); font-weight: 500; }
+
+  footer.foot {
+    margin-top: clamp(2.5rem, 8vw, 4rem);
+    font-size: 0.6875rem; color: var(--ivory-45); line-height: 1.7;
+  }
+  footer.foot a { color: var(--ivory-70); }
+
+  .spinner {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--ivory-16); border-top-color: var(--ember);
+    animation: spin 0.8s linear infinite; margin-bottom: 1.25rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="mark">
+    <svg class="lantern" viewBox="0 0 32 40" aria-hidden="true">
+      <g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round">
+        <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
+      </g>
+      <circle class="flame" cx="16" cy="21" r="4" />
+    </svg>
+    <span class="wordmark">SERAYAE</span>
+  </header>
+
+  <!-- Announced politely: a guardian may be reading this with a screen reader
+       while doing something else. -->
+  <main id="view" aria-live="polite" aria-busy="true">
+    <div class="spinner" role="status" aria-label="Loading"></div>
+    <p class="lede">Opening the link&hellip;</p>
+  </main>
+
+  <footer class="foot">
+    <p>SERAYAE &middot; Human Response Infrastructure &middot; <a href="/">serayae.me</a></p>
+  </footer>
+</div>
+
+<script src="./track.js"></script>
+</body>
+</html>

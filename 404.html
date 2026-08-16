@@ -7,6 +7,24 @@
 <meta name="robots" content="noindex" />
 <meta name="theme-color" content="#F5F2EC" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<script>
+  /*
+    Tracking-link rescue.
+
+    The backend mints share URLs as https://serayae.me/track/<token>. GitHub
+    Pages has no dynamic routing, so that path lands here. Forward it to the
+    real tracker before anything renders, so a guardian following an emergency
+    link never sees a "page not found".
+
+    Deliberately first in <head> and synchronous: this must run before the
+    404 copy can paint. replace() keeps the dead URL out of history, so Back
+    does not bounce between the two.
+  */
+  (function () {
+    var m = window.location.pathname.match(/^\/track\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i);
+    if (m) window.location.replace('/track/?t=' + m[1] + window.location.hash);
+  })();
+</script>
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
 <link href="https://api.fontshare.com/v2/css?f[]=boska@700,500&f[]=satoshi@300,400,500&display=swap" rel="stylesheet" />
