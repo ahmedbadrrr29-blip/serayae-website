@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
+# Tracking links carry a live-location token. The page also sends
+# noindex/nofollow, but keep crawlers away from the path entirely.
+Disallow: /track/
+
 Sitemap: https://serayae.me/sitemap.xml
