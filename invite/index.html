@@ -22,8 +22,9 @@
    - It does NOT call the API. There is no unauthenticated endpoint that would
      tell it anything about this token, and inventing one would turn the link
      into an oracle for "is this number registered?".
-   - It hands off: deep link into the app if it is installed, the store if it is
-     not, and the code in plain text as the last resort.
+   - It hands off ONE way: a deep link into the app if it is installed. There is
+     deliberately no store button (SERAYAE is not published yet) and no
+     paste-this-code fallback, because no shipped client can consume one.
 
   Privacy rules, same as /track:
    - noindex/nofollow: an invite URL must never enter a search index.
@@ -135,6 +136,7 @@
   .actions { margin-top: 1.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
 
   .btn {
+    /* Also used on a <button> now (the opt-out), not only on anchors. */
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     padding: 0.95rem 1.5rem;
     font-size: 0.8125rem; font-weight: 500;
@@ -144,21 +146,12 @@
     transition: background 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s;
   }
   .btn-primary { background: var(--ember); color: var(--ivory); }
-  .btn-primary:hover { background: #a82b03; }
+  .btn-primary:hover { background: #bd3103; filter: brightness(0.88); }
   .btn-ghost { background: transparent; color: var(--ivory-70); border-color: var(--ivory-16); }
   .btn-ghost:hover { border-color: var(--ivory-45); color: var(--ivory); }
+  .btn[disabled] { opacity: 0.55; cursor: default; }
   .btn:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
 
-  .code {
-    margin-top: 1.5rem; padding: 0.85rem 1rem;
-    border: 1px dashed var(--ivory-16); border-radius: 2px;
-    font-family: var(--font-mono); font-size: 0.8125rem;
-    color: var(--ivory-70); word-break: break-all;
-  }
-  .code .label {
-    display: block; font-size: 0.625rem; letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--ivory-45); margin-bottom: 0.4rem;
-  }
 
   .facts { margin-top: 1.75rem; border-top: 1px solid var(--ivory-10); }
   .fact {
@@ -204,8 +197,11 @@
     <h1>Someone asked you to be their guardian.</h1>
     <p class="lede">
       They put your number on SERAYAE as one of the people to contact if something
-      goes wrong. <strong>Nothing has been shared with you yet</strong>, and nothing
-      will be until you confirm it is you.
+      goes wrong. <strong>Nothing about them has been shared with you</strong>, and
+      you will not see their location unless they raise an alert and you have
+      confirmed it is you. Your number is already saved as an emergency contact,
+      though — so if they call for help before you confirm anything, an emergency
+      SMS can still reach you at it.
     </p>
     <p class="lede">
       Confirming happens in the app, signed in with <strong>this</strong> phone
@@ -221,9 +217,13 @@
 
     <h2>What happens next</h2>
     <ol class="steps">
-      <li>Open SERAYAE on this phone — install it first if you do not have it.</li>
-      <li>Sign in with this number. You will get a one-time code by SMS.</li>
-      <li>Accept the invite. Only then does the person who invited you count you as reachable.</li>
+      <li>Nothing, today. SERAYAE is not in the app stores yet, so there is no app
+        on this phone for you to open — and this page does not ask you to do
+        anything it cannot deliver.</li>
+      <li>When it is released, you will be asked to confirm in the app, signed in
+        with this number. A one-time code by SMS proves the number is yours.</li>
+      <li>Only that confirmation lets them see your location during an alert, and
+        only then does the app count you as a reachable guardian.</li>
     </ol>
 
     <div class="actions">
@@ -245,10 +245,13 @@
       for 14 days.
     </p>
 
-    <div class="code" id="codeBlock" hidden>
-      <span class="label">If the buttons do nothing, paste this code into the app</span>
-      <span id="codeValue"></span>
-    </div>
+    <!--
+      Review round 1 (I5): a "paste this code into the app" block used to sit
+      here. No client implements a paste-a-code screen, so it instructed an
+      action nobody could take. Removed rather than hidden: a hidden element is a
+      promise waiting to be re-enabled by accident. The deep link above is the
+      whole handoff.
+    -->
 
     <h2>What you are agreeing to</h2>
     <dl class="facts">
@@ -258,9 +261,25 @@
       <div class="fact"><dt>You can stop</dt><dd>Any time, from the app. No explanation needed</dd></div>
     </dl>
 
+    <h2>If you did not want this</h2>
+    <p class="lede">
+      Ignoring this invite is enough on its own — an invite that is never confirmed
+      grants nothing and expires by itself in 14 days. If you would rather not be
+      asked again, the button below tells us to stop sending guardian invitations
+      to this number, whoever adds it.
+    </p>
+    <p class="ar" lang="ar" dir="rtl">
+      لو ما تريديش دعوات من هذا النوع، اضغطي الزر لإيقاف إرسالها إلى رقمك.
+    </p>
+    <div class="actions">
+      <button class="btn btn-ghost" id="stopInvites" type="button">
+        Stop sending invitations to this number
+      </button>
+    </div>
+    <p class="note" id="stopResult" hidden></p>
     <p class="note">
-      Not expecting this? Decline it in the app, or ignore this message — an invite
-      that is never accepted grants nothing and expires on its own.
+      This does not tell the person who invited you anything about you, and it does
+      not cancel an invite you might still want later — it only stops the messages.
       <a href="/guardian">What being a guardian means</a> ·
       <a href="/privacy.html">Privacy Policy</a>
     </p>
