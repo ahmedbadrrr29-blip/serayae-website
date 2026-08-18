@@ -5,4 +5,9 @@ Allow: /
 # noindex/nofollow, but keep crawlers away from the path entirely.
 Disallow: /track/
 
+# Guardian invite links carry a token bound to one phone number. The page sends
+# noindex/nofollow and makes no network request, but keep crawlers off the path
+# entirely — an indexed invite is an invite in the wrong hands.
+Disallow: /invite/
+
 Sitemap: https://serayae.me/sitemap.xml

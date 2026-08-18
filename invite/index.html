@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>You were asked to be a guardian — SERAYAE</title>
+
+<!--
+  Guardian invite landing page.
+
+  Somebody added this visitor's phone number as one of their emergency
+  guardians, and this is the page in the SMS they received. It exists because
+  before it there was no way for a phone number to become a reachable guardian
+  at all: the backend created the row as PENDING and nothing anywhere could move
+  it to CONFIRMED, so the person who added them had an SOS that reached nobody.
+
+  What this page does and does not do:
+   - It does NOT redeem the invite. Redemption is authenticated — the invited
+     person has to prove they hold the number, by OTP, in the app. A web page
+     that could confirm a guardian would hand a live location feed to whoever
+     opened the link.
+   - It does NOT call the API. There is no unauthenticated endpoint that would
+     tell it anything about this token, and inventing one would turn the link
+     into an oracle for "is this number registered?".
+   - It hands off ONE way: a deep link into the app if it is installed. There is
+     deliberately no store button (SERAYAE is not published yet) and no
+     paste-this-code fallback, because no shipped client can consume one.
+
+  Privacy rules, same as /track:
+   - noindex/nofollow: an invite URL must never enter a search index.
+   - referrer: no-referrer, so the token never rides along in a Referer header.
+   - No third-party script, font, or beacon. A request from this page would tell
+     an outside server that a specific person is being asked to watch over
+     somebody. System fonts only.
+   - The token is never logged and never sent anywhere.
+-->
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<meta name="theme-color" content="#0e0c0a" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+
+<style>
+  :root {
+    --night: #0e0c0a;
+    --ivory: #f5f2ec;
+    --ink: #1d242e;
+    --ember: #bd3103;
+    --ivory-70: rgba(245, 242, 236, 0.7);
+    --ivory-45: rgba(245, 242, 236, 0.45);
+    --ivory-16: rgba(245, 242, 236, 0.16);
+    --ivory-10: rgba(245, 242, 236, 0.1);
+    /* System stack: no webfont request from a page about somebody's safety. */
+    --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { margin: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100svh;
+    background: var(--night);
+    color: var(--ivory);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(1.25rem, 5vw, 3rem);
+  }
+
+  .wrap { width: 100%; max-width: 32rem; margin: auto 0; }
+
+  header.mark {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: clamp(1.75rem, 6vw, 2.75rem);
+  }
+  .lantern { width: 22px; height: auto; color: var(--ivory-45); flex: none; }
+  .lantern .flame { fill: var(--ember); }
+  .wordmark {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem; letter-spacing: 0.24em;
+    color: var(--ivory-45); text-transform: uppercase;
+  }
+
+  .kicker {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono); font-size: 0.625rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 0.4rem 0.7rem; border-radius: 2px;
+    border: 1px solid var(--ivory-16); color: var(--ivory-70);
+    margin-bottom: 1.25rem;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.75rem, 6.5vw, 2.5rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.85rem;
+  }
+  h2 {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ivory-45); font-weight: 500;
+    margin: 2rem 0 0.85rem;
+  }
+  .lede { font-size: 0.9375rem; line-height: 1.65; color: var(--ivory-70); }
+  .lede + .lede { margin-top: 0.75rem; }
+  .lede strong { color: var(--ivory); font-weight: 500; }
+
+  .ar {
+    margin-top: 1.25rem; padding-top: 1.25rem;
+    border-top: 1px solid var(--ivory-10);
+    font-size: 0.9375rem; line-height: 1.85; color: var(--ivory-70);
+  }
+
+  ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  ol.steps li {
+    counter-increment: step;
+    position: relative; padding: 0 0 0 2.25rem;
+    font-size: 0.9375rem; line-height: 1.6; color: var(--ivory-70);
+  }
+  ol.steps li + li { margin-top: 0.9rem; }
+  ol.steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    border: 1px solid var(--ivory-16);
+    font-family: var(--font-mono); font-size: 0.6875rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ivory-45);
+  }
+
+  .actions { margin-top: 1.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .btn {
+    /* Also used on a <button> now (the opt-out), not only on anchors. */
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.95rem 1.5rem;
+    font-size: 0.8125rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-decoration: none; border-radius: 2px; border: 1px solid transparent;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s;
+  }
+  .btn-primary { background: var(--ember); color: var(--ivory); }
+  .btn-primary:hover { background: #bd3103; filter: brightness(0.88); }
+  .btn-ghost { background: transparent; color: var(--ivory-70); border-color: var(--ivory-16); }
+  .btn-ghost:hover { border-color: var(--ivory-45); color: var(--ivory); }
+  .btn[disabled] { opacity: 0.55; cursor: default; }
+  .btn:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
+
+
+  .facts { margin-top: 1.75rem; border-top: 1px solid var(--ivory-10); }
+  .fact {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    padding: 0.85rem 0; border-bottom: 1px solid var(--ivory-10);
+  }
+  .fact dt {
+    font-family: var(--font-mono); font-size: 0.625rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--ivory-45);
+  }
+  .fact dd { font-size: 0.9375rem; text-align: end; color: var(--ivory-70); }
+
+  .note { margin-top: 1.5rem; font-size: 0.75rem; line-height: 1.6; color: var(--ivory-45); }
+  .note a { color: var(--ivory-70); }
+
+  footer.foot {
+    margin-top: clamp(2.5rem, 8vw, 4rem);
+    font-size: 0.6875rem; color: var(--ivory-45); line-height: 1.7;
+  }
+  footer.foot a { color: var(--ivory-70); }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="mark">
+    <svg class="lantern" viewBox="0 0 32 40" aria-hidden="true">
+      <g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round">
+        <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
+      </g>
+      <circle class="flame" cx="16" cy="21" r="4" />
+    </svg>
+    <span class="wordmark">SERAYAE</span>
+  </header>
+
+  <main id="view" aria-live="polite">
+    <p class="kicker">Guardian invite</p>
+    <h1>Someone asked you to be their guardian.</h1>
+    <p class="lede">
+      They put your number on SERAYAE as one of the people to contact if something
+      goes wrong. <strong>Nothing about them has been shared with you</strong>, and
+      you will not see their location unless they raise an alert and you have
+      confirmed it is you. Your number is already saved as an emergency contact,
+      though — so if they call for help before you confirm anything, an emergency
+      SMS can still reach you at it.
+    </p>
+    <p class="lede">
+      Confirming happens in the app, signed in with <strong>this</strong> phone
+      number — the number the invite was sent to. That is deliberate: it is the
+      only way to be sure a link forwarded to somebody else cannot make a stranger
+      into their guardian.
+    </p>
+
+    <p class="ar" lang="ar" dir="rtl">
+      اختارك أحدهم وليّ أمان له على سراي. لم يُشارَك معك أي شيء عنه، ولن ترَي موقعه
+      إلا إذا أطلق نداء استغاثة وأكّدتِ أن هذا الرقم رقمك. لكن رقمك محفوظ عنده
+      بالفعل كرقم للطوارئ، فإذا طلب المساعدة قبل أن تؤكّدي أي شيء قد تصلك رسالة
+      استغاثة عليه.
+    </p>
+    <p class="ar" lang="ar" dir="rtl">
+      التأكيد يحدث داخل التطبيق، بتسجيل الدخول بهذا الرقم نفسه — الرقم الذي وصلتك
+      عليه الدعوة. وهذا مقصود: هي الطريقة الوحيدة لضمان أن رابطًا أُعيد إرساله
+      لشخص آخر لا يجعل غريبًا وليّ أمان.
+    </p>
+    <p class="ar" lang="ar" dir="rtl">
+      لا شيء مطلوب منك اليوم: سراي لم تُنشر في متاجر التطبيقات بعد، فلا يوجد تطبيق
+      على هذا الهاتف لتفتحيه، وهذه الصفحة لا تطلب منك ما لا تستطيع الوفاء به.
+    </p>
+
+    <h2>What happens next</h2>
+    <ol class="steps">
+      <li>Nothing, today. SERAYAE is not in the app stores yet, so there is no app
+        on this phone for you to open — and this page does not ask you to do
+        anything it cannot deliver.</li>
+      <li>When it is released, you will be asked to confirm in the app, signed in
+        with this number. A one-time code by SMS proves the number is yours.</li>
+      <li>Only that confirmation lets them see your location during an alert, and
+        only then does the app count you as a reachable guardian.</li>
+    </ol>
+
+    <div class="actions">
+      <a class="btn btn-primary" id="openApp" href="#">Open in SERAYAE</a>
+      <a class="btn btn-ghost" href="/#waitlist">I don't have the app yet</a>
+    </div>
+
+    <!--
+      There is deliberately no store button here. SERAYAE is not published on
+      Google Play or the App Store yet — the Play listing for the reserved
+      package is not public, and a "Get the app" button that lands on a store
+      404 is worse than no button, especially for someone who was just told
+      another person's safety depends on them.
+    -->
+    <p class="note">
+      SERAYAE is not in the app stores yet. If you cannot install it, say so to
+      the person who invited you — they should know their alert will not reach
+      you, and they can send a fresh invite once the app is out. This one is good
+      for 14 days.
+    </p>
+
+    <!--
+      Review round 1 (I5): a "paste this code into the app" block used to sit
+      here. No client implements a paste-a-code screen, so it instructed an
+      action nobody could take. Removed rather than hidden: a hidden element is a
+      promise waiting to be re-enabled by accident. The deep link above is the
+      whole handoff.
+    -->
+
+    <h2>What you are agreeing to</h2>
+    <dl class="facts">
+      <div class="fact"><dt>They can see</dt><dd>Your name and number, as they saved them</dd></div>
+      <div class="fact"><dt>You can see</dt><dd>Their location only while they raise an alert</dd></div>
+      <div class="fact"><dt>You are not</dt><dd>Tracked. SERAYAE does not share your location with them</dd></div>
+      <div class="fact"><dt>You can stop</dt><dd>Any time, from the app. No explanation needed</dd></div>
+    </dl>
+
+    <h2>If you did not want this</h2>
+    <p class="lede">
+      Ignoring this invite is enough on its own — an invite that is never confirmed
+      grants nothing and expires by itself in 14 days. If you would rather not be
+      asked again, the button below tells us to stop sending guardian invitations
+      to this number, whoever adds it.
+    </p>
+    <p class="ar" lang="ar" dir="rtl">
+      لو لا تريدين دعوات من هذا النوع، اضغطي الزر لإيقاف إرسالها إلى رقمك من الشخص
+      الذي وصلتك دعوته. الرابط الذي وصلك يبقى صالحًا لو غيّرتِ رأيك.
+    </p>
+    <div class="actions">
+      <button class="btn btn-ghost" id="stopInvites" type="button">
+        Stop sending invitations to this number
+      </button>
+    </div>
+    <p class="note" id="stopResult" hidden></p>
+    <p class="note">
+      This stops the messages, from the person whose invitation brought you here, for
+      about six months. It does not tell them anything about you, and it does not
+      cancel an invite you might still want later — the link you were sent keeps
+      working, so you can confirm from it if you change your mind. Declining is a
+      separate choice, and it lives in the app.
+      <a href="/guardian">What being a guardian means</a> ·
+      <a href="/privacy.html">Privacy Policy</a>
+    </p>
+  </main>
+
+  <footer class="foot">
+    <p>SERAYAE &middot; Human Response Infrastructure &middot; <a href="/">serayae.me</a></p>
+  </footer>
+</div>
+
+<script src="./invite.js"></script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Being a guardian — SERAYAE</title>
+<meta name="description" content="What it means to be someone's guardian on SERAYAE: what you see, what you never see, and how to stop." />
+
+<!--
+  The page an invited guardian reads before deciding.
+
+  Unlike /invite this one carries no token and is safe to index: it is the
+  honest, checkable description of the arrangement someone is being asked to
+  enter. Every claim here has to match what the app actually does. If a
+  behaviour changes, this page changes with it.
+
+  It uses the site's ivory day theme rather than /invite's night theme, because
+  it is documentation, not an alert.
+-->
+<meta name="theme-color" content="#f5f2ec" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="canonical" href="https://serayae.me/guardian" />
+
+<style>
+  :root {
+    --night: #0e0c0a;
+    --ivory: #f5f2ec;
+    --ink: #1d242e;
+    --ember: #bd3103;
+    --ink-70: rgba(29, 36, 46, 0.7);
+    --ink-45: rgba(29, 36, 46, 0.45);
+    --ink-14: rgba(29, 36, 46, 0.14);
+    --ink-08: rgba(29, 36, 46, 0.08);
+    --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { margin: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100svh;
+    background-color: var(--ivory);
+    background-image: radial-gradient(rgba(29, 36, 46, 0.1) 1px, transparent 1px);
+    background-size: 26px 26px;
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(1.25rem, 5vw, 3.5rem);
+  }
+
+  .wrap { width: 100%; max-width: 38rem; margin: 0 auto; }
+
+  header.mark { display: flex; align-items: center; gap: 0.6rem; margin-bottom: clamp(2rem, 7vw, 3.25rem); }
+  .lantern { width: 22px; height: auto; color: var(--ink-45); flex: none; }
+  .lantern .flame { fill: var(--ember); }
+  .wordmark {
+    font-family: var(--font-mono); font-size: 0.6875rem;
+    letter-spacing: 0.24em; color: var(--ink-45); text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  h1 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(1.875rem, 7vw, 2.75rem); line-height: 1.1;
+    letter-spacing: -0.015em; margin-bottom: 1rem;
+  }
+  .lede { font-size: 1.0625rem; line-height: 1.65; color: var(--ink-70); }
+  .lede + .lede { margin-top: 0.85rem; }
+  .lede strong { color: var(--ink); font-weight: 500; }
+
+  h2 {
+    font-family: var(--font-mono); font-size: 0.6875rem;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-45);
+    font-weight: 500; margin: 2.75rem 0 1rem;
+  }
+
+  p.body, li.body { font-size: 0.9375rem; line-height: 1.7; color: var(--ink-70); }
+  p.body + p.body { margin-top: 0.85rem; }
+
+  .two { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .two { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    border: 1px solid var(--ink-14); border-radius: 3px;
+    padding: 1.25rem; background: rgba(245, 242, 236, 0.75);
+  }
+  .card h3 {
+    font-family: var(--font-mono); font-size: 0.625rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-45); font-weight: 500; margin-bottom: 0.85rem;
+  }
+  .card ul { margin: 0; padding: 0; list-style: none; }
+  .card li {
+    font-size: 0.875rem; line-height: 1.55; color: var(--ink-70);
+    padding-left: 1.1rem; position: relative;
+  }
+  .card li + li { margin-top: 0.6rem; }
+  .card li::before {
+    content: ''; position: absolute; left: 0; top: 0.55em;
+    width: 5px; height: 5px; border-radius: 50%; background: var(--ink-45);
+  }
+  .card.can li::before { background: var(--ember); }
+
+  ol.flow { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  ol.flow li {
+    counter-increment: s; position: relative; padding-left: 2.25rem;
+    font-size: 0.9375rem; line-height: 1.65; color: var(--ink-70);
+  }
+  ol.flow li + li { margin-top: 1rem; }
+  ol.flow li::before {
+    content: counter(s); position: absolute; left: 0; top: 0.05em;
+    width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    border: 1px solid var(--ink-14);
+    font-family: var(--font-mono); font-size: 0.6875rem; color: var(--ink-45);
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.flow li strong { color: var(--ink); font-weight: 500; }
+
+  .callout {
+    margin-top: 1.5rem; padding: 1.1rem 1.25rem;
+    border-inline-start: 2px solid var(--ember);
+    background: rgba(189, 49, 3, 0.05);
+    font-size: 0.9375rem; line-height: 1.65; color: var(--ink-70);
+  }
+
+  .ar {
+    margin-top: 1.5rem; padding: 1.25rem;
+    border: 1px solid var(--ink-14); border-radius: 3px;
+    font-size: 0.9375rem; line-height: 1.9; color: var(--ink-70);
+  }
+
+  footer.foot {
+    margin-top: clamp(3rem, 9vw, 4.5rem); padding-top: 1.5rem;
+    border-top: 1px solid var(--ink-08);
+    font-size: 0.75rem; line-height: 1.8; color: var(--ink-45);
+  }
+  footer.foot a { color: var(--ink-70); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="mark">
+    <svg class="lantern" viewBox="0 0 32 40" aria-hidden="true">
+      <g stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round">
+        <path d="M16 2v4" /><path d="M10 6h12" /><path d="M11 6 8.5 33h15L21 6" /><path d="M8.5 33h15" /><path d="M13 36h6" />
+      </g>
+      <circle class="flame" cx="16" cy="21" r="4" />
+    </svg>
+    <a class="wordmark" href="/">SERAYAE</a>
+  </header>
+
+  <main>
+    <h1>Being someone's guardian</h1>
+    <p class="lede">
+      A guardian is one of the few people SERAYAE contacts when the person who
+      chose them raises an alert. Not a follower, not a supervisor.
+      <strong>Someone who will pick up.</strong>
+    </p>
+    <p class="lede">
+      Being named is not the same as agreeing. Until you confirm the invite from
+      the phone number it was sent to, you are not counted, and the person who
+      added you is told plainly that you are not yet reachable — because an
+      emergency contact who has not agreed is not an emergency contact.
+    </p>
+
+    <h2>What you see, and what you never see</h2>
+    <div class="two">
+      <div class="card can">
+        <h3>You see</h3>
+        <ul>
+          <li>An alert, the moment they raise one</li>
+          <li>Their location while that alert is open, so you can reach them</li>
+          <li>Their name, and whatever note they chose to send</li>
+          <li>When the alert ends, and how it ended</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>You never see</h3>
+        <ul>
+          <li>Where they are at any other time</li>
+          <li>Their movements, history, or routine</li>
+          <li>Their other guardians' numbers</li>
+          <li>Their location, at any point, unless you have confirmed and they
+            have raised an alert</li>
+        </ul>
+      </div>
+    </div>
+    <p class="body" style="margin-top:1rem">
+      It does not run the other way either. Accepting does not share
+      <em>your</em> location with them, and SERAYAE does not track you for
+      agreeing to help.
+    </p>
+
+    <h2>How it works, start to finish</h2>
+    <ol class="flow">
+      <li><strong>They add you</strong> by name and number, and you get one invitation
+        message. If they call for help before you have confirmed anything, an
+        emergency SMS can still reach the number they saved — that is what saving
+        an emergency contact means, and it is the one thing that does not wait for
+        the app.</li>
+      <li><strong>You confirm</strong> in the app, signed in with that same number.
+        That is the step that lets you see where they are during an alert, and the
+        step their screen counts when it tells them how many guardians can be
+        reached. Only you can take it — and once SERAYAE is released, the app will
+        ask you to.</li>
+      <li><strong>Nothing happens</strong> — hopefully for a very long time. There is no check-in, no notification, no reason to open the app.</li>
+      <li><strong>They raise an alert.</strong> You are contacted, and you can see where they are for as long as it is open.</li>
+      <li><strong>You step away whenever you want</strong>, from the app. Their own screen then shows one fewer guardian reachable, so they can name someone else. Nobody is left believing in cover they do not have.</li>
+    </ol>
+
+    <div class="callout">
+      Why confirmation is required at all: an unconfirmed number is a promise
+      nobody made. If SERAYAE treated a typed-in number as a guardian, someone
+      could go out believing four people had their back when the alert was
+      quietly going nowhere.
+    </div>
+
+    <h2>If you would rather not</h2>
+    <p class="body">
+      Decline in the app, or simply do nothing — an invite that is never accepted
+      grants nothing and expires on its own. You are not told off for it, and the
+      person who invited you sees only that the number is not reachable, so they
+      can ask someone else. Saying no early is more useful to them than saying
+      yes and not meaning it.
+    </p>
+
+    <div class="ar" lang="ar" dir="rtl">
+      <p>
+        وليّ الأمان هو من نتصل به عند إطلاق نداء استغاثة. تصلك دعوة واحدة، وإذا
+        طلبت المساعدة قبل أن تؤكّدي أي شيء فقد تصلك رسالة استغاثة على الرقم الذي
+        حفظته — هذا معنى حفظ رقم للطوارئ، وهو الشيء الوحيد الذي لا ينتظر التطبيق.
+        التأكيد من نفس الرقم هو ما يتيح لك رؤية موقعها أثناء النداء، وهو ما تحسبه
+        شاشتها عندما تخبرها بعدد من يمكن الوصول إليهم. بعد التأكيد ترين موقعها
+        أثناء النداء فقط، ولا ترين تحرّكاتها في أي وقت آخر، ولا نشارك موقعك معها.
+        يمكنك الانسحاب في أي لحظة من التطبيق، وتنقص شاشتها وليًّا واحدًا فتستطيع
+        أن تسمّي غيرك.
+      </p>
+    </div>
+
+    <h2>Questions we get asked</h2>
+    <p class="body">
+      <strong>Does it cost me anything?</strong> No. Being a guardian is free, and
+      always will be.
+    </p>
+    <p class="body">
+      <strong>Do I need the app open?</strong> No. You are contacted whether or not
+      the app is running.
+    </p>
+    <p class="body">
+      <strong>Can I be a guardian for more than one person?</strong> Yes, for as
+      many as ask you.
+    </p>
+    <p class="body">
+      <strong>What if I miss an alert?</strong> Others are contacted too, and the
+      alert stays open until it is resolved. Nothing rests on one phone being
+      picked up.
+    </p>
+  </main>
+
+  <footer class="foot">
+    <p>
+      <a href="/">SERAYAE</a> &middot; Human Response Infrastructure &middot;
+      <a href="/privacy.html">Privacy Policy</a> &middot;
+      <a href="/terms.html">Terms</a>
+    </p>
+    <p>Have an invite already? Open it from the message you received.</p>
+  </footer>
+</div>
+
+</body>
+</html>
