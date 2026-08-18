@@ -88,12 +88,36 @@
       button.disabled = true;
       button.textContent = 'Sending…';
 
-      var done = function () {
+      /*
+       * Review round 2, site edit 3: the round-1 version was `.then(done, done)`
+       * with a single message reading "Done. This number will not receive further
+       * guardian invitations." It said that on a 404, on a 500, on a DNS failure,
+       * and — because `POST /referrals/invite-stop` does not exist in production
+       * until the backend change ships — on every press until then. A button that
+       * always says it worked is the same defect class as the dispatch copy this
+       * week was spent removing.
+       *
+       * So: success is reported only on a 2xx, it claims exactly what the backend
+       * does (this sender, for about six months, invite still valid), and anything
+       * else says plainly that the request did not go through and offers the retry.
+       */
+      var succeeded = function () {
         result.textContent =
-          'Done. This number will not receive further guardian invitations. ' +
-          'If you change your mind, the person who invited you can send a new link.';
+          'We have asked to stop these messages. Invitations from the person who ' +
+          'invited you should stop within a few minutes, for about six months. The ' +
+          'link you were sent still works if you change your mind.';
         result.hidden = false;
-        button.textContent = 'Invitations stopped';
+        button.textContent = 'Request sent';
+      };
+
+      var failed = function () {
+        result.textContent =
+          'We could not reach SERAYAE just now, so nothing has been changed. ' +
+          'Please try again in a moment. Ignoring the message also works — an ' +
+          'invitation that is never confirmed grants nobody anything.';
+        result.hidden = false;
+        button.disabled = false;
+        button.textContent = 'Try again';
       };
 
       try {
@@ -106,9 +130,15 @@
             credentials: 'omit',
             referrerPolicy: 'no-referrer',
           })
-          .then(done, done);
+          .then(function (response) {
+            // The server answers identically for a known and an unknown token, by
+            // design, so a 2xx is all there is to read — and all we claim.
+            if (response && response.ok) succeeded();
+            else failed();
+          }, failed)
+          .catch(failed);
       } catch (err) {
-        done();
+        failed();
       }
     });
   }
