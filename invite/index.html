@@ -15,16 +15,21 @@
   it to CONFIRMED, so the person who added them had an SOS that reached nobody.
 
   What this page does and does not do:
-   - It does NOT redeem the invite. Redemption is authenticated — the invited
-     person has to prove they hold the number, by OTP, in the app. A web page
-     that could confirm a guardian would hand a live location feed to whoever
-     opened the link.
-   - It does NOT call the API. There is no unauthenticated endpoint that would
-     tell it anything about this token, and inventing one would turn the link
-     into an oracle for "is this number registered?".
-   - It hands off ONE way: a deep link into the app if it is installed. There is
-     deliberately no store button (SERAYAE is not published yet) and no
-     paste-this-code fallback, because no shipped client can consume one.
+   - It CAN now redeem the invite, and this is the only client in the codebase
+     that can. Redemption is authenticated, so the page walks her through the
+     same proof the app would: a one-time code by SMS to the invited number
+     (POST /api/auth/send-otp, POST /api/auth/verify-otp), then
+     POST /api/referrals/redeem with the token from her own SMS. The backend's
+     own check is what makes this safe: it compares the CALLER'S account phone —
+     the number she just proved — against the number the invite was issued to, so
+     a link forwarded to a stranger still confirms nobody.
+   - It makes NO network request while loading, and none at all until she presses
+     a button herself. There is still no unauthenticated endpoint that would tell
+     the page anything about the token, so it shows nothing about the inviter
+     before she signs in — inventing such an endpoint would turn the link into an
+     oracle for "is this number registered?".
+   - It still offers the app deep link for anyone who does have the app. There is
+     deliberately no store button, because SERAYAE is not published yet.
 
   Privacy rules, same as /track:
    - noindex/nofollow: an invite URL must never enter a search index.
@@ -164,6 +169,46 @@
   }
   .fact dd { font-size: 0.9375rem; text-align: end; color: var(--ivory-70); }
 
+  /* ── The accept form ───────────────────────────────────────────────────
+     Mobile-first: full-width controls, 16px inputs so iOS does not zoom on
+     focus, and a tap target no smaller than the primary button. */
+  .accept {
+    margin-top: 1.5rem; padding: 1.25rem;
+    border: 1px solid var(--ivory-16); border-radius: 3px;
+    background: rgba(245, 242, 236, 0.03);
+  }
+  .field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+  .field label {
+    font-family: var(--font-mono); font-size: 0.625rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--ivory-45);
+  }
+  .field input {
+    font-family: var(--font-body); font-size: 1rem;
+    padding: 0.85rem 0.9rem; color: var(--ivory);
+    background: rgba(29, 36, 46, 0.55);
+    border: 1px solid var(--ivory-16); border-radius: 2px;
+    -webkit-appearance: none; appearance: none;
+  }
+  .field input:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+  .field .hint { font-size: 0.75rem; line-height: 1.55; color: var(--ivory-45); }
+  .field .hint[dir='rtl'] { text-align: right; }
+  #codeInput { font-family: var(--font-mono); letter-spacing: 0.3em; }
+
+  .result {
+    margin-top: 1rem; padding: 0.85rem 0.9rem;
+    border-radius: 2px; border: 1px solid var(--ivory-16);
+    font-size: 0.875rem; line-height: 1.6; color: var(--ivory-70);
+  }
+  /* Ember marks something she must act on. Red #DC2626 is emergency-only and
+     is not used anywhere on this page. */
+  .result-warn { border-color: rgba(189, 49, 3, 0.55); }
+  .result-ok { border-color: rgba(245, 242, 236, 0.38); color: var(--ivory); }
+  .result p + p {
+    margin-top: 0.6rem; padding-top: 0.6rem;
+    border-top: 1px solid var(--ivory-10);
+  }
+  .result p[dir='rtl'] { line-height: 1.85; }
+
   .note { margin-top: 1.5rem; font-size: 0.75rem; line-height: 1.6; color: var(--ivory-45); }
   .note a { color: var(--ivory-70); }
 
@@ -199,42 +244,157 @@
       They put your number on SERAYAE as one of the people to contact if something
       goes wrong. <strong>Nothing about them has been shared with you</strong>, and
       you will not see their location unless they raise an alert and you have
-      confirmed it is you. Your number is already saved as an emergency contact,
-      though — so if they call for help before you confirm anything, an emergency
-      SMS can still reach you at it.
+      confirmed it is you. Until you accept, <strong>an SOS from them will not be
+      sent to you at all</strong> — SERAYAE only contacts guardians who have
+      confirmed their own number, which is why they were asked to invite you.
+    </p>
+    <!--
+      Corrected in Task 8. This paragraph used to say an emergency SMS "can still
+      reach you" before confirming. It cannot: notifyGuardians selects
+      `where: { userId, status: 'CONFIRMED' }` (src/services/smsService.ts:124),
+      and so does every other dispatch path. Telling an invited guardian she is
+      already reachable was the same class of lie as telling the sender help was
+      on the way — and it would have made accepting look optional.
+    -->
+    <p class="lede">
+      You can accept right here, on this page. It takes a one-time code by SMS to
+      <strong>this</strong> phone number — the number the invite was sent to. That
+      is deliberate: proving the number is the only way to be sure a link
+      forwarded to somebody else cannot make a stranger into their guardian.
     </p>
     <p class="lede">
-      Confirming happens in the app, signed in with <strong>this</strong> phone
-      number — the number the invite was sent to. That is deliberate: it is the
-      only way to be sure a link forwarded to somebody else cannot make a stranger
-      into their guardian.
+      Accepting means one thing: <strong>if they send an SOS, SERAYAE will contact
+      you at this number.</strong> It does not start you following anybody, it
+      does not share your location, and there is nothing to watch — you will see
+      nothing at all until there is an emergency.
     </p>
 
     <p class="ar" lang="ar" dir="rtl">
       اختارك أحدهم وليّ أمان له على سراي. لم يُشارَك معك أي شيء عنه، ولن ترَي موقعه
-      إلا إذا أطلق نداء استغاثة وأكّدتِ أن هذا الرقم رقمك. لكن رقمك محفوظ عنده
-      بالفعل كرقم للطوارئ، فإذا طلب المساعدة قبل أن تؤكّدي أي شيء قد تصلك رسالة
-      استغاثة عليه.
+      إلا إذا أطلق نداء استغاثة وأكّدتِ أن هذا الرقم رقمك. واعلمي أنه قبل قبولك
+      <strong>لن يُرسل إليك نداء الاستغاثة منه إطلاقًا</strong> — فسراي لا تتصل إلا
+      بمن أكّدوا أرقامهم، ولهذا أُرسلت لك الدعوة.
     </p>
     <p class="ar" lang="ar" dir="rtl">
-      التأكيد يحدث داخل التطبيق، بتسجيل الدخول بهذا الرقم نفسه — الرقم الذي وصلتك
-      عليه الدعوة. وهذا مقصود: هي الطريقة الوحيدة لضمان أن رابطًا أُعيد إرساله
-      لشخص آخر لا يجعل غريبًا وليّ أمان.
+      اقبلي الدعوة من هذه الصفحة مباشرة. سيصلك رمز لمرة واحدة برسالة نصية على هذا
+      الرقم — الرقم الذي وصلتك عليه الدعوة. وهذا مقصود: إثبات الرقم هو الطريقة
+      الوحيدة لضمان أن رابطًا أُعيد إرساله لشخص آخر لا يجعل غريبًا وليّ أمان.
     </p>
     <p class="ar" lang="ar" dir="rtl">
-      لا شيء مطلوب منك اليوم: سراي لم تُنشر في متاجر التطبيقات بعد، فلا يوجد تطبيق
-      على هذا الهاتف لتفتحيه، وهذه الصفحة لا تطلب منك ما لا تستطيع الوفاء به.
+      اعرفي معنى القبول: <strong>عند إرسال نداء استغاثة، ستتصل بك سراي على هذا
+      الرقم.</strong> لا تتابعين موقع أحد، ولا يُشارَك موقعك، ولا يوجد شيء
+      لمراقبته — لن ترَي شيئًا حتى تحدث حالة طوارئ.
+    </p>
+
+    <h2>Accept the invitation</h2>
+
+    <!--
+      The one thing this whole week was missing. POST /api/referrals/redeem is the
+      only transition into CONFIRMED, and CONFIRMED is the only status any SOS
+      reaches — and until now no client anywhere called it. The app is not in any
+      store, so this form is the only route a real invited guardian has.
+
+      Redemption is authenticated, so the form does what the app would do: prove
+      the number by one-time code, then redeem with the token from her own SMS.
+    -->
+    <form class="accept" id="acceptForm" novalidate>
+      <div id="phoneStep">
+        <div class="field">
+          <label for="phoneInput">Your phone number</label>
+          <input
+            id="phoneInput"
+            name="phone"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            enterkeyhint="send"
+            placeholder="+20 10 1234 5678"
+          />
+          <p class="hint">
+            The number this message arrived on. Any other number will be refused
+            — the invitation is tied to this one.
+          </p>
+          <p class="hint" lang="ar" dir="rtl">
+            اكتبي الرقم الذي وصلتك عليه هذه الرسالة. أي رقم آخر سيُرفَض — الدعوة
+            مرتبطة بهذا الرقم وحده.
+          </p>
+        </div>
+        <div class="field">
+          <label for="nameInput">Your name (optional)</label>
+          <input
+            id="nameInput"
+            name="name"
+            type="text"
+            autocomplete="name"
+            maxlength="100"
+            placeholder="So they know who accepted"
+          />
+        </div>
+        <button class="btn btn-primary" id="sendCodeBtn" type="button">
+          Send me a code
+        </button>
+      </div>
+
+      <div id="codeStep" hidden>
+        <div class="field">
+          <label for="codeInput">6-digit code sent to <span id="phoneEcho"></span></label>
+          <input
+            id="codeInput"
+            name="code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            enterkeyhint="done"
+            maxlength="6"
+            placeholder="······"
+          />
+        </div>
+        <div class="actions" style="margin-top: 0">
+          <button class="btn btn-primary" id="acceptBtn" type="button">
+            Accept the invitation
+          </button>
+          <button class="btn btn-ghost" id="resendCodeBtn" type="button">
+            Send the code again
+          </button>
+          <button class="btn btn-ghost" id="changeNumberBtn" type="button">
+            Use a different number
+          </button>
+        </div>
+      </div>
+
+      <div class="result" id="acceptStatus" role="status" aria-live="polite" hidden>
+        <p id="acceptStatusEn"></p>
+        <p id="acceptStatusAr" lang="ar" dir="rtl"></p>
+      </div>
+    </form>
+
+    <p class="note">
+      Confirming the code signs you in to SERAYAE, and creates an account for this
+      number if you do not already have one — that is how the invitation can be
+      checked against your number rather than against a link anyone could forward.
+      This page keeps nothing: no code, no token and no sign-in is saved on this
+      device.
+    </p>
+    <p class="note" lang="ar" dir="rtl">
+      تأكيد الرمز يُسجّل دخولك إلى سراي، ويُنشئ حسابًا لهذا الرقم إن لم يكن لديك
+      حساب — بهذه الطريقة تُفحَص الدعوة مقابل رقمك، لا مقابل رابط يمكن لأي شخص
+      إعادة إرساله. ولا تحفظ هذه الصفحة شيئًا على هذا الجهاز: لا الرمز ولا الرابط
+      ولا تسجيل الدخول.
     </p>
 
     <h2>What happens next</h2>
     <ol class="steps">
-      <li>Nothing, today. SERAYAE is not in the app stores yet, so there is no app
-        on this phone for you to open — and this page does not ask you to do
-        anything it cannot deliver.</li>
-      <li>When it is released, you will be asked to confirm in the app, signed in
-        with this number. A one-time code by SMS proves the number is yours.</li>
-      <li>Only that confirmation lets them see your location during an alert, and
-        only then does the app count you as a reachable guardian.</li>
+      <li>Accept above with the number this message reached. A one-time code by
+        SMS proves the number is yours; nothing is confirmed without it.</li>
+      <li>After that, an SOS from the person who invited you will be sent to this
+        number. Until then it will not — an invitation that is never accepted
+        counts for nothing, which is exactly what their app tells them.</li>
+      <li>Only that confirmation lets them share their location with you during an
+        alert. Nothing is shared before it, and nothing is shared between
+        alerts.</li>
+      <li>If you do have the app, you can accept there instead — the button below
+        opens it. SERAYAE is not in the app stores yet, so for almost everyone
+        this page is the way.</li>
     </ol>
 
     <div class="actions">
@@ -250,10 +410,9 @@
       another person's safety depends on them.
     -->
     <p class="note">
-      SERAYAE is not in the app stores yet. If you cannot install it, say so to
-      the person who invited you — they should know their alert will not reach
-      you, and they can send a fresh invite once the app is out. This one is good
-      for 14 days.
+      SERAYAE is not in the app stores yet, which is why accepting lives on this
+      page. The invitation is good for 14 days; after that, ask the person who
+      invited you to send a fresh one.
     </p>
 
     <!--
@@ -269,7 +428,7 @@
       <div class="fact"><dt>They can see</dt><dd>Your name and number, as they saved them</dd></div>
       <div class="fact"><dt>You can see</dt><dd>Their location only while they raise an alert</dd></div>
       <div class="fact"><dt>You are not</dt><dd>Tracked. SERAYAE does not share your location with them</dd></div>
-      <div class="fact"><dt>You can stop</dt><dd>Any time, from the app. No explanation needed</dd></div>
+      <div class="fact"><dt>You can stop</dt><dd>Any time. Tell them to remove your number, or stop the invitations below</dd></div>
     </dl>
 
     <h2>If you did not want this</h2>
@@ -306,5 +465,8 @@
 </div>
 
 <script src="./invite.js"></script>
+<!-- Loaded after invite.js, which publishes the token it read before scrubbing
+     it out of the address bar. -->
+<script src="./redeem.js"></script>
 </body>
 </html>
