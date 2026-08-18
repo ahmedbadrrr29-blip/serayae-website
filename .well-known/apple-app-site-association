@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "TEAMID.com.serayae.app",
-        "paths": ["/emergency/*", "/referral", "/circles/*", "/children/*", "/safety-pins/*", "/onboarding*", "/download"]
+        "paths": ["/emergency/*", "/referral", "/invite/*", "/guardian", "/circles/*", "/children/*", "/safety-pins/*", "/onboarding*", "/download"]
       }
     ]
   },

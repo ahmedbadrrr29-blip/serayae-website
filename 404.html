@@ -28,6 +28,23 @@
     }
 
     /*
+      Guardian-invite rescue, same shape as the tracker above. The backend sends
+      https://serayae.me/invite/<token> by SMS. Referral tokens are cuids, not
+      UUIDs — lower-case alphanumeric, no dashes — hence the different pattern.
+      Someone who was asked to be a guardian must not meet a "page not found";
+      the invite in their hand is still perfectly valid.
+
+      This returns before the webfont injection below for the same reason /track
+      does: /invite/ makes zero third-party requests by design, and routing
+      through this page must not quietly add some.
+    */
+    var inv = window.location.pathname.match(/^\/invite\/([a-z0-9]{16,64})\/?$/i);
+    if (inv) {
+      window.location.replace('/invite/?t=' + inv[1] + window.location.hash);
+      return;
+    }
+
+    /*
       Fonts are injected here rather than declared as <link> tags so they do NOT
       load on the rescue path above. Live testing showed a guardian opening
       /track/<token> firing requests to Fontshare and Google Fonts on their way
