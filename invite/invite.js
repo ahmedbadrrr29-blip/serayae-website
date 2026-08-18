@@ -146,6 +146,14 @@
   var token = readToken();
   var openApp = document.getElementById('openApp');
 
+  /*
+   * Published for redeem.js, which runs after this file and needs the token that
+   * `scrubUrl()` is about to remove from the address bar. Same page, same origin,
+   * same token she is already holding — it is not exposed anywhere new, and it is
+   * still never logged and never sent to a third party.
+   */
+  window.SERAYAE_INVITE = { token: token };
+
   if (token) {
     if (openApp) {
       openApp.setAttribute('href', SCHEME + encodeURIComponent(token));
