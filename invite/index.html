@@ -296,7 +296,43 @@
 
       Redemption is authenticated, so the form does what the app would do: prove
       the number by one-time code, then redeem with the token from her own SMS.
+
+      Review I3: the two disclosure notes below used to sit AFTER the form. What a
+      woman is agreeing to has to be readable before she agrees to it, not after,
+      so they now precede the first input.
     -->
+
+    <p class="note">
+      Confirming the code signs you in to SERAYAE, and creates an account for this
+      number if you do not already have one — that is how the invitation can be
+      checked against your number rather than against a link anyone could forward.
+      You can undo it: accepting can be withdrawn at any time from the SERAYAE app
+      on this number, and the person who invited you can remove you as well, which
+      stops any future SOS reaching you. This page itself keeps nothing: no code,
+      no token and no sign-in is saved on this device.
+    </p>
+    <p class="note">
+      One thing we cannot tell you up front: whether this invitation is still
+      valid. SERAYAE deliberately will not reveal anything about an invitation to
+      whoever holds the link, so an expired or withdrawn invitation only becomes
+      visible after the code has been sent and entered. If that happens, you will
+      be told plainly, and nothing will have been confirmed.
+    </p>
+    <p class="note" lang="ar" dir="rtl">
+      تأكيد الرمز يُسجّل دخولك إلى سراي، ويُنشئ حسابًا لهذا الرقم إن لم يكن لديك
+      حساب — بهذه الطريقة تُفحَص الدعوة مقابل رقمك، لا مقابل رابط يمكن لأي شخص
+      إعادة إرساله. ويمكنك التراجع: اسحبي قبولك في أي وقت من تطبيق سراي على هذا
+      الرقم، ويمكن لمن دعاكِ حذفك أيضًا، وبذلك يتوقف وصول أي نداء استغاثة إليك.
+      ولا تحفظ هذه الصفحة شيئًا على هذا الجهاز: لا الرمز ولا الرابط ولا تسجيل
+      الدخول.
+    </p>
+    <p class="note" lang="ar" dir="rtl">
+      واعلمي أمرًا لا نستطيع إخبارك به مقدَّمًا: هل هذه الدعوة ما زالت صالحة. فسراي
+      لا تكشف عن أي شيء يخص الدعوة لمن يحمل الرابط، ولذلك لا تظهر الدعوة المنتهية
+      أو المسحوبة إلا بعد إرسال الرمز وإدخاله. وإن حدث ذلك سنقول لك بوضوح، ولن
+      يكون قد تم تأكيد أي شيء.
+    </p>
+
     <form class="accept" id="acceptForm" novalidate>
       <div id="phoneStep">
         <div class="field">
@@ -362,25 +398,20 @@
         </div>
       </div>
 
-      <div class="result" id="acceptStatus" role="status" aria-live="polite" hidden>
-        <p id="acceptStatusEn"></p>
-        <p id="acceptStatusAr" lang="ar" dir="rtl"></p>
-      </div>
     </form>
 
-    <p class="note">
-      Confirming the code signs you in to SERAYAE, and creates an account for this
-      number if you do not already have one — that is how the invitation can be
-      checked against your number rather than against a link anyone could forward.
-      This page keeps nothing: no code, no token and no sign-in is saved on this
-      device.
-    </p>
-    <p class="note" lang="ar" dir="rtl">
-      تأكيد الرمز يُسجّل دخولك إلى سراي، ويُنشئ حسابًا لهذا الرقم إن لم يكن لديك
-      حساب — بهذه الطريقة تُفحَص الدعوة مقابل رقمك، لا مقابل رابط يمكن لأي شخص
-      إعادة إرساله. ولا تحفظ هذه الصفحة شيئًا على هذا الجهاز: لا الرمز ولا الرابط
-      ولا تسجيل الدخول.
-    </p>
+    <!--
+      Review C1: this box used to live INSIDE the form, and success hid the form.
+      The result was that the one woman who had actually succeeded — the entire
+      point of the week — saw a blank page, while the surrounding copy still told
+      her an SOS would not reach her. The status box now sits OUTSIDE the form so
+      that no future change to the form's visibility can ever silence the answer.
+      Nothing hides this element except `say()` and `clearStatus()`.
+    -->
+    <div class="result" id="acceptStatus" role="status" aria-live="polite" hidden>
+      <p id="acceptStatusEn"></p>
+      <p id="acceptStatusAr" lang="ar" dir="rtl"></p>
+    </div>
 
     <h2>What happens next</h2>
     <ol class="steps">

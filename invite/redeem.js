@@ -237,6 +237,24 @@
       'وأعيدي المحاولة.'
   };
 
+  /*
+   * Review I1. Two module-level latches, both of which exist because of a real
+   * failure mode, not for tidiness.
+   *
+   * `inFlight` — one request at a time. Without it, two Enter presses on the code
+   * step fire two verify-otp calls, and the LATER one's 401 overwrites the
+   * earlier one's success, telling a woman who is now a CONFIRMED guardian that
+   * nothing has been changed. On the phone step it is worse than confusing: each
+   * press sends a real SMS, which is her money.
+   *
+   * `confirmed` — once redemption has succeeded, nothing may contradict it. Any
+   * response that arrives afterwards is ignored rather than rendered, because a
+   * late refusal on a page that has already truthfully said "you are now a
+   * confirmed guardian" would be the false claim, not the correction.
+   */
+  var inFlight = false;
+  var confirmed = false;
+
   function serverFault(status) {
     return {
       en:
@@ -253,6 +271,8 @@
   // ── Step 1: prove the number ───────────────────────────────────────────────
 
   function requestCode(isResend) {
+    if (confirmed || inFlight) return;
+
     var parsed = toE164(el.phone.value);
     if (parsed.error) {
       say('warn', parsed.error.en, parsed.error.ar);
@@ -262,10 +282,13 @@
 
     var button = isResend ? el.resendBtn : el.sendBtn;
     clearStatus();
+    inFlight = true;
     busy(button, isResend ? 'Sending…' : 'Sending…');
 
     call('/auth/send-otp', { phone: parsed.phone }).then(function (res) {
+      inFlight = false;
       idle(button);
+      if (confirmed) return;
 
       if (res.status === 0) {
         say('warn', NETWORK_FAILURE.en, NETWORK_FAILURE.ar);
@@ -334,6 +357,8 @@
   // ── Steps 2 and 3: sign in with the proven number, then redeem ─────────────
 
   function acceptInvite() {
+    if (confirmed || inFlight) return;
+
     var token = inviteToken();
     if (!token) {
       say(
@@ -368,6 +393,7 @@
     }
 
     clearStatus();
+    inFlight = true;
     busy(el.acceptBtn, 'Accepting…');
 
     var payload = { phone: provenPhone, code: code };
@@ -375,13 +401,18 @@
     if (typedName) payload.name = typedName.slice(0, 100);
 
     call('/auth/verify-otp', payload).then(function (res) {
+      // The latch is NOT released here on the way through to redeem: sign-in and
+      // redemption are one action from her side, and a second press between them
+      // would sign in twice and redeem twice.
       if (res.status === 0) {
+        inFlight = false;
         idle(el.acceptBtn);
         say('warn', NETWORK_FAILURE.en, NETWORK_FAILURE.ar);
         return;
       }
 
       if (!res.ok || !res.body || res.body.success !== true) {
+        inFlight = false;
         idle(el.acceptBtn);
 
         if (res.status === 401) {
@@ -434,6 +465,7 @@
       // The 90-day refreshToken in the same response is deliberately not read,
       // not stored, and not used. This page needs one call's worth of identity.
       if (!access) {
+        inFlight = false;
         idle(el.acceptBtn);
         var noToken = serverFault(res.status);
         say('warn', noToken.en, noToken.ar);
@@ -452,7 +484,9 @@
   function redeem(inviteTok, access) {
     call('/referrals/redeem', { token: inviteTok }, access).then(function (res) {
       access = null; // dropped as soon as the one call it exists for is done
+      inFlight = false;
       idle(el.acceptBtn);
+      if (confirmed) return; // an already-earned confirmation is never overwritten
 
       if (res.status === 0) {
         say(
@@ -501,8 +535,27 @@
           );
         }
 
+        /*
+         * Review C1. This used to be `el.form.hidden = true`, and #acceptStatus
+         * was a CHILD of that form — so the woman who had just become a
+         * CONFIRMED guardian was shown a blank space, on a page whose remaining
+         * copy still said an SOS would not reach her. The single moment this
+         * whole week exists to produce rendered nothing.
+         *
+         * Now: the status box lives outside the form (index.html), the form
+         * itself is never hidden, and only its two step containers are retired.
+         * The controls are also disabled so that a stray Enter cannot re-fire.
+         */
+        confirmed = true;
         el.codeStep.hidden = true;
-        el.form.hidden = true;
+        el.phoneStep.hidden = true;
+        el.sendBtn.disabled = true;
+        el.acceptBtn.disabled = true;
+        el.resendBtn.disabled = true;
+        el.changeBtn.disabled = true;
+        el.phone.disabled = true;
+        el.code.disabled = true;
+        if (el.name) el.name.disabled = true;
         return;
       }
 
@@ -559,6 +612,31 @@
           return;
 
         case 409:
+          /*
+           * Review I2. Two different states share this status and they are not
+           * the same thing. INVITE_NOT_REDEEMABLE means the link was never a
+           * guardian invitation (guardianInvite.ts:641). INVITE_NOT_PENDING
+           * means it was, and the place it was for is no longer waiting for an
+           * answer — declined, or changed by the person who invited her
+           * (guardianConsent.ts:152-158). Telling her the second is the first
+           * would send her looking for a problem with the link that does not
+           * exist, when what she needs is a fresh invitation.
+           */
+          if (code === 'INVITE_NOT_PENDING') {
+            say(
+              'warn',
+              'This invitation is no longer waiting for an answer' +
+                (serverText ? ' — SERAYAE says: ' + serverText : '') +
+                '. It was a guardian invitation, but its place has since been ' +
+                'declined or changed by the person who sent it. Nothing has ' +
+                'been changed, and you are not a confirmed guardian. Ask them ' +
+                'to invite this number again.',
+              'هذه الدعوة لم تعد تنتظر ردًّا. كانت دعوة وليّ أمان بالفعل، لكن ' +
+                'مكانها رُفض أو غيّره من أرسلها. لم يتغيّر شيء، وأنتِ لستِ ' +
+                'وليّة أمان مؤكَّدة. اطلبي منه دعوة هذا الرقم من جديد.'
+            );
+            return;
+          }
           say(
             'warn',
             'This link is a general invitation to SERAYAE, not a guardian ' +
@@ -617,6 +695,9 @@
    */
   el.form.addEventListener('submit', function (event) {
     event.preventDefault();
+    // Review I1: Enter is the easiest way to double-fire, so the guard is stated
+    // here too rather than relying only on the callees.
+    if (confirmed || inFlight) return;
     if (!el.codeStep.hidden) acceptInvite();
     else requestCode(false);
   });
@@ -638,6 +719,9 @@
 
   el.changeBtn.addEventListener('click', function (event) {
     event.preventDefault();
+    // Nothing may un-retire the form once she is confirmed, and nothing may
+    // change the number out from under a request that is already in the air.
+    if (confirmed || inFlight) return;
     provenPhone = null;
     el.code.value = '';
     el.codeStep.hidden = true;
