@@ -1,0 +1,48 @@
+name: API origin
+
+# The site holds the backend origin in three separate files by design (a shared
+# mutable global would be an XSS-writable exfiltration primitive — see the
+# comment at the top of the check script). This workflow is what keeps those
+# three copies honest, and what catches a dead host before a guardian does.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'invite/**'
+      - 'track/**'
+      - '.github/scripts/check-api-origin.js'
+      - '.github/workflows/api-origin.yml'
+  # Weekly, because the failure mode we actually shipped was a host that went
+  # dead on its own while every file in the repo stayed unchanged.
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+jobs:
+  origin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Origins agree, are https, and are not a forbidden host
+        run: node .github/scripts/check-api-origin.js --print
+
+      - name: The origin actually answers
+        run: |
+          ORIGIN="$(node .github/scripts/check-api-origin.js --print | tail -1)"
+          # /api is the prefix the pages append routes to; readiness lives at the root.
+          ROOT="${ORIGIN%/api}"
+          echo "Probing $ROOT/livez"
+          CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 --retry 3 --retry-delay 5 "$ROOT/livez" || echo 000)"
+          echo "  /livez -> $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::error::The API origin baked into the site does not answer /livez (got $CODE)."
+            echo "::error::Every guardian invite and tracking link on serayae.me is broken while this is true."
+            exit 1
+          fi

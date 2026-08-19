@@ -25,7 +25,7 @@
   // hands the bearer token to the attacker in the request path. Never
   // reintroduce an origin override on this page — verify staging backends
   // with a local build instead.
-  var DEFAULT_API = 'https://solra-backend-production.up.railway.app/api';
+  var DEFAULT_API = 'https://serayae-api-01118af29270.herokuapp.com/api';
 
   var POLL_MS = 15000;          // how often to re-check while the page is open
   var POLL_CEILING_MS = 120000; // backoff ceiling after repeated failures

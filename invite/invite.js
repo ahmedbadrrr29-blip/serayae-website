@@ -71,7 +71,7 @@
    * query-param override would turn this link into a token-exfiltration
    * primitive.
    */
-  var API_BASE = 'https://solra-backend-production.up.railway.app/api';
+  var API_BASE = 'https://serayae-api-01118af29270.herokuapp.com/api';
 
   /**
    * The opt-out. Sends the token the visitor is already holding and shows the
