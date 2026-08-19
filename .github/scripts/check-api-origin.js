@@ -160,8 +160,27 @@ for (const { file, varName } of TARGETS) {
   }
 
   // ── rule 2: exactly one ASSIGNMENT anywhere (the #7 shape) ──────────────
-  // Matches `NAME =` but not `==`, `===`, `!=`, `>=`, `<=`, `+=` etc.
-  const assignRe = new RegExp(`\\b${varName}\\s*(?<![=!<>+\\-*/%&|^])=(?!=)`, 'g');
+  //
+  // Matches plain `NAME =` AND every compound assignment (`+=`, `&&=`, `>>=`,
+  // `??=` …), while excluding the comparisons `==`, `===`, `!=`, `!==`, `>=`
+  // and `<=`.
+  //
+  // Two notes, both learned by testing rather than reasoning:
+  //
+  //   * An earlier version used a lookbehind after `\s*` to reject operators.
+  //     It was dead code: with `\s*` already consumed, the character before the
+  //     `=` is either whitespace or the last letter of the identifier, so the
+  //     lookbehind could never fire. Worse, it gave the false impression that
+  //     `+=` was handled — it was not, and `API_BASE += '/v2'` passed.
+  //   * Multi-character operators must precede single ones in the alternation,
+  //     and `>>>` must precede `>>`, or the longer form never matches.
+  //
+  // Known and accepted false positive: the literal text `API_BASE =` inside a
+  // string or a trailing comment counts as an assignment. That fails closed —
+  // it reports a problem that is not there rather than missing one that is —
+  // and no such string exists in these files.
+  const ASSIGN_OPS = '\\*\\*|<<|>>>|>>|&&|\\|\\||\\?\\?|[+\\-*/%&|^]';
+  const assignRe = new RegExp(`\\b${varName}\\s*(?:${ASSIGN_OPS})?=(?!=)`, 'g');
   const assigns = [...code.matchAll(assignRe)];
 
   if (assigns.length !== 1) {
