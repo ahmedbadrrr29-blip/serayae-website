@@ -53,6 +53,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { scanSource } = require('./lib/scan');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 
@@ -78,52 +79,22 @@ const ALLOWED_HOSTS = [
 /** Patterns that must not reappear anywhere in these files. */
 const FORBIDDEN_PATTERNS = [
   {
-    pattern: /[?&]api=/,
+    // Any read of a URL parameter named `api`, however it is spelled. The v2
+    // pattern insisted on the literal `searchParams.get('api')` and review
+    // showed it matched nothing in this codebase's actual idiom.
+    pattern: /\bget(?:All)?\(\s*['"]api['"]\s*\)/,
     reason:
-      'a `?api=` origin override is the token-exfiltration primitive removed in #7 — ' +
-      'a crafted link could repoint the origin with no script execution at all.',
+      'reading a URL parameter named `api` reintroduces the #7 override: a crafted ' +
+      'link could repoint the origin with no script execution at all.',
   },
   {
-    pattern: /\bsearchParams\.get\(\s*['"]api['"]\s*\)/,
-    reason: 'reading an `api` query parameter reintroduces the #7 override.',
+    pattern: /\breadApiOverride\b/,
+    reason: 'this is the name of the function #7 deleted. It must not come back.',
   },
 ];
 
 const errors = [];
 const found = [];
-
-/**
- * Blank out comments so a commented-out declaration is neither accepted as real
- * code nor counted as a duplicate.
- *
- * Line comments are stripped only when the line's first non-whitespace
- * characters are `//`, `*` or `/*`. A naive strip-from-`//` would destroy every
- * `https://` in the file, and a full tokeniser is not worth a dependency on a
- * static site. Trailing comments after code are therefore left alone; that is
- * acceptable because rules 1 and 2 count assignments, and a trailing comment
- * cannot contain one that executes.
- */
-function stripCommentLines(source) {
-  let inBlock = false;
-  return source
-    .split('\n')
-    .map((line) => {
-      const trimmed = line.trim();
-
-      if (inBlock) {
-        if (trimmed.includes('*/')) inBlock = false;
-        return '';
-      }
-      if (trimmed.startsWith('/*')) {
-        if (!trimmed.includes('*/')) inBlock = true;
-        return '';
-      }
-      if (trimmed.startsWith('//') || trimmed.startsWith('*')) return '';
-
-      return line;
-    })
-    .join('\n');
-}
 
 for (const { file, varName } of TARGETS) {
   const abs = path.join(REPO_ROOT, file);
@@ -134,7 +105,13 @@ for (const { file, varName } of TARGETS) {
   }
 
   const raw = fs.readFileSync(abs, 'utf8');
-  const code = stripCommentLines(raw);
+
+  // `code` has comment spans blanked but keeps string contents, so the declared
+  // origin is still readable and a `get('api')` override is still visible.
+  // `bare` additionally blanks the insides of strings, template literals and
+  // regex literals, so counting assignments in it cannot be fooled by the text
+  // `API_BASE =` appearing inside a string, a template or a trailing comment.
+  const { code, bare } = scanSource(raw);
 
   // ── rule 1: exactly one real declaration ────────────────────────────────
   const declRe = new RegExp(
@@ -172,19 +149,25 @@ for (const { file, varName } of TARGETS) {
   //     `=` is either whitespace or the last letter of the identifier, so the
   //     lookbehind could never fire. Worse, it gave the false impression that
   //     `+=` was handled — it was not, and `API_BASE += '/v2'` passed.
-  //   * Multi-character operators must precede single ones in the alternation,
-  //     and `>>>` must precede `>>`, or the longer form never matches.
+  //   * Multi-character operators are listed before single ones as a matter of
+  //     style only. An earlier comment here claimed the longer forms would
+  //     otherwise never match; review disproved that by running three
+  //     orderings and getting identical results, because the engine backtracks
+  //     into the remaining alternatives. The claim was wrong and is corrected
+  //     rather than quietly deleted.
   //
-  // Known and accepted false positive: the literal text `API_BASE =` inside a
-  // string or a trailing comment counts as an assignment. That fails closed —
-  // it reports a problem that is not there rather than missing one that is —
-  // and no such string exists in these files.
+  // Counted against `bare`, so the text `API_BASE =` inside a string, a
+  // template literal, a regex literal or a trailing comment is NOT counted.
+  // Each of those used to turn the build red on ordinary code.
+  //
+  // The leading `(?<![.\w$])` excludes property assignment: `window.API_BASE = x`
+  // and `obj.API_BASE = x` are not writes to the closure-local origin.
   const ASSIGN_OPS = '\\*\\*|<<|>>>|>>|&&|\\|\\||\\?\\?|[+\\-*/%&|^]';
-  const assignRe = new RegExp(`\\b${varName}\\s*(?:${ASSIGN_OPS})?=(?!=)`, 'g');
-  const assigns = [...code.matchAll(assignRe)];
+  const assignRe = new RegExp(`(?<![.\\w$])${varName}\\s*(?:${ASSIGN_OPS})?=(?!=)`, 'g');
+  const assigns = [...bare.matchAll(assignRe)];
 
   if (assigns.length !== 1) {
-    const lines = assigns.map((m) => code.slice(0, m.index).split('\n').length);
+    const lines = assigns.map((m) => bare.slice(0, m.index).split('\n').length);
     errors.push(
       `${file}: \`${varName}\` is assigned ${assigns.length} times (lines ${lines.join(', ')}), ` +
         `expected exactly 1.\n    The #7 bug was a REASSIGNMENT — \`if (override) apiBase = override;\` — ` +
@@ -194,7 +177,35 @@ for (const { file, varName } of TARGETS) {
     continue;
   }
 
+  // ── rule 2b: rebinding forms the assignment regex cannot see ───────────
+  //
+  // `({ API_BASE } = cfg)` and `for (API_BASE of [...])` both rewrite the origin
+  // without ever placing `API_BASE` immediately before an `=`. Review found both
+  // passing. Checked against `bare` so a mention inside a string cannot trip them.
+  const REBIND_FORMS = [
+    {
+      pattern: new RegExp(`[{\\[][^{}\\[\\]]*\\b${varName}\\b[^{}\\[\\]]*[}\\]]\\s*(?:${ASSIGN_OPS})?=(?!=)`),
+      reason:
+        `\`${varName}\` appears inside a destructuring assignment target. That rewrites ` +
+        `the origin without an obvious \`${varName} =\`, which is exactly how an override ` +
+        `would be hidden from a naive check.`,
+    },
+    {
+      pattern: new RegExp(`\\bfor\\s*\\([^)]*\\b${varName}\\b[^)]*\\b(?:of|in)\\b`),
+      reason:
+        `\`${varName}\` is rebound by a for-of/for-in header, which reassigns it on ` +
+        `every iteration.`,
+    },
+  ];
+  for (const { pattern, reason } of REBIND_FORMS) {
+    if (pattern.test(bare)) {
+      errors.push(`${file}: ${reason}`);
+    }
+  }
+
   // ── rule 3: no override mechanism anywhere in the file ──────────────────
+  // Run against `code`, not `bare`: the parameter name being read only exists
+  // inside a string literal, so blanking string contents would hide it.
   for (const { pattern, reason } of FORBIDDEN_PATTERNS) {
     if (pattern.test(code)) {
       errors.push(`${file}: matches ${pattern} — ${reason}`);
