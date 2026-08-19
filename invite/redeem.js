@@ -47,7 +47,7 @@
 (function () {
   'use strict';
 
-  var API_BASE = 'https://solra-backend-production.up.railway.app/api';
+  var API_BASE = 'https://serayae-api-01118af29270.herokuapp.com/api';
 
   /** Same alphabet/length bound as invite.js. Referral tokens are cuids. */
   var TOKEN_RE = /^[a-z0-9]{16,64}$/i;

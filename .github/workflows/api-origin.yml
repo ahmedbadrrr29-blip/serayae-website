@@ -1,0 +1,143 @@
+name: API origin
+
+# The site holds the backend origin in three files (see the header of
+# check-api-origin.js for why it is not centralised). This workflow keeps those
+# copies identical and expected, and then checks that the backend they name can
+# actually serve the two journeys these pages exist for:
+#
+#   /track   — a guardian watching a live location  → needs Postgres
+#   /invite  — a guardian accepting an invite       → needs Postgres AND SMS
+#
+# The first version of this workflow probed only /livez. That endpoint returns
+# 200 with Twilio, Redis, Firebase and Agora all unconfigured, so it was
+# structurally blind to a backend that is up and yet cannot send the one SMS the
+# redemption flow depends on. Review caught that; hence the readiness assertions.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'invite/**'
+      - 'track/**'
+      - 'privacy.html' # names the hosting sub-processor and its region
+      # The whole scripts tree, not just the entry point: a PR that weakened a
+      # helper would otherwise skip this workflow entirely.
+      - '.github/scripts/**'
+      - '.github/workflows/api-origin.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  # Every 6 hours. The incident being remediated was "the host died on its own
+  # and nothing failed loudly", so a weekly window would reproduce most of it.
+  # NOTE: GitHub disables scheduled workflows after 60 days of repository
+  # inactivity, and failure email goes only to the last editor of the cron —
+  # so this is a correctness gate, not the primary uptime monitor. Keep an
+  # external pinger on /livez as well.
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  origin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # The check parses JavaScript rather than pattern-matching it, so it needs
+      # acorn. Three regex-based versions of this guard were each defeated by a
+      # fail-open lexing bug; see the header of check-api-origin.js.
+      - name: Install the parser
+        run: npm ci
+
+      # stdout carries only the origin, so no `tail` and only one invocation.
+      #
+      # The origin is captured into a variable FIRST. Writing
+      # `echo "origin=$(node ...)" >> "$GITHUB_OUTPUT"` takes the step's exit
+      # status from `echo`, not from the substitution — even under `bash -e` — so
+      # a FAILING guard produced a green step with an empty origin, and the job
+      # then died two steps later blaming Heroku for what was a diff problem.
+      # An assignment does propagate the failure, so the guard fails as itself.
+      - name: Origins agree, are allowlisted, and are shaped correctly
+        id: check
+        run: |
+          ORIGIN="$(node .github/scripts/check-api-origin.js --print)"
+          echo "origin=$ORIGIN" >> "$GITHUB_OUTPUT"
+
+      - name: Derive the API root
+        id: root
+        run: |
+          ORIGIN='${{ steps.check.outputs.origin }}'
+          echo "root=${ORIGIN%/api}" >> "$GITHUB_OUTPUT"
+          echo "Origin: $ORIGIN"
+
+      - name: The backend is alive
+        run: |
+          ROOT='${{ steps.root.outputs.root }}'
+          CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 --retry 3 --retry-delay 5 "$ROOT/livez" || echo 000)"
+          echo "/livez -> $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::error title=Backend unreachable::$ROOT/livez returned $CODE. Every guardian invite and tracking link on serayae.me is broken while this is true."
+            exit 1
+          fi
+
+      # Ordered BEFORE the readiness gate on purpose. The readiness gate is
+      # expected to be red until SMS credentials are set, and a failing step
+      # halts the job — which made this check, the one that proves #61 actually
+      # shipped, unreachable for as long as it mattered most.
+      - name: The routes the pages call are deployed
+        run: |
+          ROOT='${{ steps.root.outputs.root }}'
+          # 401 proves the route exists and demands the OTP-paired bearer (#61).
+          # 404 would mean the redeem endpoint is not deployed at all.
+          CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -X POST \
+            -H 'Content-Type: application/json' -d '{}' "$ROOT/api/referrals/redeem" || echo 000)"
+          echo "POST /api/referrals/redeem -> $CODE"
+          if [ "$CODE" = "404" ] || [ "$CODE" = "000" ]; then
+            echo "::error title=Redeem route missing::expected 401 from an unauthenticated POST, got $CODE."
+            exit 1
+          fi
+
+      - name: The journeys these pages depend on are actually available
+        run: |
+          ROOT='${{ steps.root.outputs.root }}'
+          curl -s --max-time 30 --retry 3 --retry-delay 5 "$ROOT/readyz" -o readyz.json || {
+            echo "::error title=Readiness unreachable::could not fetch $ROOT/readyz"; exit 1; }
+          cat readyz.json
+          node - <<'NODE'
+          const r = require('./readyz.json');
+          const fail = [];
+
+          // /track cannot render anything without the database.
+          if (r?.checks?.postgres?.status !== 'ok') {
+            fail.push(`postgres is '${r?.checks?.postgres?.status}' — /track cannot serve a tracking link.`);
+          }
+
+          // /invite step 1 is POST /api/auth/send-otp. With SMS unconfigured that
+          // returns 503 and a guardian can never accept an invite, however
+          // healthy the process looks.
+          if (r?.checks?.twilio?.configured !== true) {
+            fail.push(
+              "twilio is not configured — POST /api/auth/send-otp returns 503, so the " +
+              "/invite redemption flow is dead end-to-end. Set TWILIO_ACCOUNT_SID, " +
+              "TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER on the Heroku app."
+            );
+          }
+
+          // Redis is intentionally absent (backend PR #60 made it optional), so the
+          // top-level "degraded" string is EXPECTED and must never be gated on.
+          console.log(`redis: ${r?.checks?.redis?.status} (expected 'unconfigured' — not a failure)`);
+
+          if (fail.length) {
+            for (const f of fail) console.log(`::error title=Journey unavailable::${f}`);
+            process.exit(1);
+          }
+          console.log('✓ postgres ok and SMS configured — both journeys are available.');
+          NODE

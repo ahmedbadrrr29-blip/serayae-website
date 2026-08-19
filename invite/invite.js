@@ -67,17 +67,20 @@
   }
 
   /**
-   * The API origin is FIXED, for the same reason track.js fixes it: a
-   * query-param override would turn this link into a token-exfiltration
-   * primitive.
+   * The API origin is FIXED and assigned exactly once, for the same reason
+   * track.js fixes it: #7 removed a `?api=` override that let a crafted link
+   * repoint the origin with no script execution needed.
+   * .github/scripts/check-api-origin.js enforces the single assignment.
    */
-  var API_BASE = 'https://solra-backend-production.up.railway.app/api';
+  var API_BASE = 'https://serayae-api-01118af29270.herokuapp.com/api';
 
   /**
-   * The opt-out. Sends the token the visitor is already holding and shows the
-   * same confirmation whatever comes back — including on a network failure,
-   * because the honest message here is "we have asked", and a red error box on a
-   * page about somebody else's emergency is not worth the precision.
+   * The opt-out. Sends the token the visitor is already holding.
+   *
+   * Success is claimed ONLY on a 2xx. Anything else — non-2xx, DNS failure,
+   * offline — says plainly that nothing was changed and offers a retry. An
+   * earlier version of this function showed one confirmation whatever came
+   * back; see the note inside the click handler for why that was removed.
    */
   function wireOptOut(currentToken) {
     var button = document.getElementById('stopInvites');
