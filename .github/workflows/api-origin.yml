@@ -157,14 +157,24 @@ jobs:
           // It is surfaced loudly anyway, because on 22 Aug production reported
           // healthy OTP while no guardian could be reached by any channel and the
           // app displayed "1 reachable".
+          //
+          // Printed as a PLAIN line first, then as a ::warning. The first run of
+          // this gate emitted only the ::warning and it appeared nowhere: not in
+          // the step log, and not in the job's annotations (which contained just
+          // GitHub's own Node 20 notice). A warning nobody can see is the same as
+          // no warning, and this is the one finding that most needs to stay
+          // visible, so it does not depend on annotation behaviour working.
           const gs = r?.checks?.guardianSms?.status;
           if (gs !== 'ok') {
-            console.log(
-              `::warning title=Guardian alerting unavailable::guardianSms is '${gs}'. ` +
-              'A guardian WITHOUT the app cannot be told anything during an emergency. ' +
-              'Push covers app users only. This does not block the site journeys, so it ' +
-              'is a warning, but it is a launch blocker for the product.'
-            );
+            const msg =
+              `guardianSms is '${gs}' — a guardian WITHOUT the app cannot be told ` +
+              'anything during an emergency. Push covers app users only. This does ' +
+              'not block the site journeys, so the build still passes, but it IS a ' +
+              'launch blocker for the product.';
+            console.log(`\n!!  GUARDIAN ALERTING UNAVAILABLE\n!!  ${msg}\n`);
+            console.log(`::warning title=Guardian alerting unavailable::${msg}`);
+          } else {
+            console.log('guardianSms: ok — a guardian without the app can be reached.');
           }
 
           // Redis is intentionally absent (backend PR #60 made it optional), so the
