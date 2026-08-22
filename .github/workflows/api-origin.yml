@@ -120,14 +120,50 @@ jobs:
             fail.push(`postgres is '${r?.checks?.postgres?.status}' — /track cannot serve a tracking link.`);
           }
 
-          // /invite step 1 is POST /api/auth/send-otp. With SMS unconfigured that
-          // returns 503 and a guardian can never accept an invite, however
-          // healthy the process looks.
-          if (r?.checks?.twilio?.configured !== true) {
+          // /invite step 1 is POST /api/auth/send-otp, so this job must assert that
+          // a code can be DELIVERED — not that one particular vendor is present.
+          //
+          // This gate used to require `twilio.configured === true` and claimed
+          // send-otp returns 503 without it. That was simply wrong. Akedly is the
+          // primary provider and carries all OTP; Twilio is an unset fallback. On
+          // 22 Aug 2026 send-otp returned 200 and delivered real codes to a real
+          // phone twice while this gate failed the build every 6 hours. Four red
+          // runs a day against a working backend is how a team learns to ignore CI,
+          // which is worse than having no gate at all.
+          //
+          // backend #63 added `otp`, which is ok when EITHER provider can deliver.
+          // That is the question this journey actually depends on.
+          if (r?.checks?.otp === undefined) {
             fail.push(
-              "twilio is not configured — POST /api/auth/send-otp returns 503, so the " +
-              "/invite redemption flow is dead end-to-end. Set TWILIO_ACCOUNT_SID, " +
-              "TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER on the Heroku app."
+              "readyz has no 'otp' check — the backend predates #63, so this gate " +
+              "cannot verify OTP delivery. Deploy master to the Heroku app."
+            );
+          } else if (r.checks.otp.status !== 'ok') {
+            fail.push(
+              `otp is '${r.checks.otp.status}' — POST /api/auth/send-otp cannot deliver a ` +
+              "code, so nobody can sign in and the /invite redemption flow is dead " +
+              "end-to-end. Check AKEDLY_API_KEY and AKEDLY_PIPELINE_ID (primary), or " +
+              "set Twilio credentials as a fallback."
+            );
+          }
+
+          // Guardian SMS is NOT gated, deliberately, and the distinction is the
+          // whole point of #63. Accepting an invite needs an OTP; ALERTING a
+          // guardian who does not have the app needs a freeform SMS sender. Those
+          // are different capabilities and the second one is not required for either
+          // journey this workflow guards, so failing on it would block the site for
+          // an unrelated reason.
+          //
+          // It is surfaced loudly anyway, because on 22 Aug production reported
+          // healthy OTP while no guardian could be reached by any channel and the
+          // app displayed "1 reachable".
+          const gs = r?.checks?.guardianSms?.status;
+          if (gs !== 'ok') {
+            console.log(
+              `::warning title=Guardian alerting unavailable::guardianSms is '${gs}'. ` +
+              'A guardian WITHOUT the app cannot be told anything during an emergency. ' +
+              'Push covers app users only. This does not block the site journeys, so it ' +
+              'is a warning, but it is a launch blocker for the product.'
             );
           }
 
@@ -139,5 +175,5 @@ jobs:
             for (const f of fail) console.log(`::error title=Journey unavailable::${f}`);
             process.exit(1);
           }
-          console.log('✓ postgres ok and SMS configured — both journeys are available.');
+          console.log('✓ postgres ok and OTP deliverable — both journeys are available.');
           NODE
