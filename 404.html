@@ -28,17 +28,23 @@
     }
 
     /*
-      Guardian-invite rescue, same shape as the tracker above. The backend sends
-      https://serayae.me/invite/<token> by SMS. Referral tokens are cuids, not
-      UUIDs — lower-case alphanumeric, no dashes — hence the different pattern.
-      Someone who was asked to be a guardian must not meet a "page not found";
-      the invite in their hand is still perfectly valid.
+      Invite rescue, same shape as the tracker above. TWO token shapes arrive
+      here, both lower-case alphanumeric with no dashes:
+        - Guardian invites (SMS): full cuid tokens, ~25 chars (16-64 accepted).
+        - Ambassador referrals (app share sheet): 8-char codes minted by
+          POST /api/ambassador/referral as `userId.slice(0, 8)` — a cuid
+          prefix, so the same alphabet, just short.
+      The old pattern required {16,64} and dropped every ambassador code onto
+      the 404 copy, breaking every ambassador share link. {6,64} accepts both;
+      /invite/ itself tells the two shapes apart by length. Someone following
+      either link must not meet a "page not found"; the link in their hand is
+      still perfectly valid.
 
       This returns before the webfont injection below for the same reason /track
       does: /invite/ makes zero third-party requests by design, and routing
       through this page must not quietly add some.
     */
-    var inv = window.location.pathname.match(/^\/invite\/([a-z0-9]{16,64})\/?$/i);
+    var inv = window.location.pathname.match(/^\/invite\/([a-z0-9]{6,64})\/?$/i);
     if (inv) {
       window.location.replace('/invite/?t=' + inv[1] + window.location.hash);
       return;
