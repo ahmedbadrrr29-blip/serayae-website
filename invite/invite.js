@@ -1,5 +1,5 @@
 /**
- * SERAYAE — guardian invite handoff.
+ * Serayae — guardian invite handoff.
  *
  * The page is already complete and readable with JavaScript switched off. All
  * this file does is take the invite token out of the URL and turn it into
@@ -14,7 +14,7 @@
  *     the property that matters. Review round 1 (I2) asked for a way out of the
  *     invite SMS that some code actually implements; this is it.
  *   - The token is never logged and never handed to a third party. It goes into
- *     the deep link, and into the opt-out request to SERAYAE's own API, nowhere
+ *     the deep link, and into the opt-out request to Serayae's own API, nowhere
  *     else.
  *   - The token is stripped from the address bar after it is read, so it does
  *     not survive in a screenshot, a shared tab, or the browser's own history
@@ -37,18 +37,70 @@
    */
   var TOKEN_RE = /^[a-z0-9]{16,64}$/i;
 
+  /**
+   * Ambassador referral codes are the OTHER thing that arrives here: minted by
+   * POST /api/ambassador/referral as `userId.slice(0, 8)` — the first 8
+   * characters of a cuid, so the same lower-case alphanumeric alphabet as the
+   * guardian tokens, just short. 6-15 keeps a little slack around today's 8
+   * without ever overlapping the guardian range, so length alone decides which
+   * view the visitor gets.
+   */
+  var CODE_RE = /^[a-z0-9]{6,15}$/i;
+
   var SCHEME = 'serayae://invite/';
 
-  /** Accepts /invite/?t=<token> and /invite/<token>. */
+  /**
+   * Accepts /invite/?t=<value> and /invite/<value>, and classifies by shape:
+   * returns { kind: 'guardian' | 'referral', value } or null.
+   */
   function readToken() {
-    var fromQuery = new URLSearchParams(window.location.search).get('t');
-    if (fromQuery && TOKEN_RE.test(fromQuery)) return fromQuery;
+    function classify(raw) {
+      if (!raw) return null;
+      if (TOKEN_RE.test(raw)) return { kind: 'guardian', value: raw };
+      if (CODE_RE.test(raw)) return { kind: 'referral', value: raw.toLowerCase() };
+      return null;
+    }
+
+    var fromQuery = classify(new URLSearchParams(window.location.search).get('t'));
+    if (fromQuery) return fromQuery;
 
     var segments = window.location.pathname.split('/').filter(Boolean);
     var last = segments[segments.length - 1];
-    if (last && last !== 'invite' && TOKEN_RE.test(last)) return last;
+    if (last && last !== 'invite') return classify(last);
 
     return null;
+  }
+
+  /**
+   * The ambassador referral landing. The visitor was invited to JOIN, not to
+   * be a guardian, so the guardian view (SMS one-time-code redemption) is
+   * hidden and the referral view shown instead. Attribution survives two ways,
+   * neither of them a network request: the code is kept in localStorage (best
+   * effort — storage can be unavailable) and appended as ?ref=<code> to the
+   * waitlist link, where the home page persists it again.
+   */
+  function showReferralView(code) {
+    var guardianView = document.getElementById('view');
+    var referralView = document.getElementById('referralView');
+    if (!referralView) return;
+
+    if (guardianView) guardianView.hidden = true;
+    referralView.hidden = false;
+    document.title = 'You were invited \u2014 Serayae';
+
+    var echo = document.getElementById('refCodeEcho');
+    if (echo) echo.textContent = code;
+
+    var cta = document.getElementById('getSerayae');
+    if (cta) cta.setAttribute('href', '/?ref=' + encodeURIComponent(code) + '#waitlist');
+
+    try {
+      window.localStorage.setItem('serayae.ref', code);
+    } catch (err) {
+      // Storage unavailable (private mode, iframe). The ?ref= link still
+      // carries the code, so nothing is silently lost — and we never pretend
+      // more was saved than was.
+    }
   }
 
   /**
@@ -115,7 +167,7 @@
 
       var failed = function () {
         result.textContent =
-          'We could not reach SERAYAE just now, so nothing has been changed. ' +
+          'We could not reach Serayae just now, so nothing has been changed. ' +
           'Please try again in a moment. Ignoring the message also works — an ' +
           'invitation that is never confirmed grants nobody anything.';
         result.hidden = false;
@@ -146,18 +198,24 @@
     });
   }
 
-  var token = readToken();
+  var read = readToken();
+  var token = read && read.kind === 'guardian' ? read.value : null;
+  var referralCode = read && read.kind === 'referral' ? read.value : null;
   var openApp = document.getElementById('openApp');
 
   /*
    * Published for redeem.js, which runs after this file and needs the token that
    * `scrubUrl()` is about to remove from the address bar. Same page, same origin,
    * same token she is already holding — it is not exposed anywhere new, and it is
-   * still never logged and never sent to a third party.
+   * still never logged and never sent to a third party. `token` is null for an
+   * ambassador referral, so redeem.js wires nothing on that view.
    */
-  window.SERAYAE_INVITE = { token: token };
+  window.SERAYAE_INVITE = { token: token, referralCode: referralCode };
 
-  if (token) {
+  if (referralCode) {
+    showReferralView(referralCode);
+    scrubUrl();
+  } else if (token) {
     if (openApp) {
       openApp.setAttribute('href', SCHEME + encodeURIComponent(token));
     }

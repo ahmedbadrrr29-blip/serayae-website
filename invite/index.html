@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>You were asked to be a guardian — SERAYAE</title>
+<title>You were asked to be a guardian — Serayae</title>
 
 <!--
   Guardian invite landing page.
@@ -29,7 +29,7 @@
      before she signs in — inventing such an endpoint would turn the link into an
      oracle for "is this number registered?".
    - It still offers the app deep link for anyone who does have the app. There is
-     deliberately no store button, because SERAYAE is not published yet.
+     deliberately no store button, because Serayae is not published yet.
 
   Privacy rules, same as /track:
    - noindex/nofollow: an invite URL must never enter a search index.
@@ -234,18 +234,69 @@
       </g>
       <circle class="flame" cx="16" cy="21" r="4" />
     </svg>
-    <span class="wordmark">SERAYAE</span>
+    <span class="wordmark">Serayae</span>
   </header>
+
+  <!--
+    Ambassador referral landing.
+
+    /invite/<code> now carries TWO different things. Long tokens (16-64 chars)
+    are guardian invites and get the SMS-redeem flow below, unchanged. Short
+    codes (6-15 chars — today exactly 8, minted by POST /api/ambassador/referral
+    as `userId.slice(0, 8)`) are ambassador referrals: the visitor was not asked
+    to be anybody's guardian, so showing them the guardian flow was nonsense.
+    invite.js reads the shape and shows exactly one of the two views.
+
+    There is deliberately no inviter name or avatar here: serayae-backend has no
+    endpoint that resolves a referral code for an unauthenticated caller
+    (checked src/routes/ambassador.ts and src/routes/referrals.ts), and adding
+    one would hand out an oracle for "is this user-id prefix real". The landing
+    works without personalization.
+
+    Same privacy rules as the rest of /invite/: this view makes NO network
+    request — the code goes into localStorage and into the waitlist link's
+    ?ref= parameter, nowhere else.
+  -->
+  <main id="referralView" hidden>
+    <p class="kicker">You were invited</p>
+    <h1>Someone you know invited you to Serayae.</h1>
+    <p class="lede">
+      Serayae is human response infrastructure. When someone is in danger, their
+      alert — with their live location — goes to the people they chose in
+      advance, and keeps going until a real person responds. There is no feed
+      and nothing to scroll; it exists for the one moment when being reachable
+      is everything.
+    </p>
+    <p class="lede">
+      Serayae is not in the app stores yet. The button below puts you on the
+      early-access waitlist — and it carries your friend&rsquo;s invite code,
+      so they get credit when you join.
+    </p>
+    <p class="ar" lang="ar" dir="rtl">
+      سراي بنية استجابة بشرية: عندما يتعرّض أحدهم للخطر، يصل نداءه — مع موقعه
+      المباشر — إلى الأشخاص الذين اختارهم مسبقًا، ويستمر حتى يستجيب إنسان
+      حقيقي. سراي ليست في متاجر التطبيقات بعد — الزر أدناه يضعك على قائمة
+      الانتظار المبكر، ويحمل رمز دعوة صديقك ليُحسب له انضمامك.
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary" id="getSerayae" href="/#waitlist">Get Serayae</a>
+    </div>
+    <p class="note">
+      Your invite code <span id="refCodeEcho" style="font-family: var(--font-mono)"></span>
+      is kept on this device so it still counts if you join later. This page
+      makes no network requests and tells no one that you opened it.
+    </p>
+  </main>
 
   <main id="view" aria-live="polite">
     <p class="kicker">Guardian invite</p>
     <h1>Someone asked you to be their guardian.</h1>
     <p class="lede">
-      They put your number on SERAYAE as one of the people to contact if something
+      They put your number on Serayae as one of the people to contact if something
       goes wrong. <strong>Nothing about them has been shared with you</strong>, and
       you will not see their location unless they raise an alert and you have
       confirmed it is you. Until you accept, <strong>an SOS from them will not be
-      sent to you at all</strong> — SERAYAE only contacts guardians who have
+      sent to you at all</strong> — Serayae only contacts guardians who have
       confirmed their own number, which is why they were asked to invite you.
     </p>
     <!--
@@ -263,7 +314,7 @@
       forwarded to somebody else cannot make a stranger into their guardian.
     </p>
     <p class="lede">
-      Accepting means one thing: <strong>if they send an SOS, SERAYAE will contact
+      Accepting means one thing: <strong>if they send an SOS, Serayae will contact
       you at this number.</strong> It does not start you following anybody, it
       does not share your location, and there is nothing to watch — you will see
       nothing at all until there is an emergency.
@@ -303,17 +354,17 @@
     -->
 
     <p class="note">
-      Confirming the code signs you in to SERAYAE, and creates an account for this
+      Confirming the code signs you in to Serayae, and creates an account for this
       number if you do not already have one — that is how the invitation can be
       checked against your number rather than against a link anyone could forward.
-      You can undo it: accepting can be withdrawn at any time from the SERAYAE app
+      You can undo it: accepting can be withdrawn at any time from the Serayae app
       on this number, and the person who invited you can remove you as well, which
       stops any future SOS reaching you. This page itself keeps nothing: no code,
       no token and no sign-in is saved on this device.
     </p>
     <p class="note">
       One thing we cannot tell you up front: whether this invitation is still
-      valid. SERAYAE deliberately will not reveal anything about an invitation to
+      valid. Serayae deliberately will not reveal anything about an invitation to
       whoever holds the link, so an expired or withdrawn invitation only becomes
       visible after the code has been sent and entered. If that happens, you will
       be told plainly, and nothing will have been confirmed.
@@ -424,24 +475,24 @@
         alert. Nothing is shared before it, and nothing is shared between
         alerts.</li>
       <li>If you do have the app, you can accept there instead — the button below
-        opens it. SERAYAE is not in the app stores yet, so for almost everyone
+        opens it. Serayae is not in the app stores yet, so for almost everyone
         this page is the way.</li>
     </ol>
 
     <div class="actions">
-      <a class="btn btn-primary" id="openApp" href="#">Open in SERAYAE</a>
+      <a class="btn btn-primary" id="openApp" href="#">Open in Serayae</a>
       <a class="btn btn-ghost" href="/#waitlist">I don't have the app yet</a>
     </div>
 
     <!--
-      There is deliberately no store button here. SERAYAE is not published on
+      There is deliberately no store button here. Serayae is not published on
       Google Play or the App Store yet — the Play listing for the reserved
       package is not public, and a "Get the app" button that lands on a store
       404 is worse than no button, especially for someone who was just told
       another person's safety depends on them.
     -->
     <p class="note">
-      SERAYAE is not in the app stores yet, which is why accepting lives on this
+      Serayae is not in the app stores yet, which is why accepting lives on this
       page. The invitation is good for 14 days; after that, ask the person who
       invited you to send a fresh one.
     </p>
@@ -458,7 +509,7 @@
     <dl class="facts">
       <div class="fact"><dt>They can see</dt><dd>Your name and number, as they saved them</dd></div>
       <div class="fact"><dt>You can see</dt><dd>Their location only while they raise an alert</dd></div>
-      <div class="fact"><dt>You are not</dt><dd>Tracked. SERAYAE does not share your location with them</dd></div>
+      <div class="fact"><dt>You are not</dt><dd>Tracked. Serayae does not share your location with them</dd></div>
       <div class="fact"><dt>You can stop</dt><dd>Any time. Tell them to remove your number, or stop the invitations below</dd></div>
     </dl>
 
@@ -491,7 +542,7 @@
   </main>
 
   <footer class="foot">
-    <p>SERAYAE &middot; Human Response Infrastructure &middot; <a href="/">serayae.me</a></p>
+    <p>Serayae &middot; Human Response Infrastructure &middot; <a href="/">serayae.me</a></p>
   </footer>
 </div>
 

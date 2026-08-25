@@ -1,5 +1,5 @@
 /* ═══ Footer mosaic ═══
-   SERAYAE spelled from the same dot the network is made of. A slow wave
+   Serayae spelled from the same dot the network is made of. A slow wave
    travels through it, left to right, like a light passing down a road. */
 
 (function () {

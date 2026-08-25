@@ -1,5 +1,5 @@
 /**
- * SERAYAE — guardian tracking view.
+ * Serayae — guardian tracking view.
  *
  * Someone in trouble shared a link. This renders what the backend will say about
  * it, and nothing more.
@@ -154,7 +154,7 @@
         'p',
         'lede',
         isEmergency
-          ? name + ' triggered an emergency on SERAYAE and shared this link with you. If you believe they are in immediate danger, call your local emergency number.'
+          ? name + ' triggered an emergency on Serayae and shared this link with you. If you believe they are in immediate danger, call your local emergency number.'
           : name + ' is on a Safe Walk and shared this link with you. You will see it update while this page is open.'
       )
     );
@@ -211,7 +211,7 @@
       note.appendChild(el('strong', null, 'No location available yet. '));
       note.appendChild(
         document.createTextNode(
-          'SERAYAE has not received a position for this session. The status above still updates while this page is open.'
+          'Serayae has not received a position for this session. The status above still updates while this page is open.'
         )
       );
     }
@@ -251,7 +251,7 @@
       el(
         'p',
         'lede',
-        'It may have been copied incompletely, or it was never a SERAYAE tracking link. Ask the person to share it again.'
+        'It may have been copied incompletely, or it was never a Serayae tracking link. Ask the person to share it again.'
       )
     );
     var actions = el('div', 'actions');
@@ -265,7 +265,7 @@
     clear();
     view.setAttribute('aria-busy', 'false');
     view.appendChild(pill('Status unavailable', 'is-over'));
-    view.appendChild(el('h1', null, 'We can\u2019t reach SERAYAE right now.'));
+    view.appendChild(el('h1', null, 'We can\u2019t reach Serayae right now.'));
     view.appendChild(
       el(
         'p',
@@ -342,7 +342,7 @@
             renderUnknown();
             return;
           }
-          throw new Error('404 from something that is not the SERAYAE api');
+          throw new Error('404 from something that is not the Serayae api');
         }
         throw new Error('unexpected status ' + status);
       })

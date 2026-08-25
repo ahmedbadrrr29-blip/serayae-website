@@ -1,5 +1,5 @@
 /**
- * SERAYAE — accepting a guardian invitation from the browser.
+ * Serayae — accepting a guardian invitation from the browser.
  *
  * Why this file exists
  * -------------------
@@ -174,7 +174,7 @@
       return {
         error: {
           en:
-            'That does not look like a complete phone number. SERAYAE needs it ' +
+            'That does not look like a complete phone number. Serayae needs it ' +
             'in full international form, like +201234567890.',
           ar:
             'لا يبدو هذا رقمًا كاملًا. اكتبيه بالصيغة الدولية الكاملة، مثل ' +
@@ -230,7 +230,7 @@
 
   var NETWORK_FAILURE = {
     en:
-      'We could not reach SERAYAE just now, so nothing has been changed. ' +
+      'We could not reach Serayae just now, so nothing has been changed. ' +
       'Check your connection and try again.',
     ar:
       'لم نتمكّن من الوصول إلى سراي الآن، ولم يتغيّر شيء. تحقّقي من اتصالك ' +
@@ -258,7 +258,7 @@
   function serverFault(status) {
     return {
       en:
-        'Something went wrong at SERAYAE\u2019s end (status ' +
+        'Something went wrong at Serayae\u2019s end (status ' +
         status +
         '). Nothing has been changed. Please try again shortly.',
       ar:
@@ -319,7 +319,7 @@
       if (res.status === 400) {
         say(
           'warn',
-          'SERAYAE did not accept that number. Check it and try again — it ' +
+          'Serayae did not accept that number. Check it and try again — it ' +
             'needs the full international form, like +201234567890.',
           'لم تقبل سراي هذا الرقم. تحقّقي منه وأعيدي المحاولة بالصيغة الدولية ' +
             'الكاملة، مثل +201234567890.'
@@ -341,7 +341,7 @@
       if (res.status === 503) {
         say(
           'warn',
-          'SERAYAE could not send the SMS just now. No code is on its way. ' +
+          'Serayae could not send the SMS just now. No code is on its way. ' +
             'Try again in a moment.',
           'لم تستطع سراي إرسال الرسالة الآن، ولا يوجد رمز في الطريق إليك. ' +
             'أعيدي المحاولة بعد لحظات.'
@@ -428,7 +428,7 @@
         if (res.status === 403) {
           say(
             'warn',
-            'This number cannot sign in to SERAYAE. Nothing has been changed. ' +
+            'This number cannot sign in to Serayae. Nothing has been changed. ' +
               'Tell the person who invited you, so they know their alert will ' +
               'not reach you here.',
             'هذا الرقم لا يستطيع تسجيل الدخول إلى سراي، ولم يتغيّر شيء. ' +
@@ -449,7 +449,7 @@
         if (res.status === 400) {
           say(
             'warn',
-            'SERAYAE did not accept that number or code. Check both and try ' +
+            'Serayae did not accept that number or code. Check both and try ' +
               'again.',
             'لم تقبل سراي الرقم أو الرمز. تحقّقي منهما وأعيدي المحاولة.'
           );
@@ -491,7 +491,7 @@
       if (res.status === 0) {
         say(
           'warn',
-          'You are signed in, but we could not reach SERAYAE to accept the ' +
+          'You are signed in, but we could not reach Serayae to accept the ' +
             'invitation, so you are NOT a confirmed guardian yet. Press ' +
             '“Accept the invitation” again in a moment.',
           'تم تسجيل دخولك، لكننا لم نتمكّن من الوصول إلى سراي لقبول الدعوة، ' +
@@ -512,7 +512,7 @@
             'ok',
             'This invitation had already been accepted with this number' +
               (who ? ', for ' + who : '') +
-              '. Nothing more to do: if an SOS is sent, SERAYAE will contact ' +
+              '. Nothing more to do: if an SOS is sent, Serayae will contact ' +
               'you at this number.',
             'سبق قبول هذه الدعوة بهذا الرقم' +
               (who ? ' لـ ' + who : '') +
@@ -524,7 +524,7 @@
             'ok',
             'Accepted' +
               (who ? ' — you are now a confirmed guardian for ' + who : ' — you are now a confirmed guardian') +
-              '. If an SOS is sent, SERAYAE will contact you at this number. ' +
+              '. If an SOS is sent, Serayae will contact you at this number. ' +
               'That is the whole change: you are not following anyone, and you ' +
               'will see nothing until there is an emergency.',
             'تم القبول' +
@@ -626,7 +626,7 @@
             say(
               'warn',
               'This invitation is no longer waiting for an answer' +
-                (serverText ? ' — SERAYAE says: ' + serverText : '') +
+                (serverText ? ' — Serayae says: ' + serverText : '') +
                 '. It was a guardian invitation, but its place has since been ' +
                 'declined or changed by the person who sent it. Nothing has ' +
                 'been changed, and you are not a confirmed guardian. Ask them ' +
@@ -639,7 +639,7 @@
           }
           say(
             'warn',
-            'This link is a general invitation to SERAYAE, not a guardian ' +
+            'This link is a general invitation to Serayae, not a guardian ' +
               'invitation, so there is nothing to accept here.',
             'هذا الرابط دعوة عامة إلى سراي وليس دعوة وليّ أمان، فلا شيء لقبوله ' +
               'هنا.'
