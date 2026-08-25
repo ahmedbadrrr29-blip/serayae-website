@@ -1,5 +1,5 @@
 /**
- * SERAYAE — guardian invite handoff.
+ * Serayae — guardian invite handoff.
  *
  * The page is already complete and readable with JavaScript switched off. All
  * this file does is take the invite token out of the URL and turn it into
@@ -14,7 +14,7 @@
  *     the property that matters. Review round 1 (I2) asked for a way out of the
  *     invite SMS that some code actually implements; this is it.
  *   - The token is never logged and never handed to a third party. It goes into
- *     the deep link, and into the opt-out request to SERAYAE's own API, nowhere
+ *     the deep link, and into the opt-out request to Serayae's own API, nowhere
  *     else.
  *   - The token is stripped from the address bar after it is read, so it does
  *     not survive in a screenshot, a shared tab, or the browser's own history
@@ -167,7 +167,7 @@
 
       var failed = function () {
         result.textContent =
-          'We could not reach SERAYAE just now, so nothing has been changed. ' +
+          'We could not reach Serayae just now, so nothing has been changed. ' +
           'Please try again in a moment. Ignoring the message also works — an ' +
           'invitation that is never confirmed grants nobody anything.';
         result.hidden = false;

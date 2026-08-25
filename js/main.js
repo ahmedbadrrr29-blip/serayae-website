@@ -1,4 +1,4 @@
-/* ═══ SERAYAE — scroll story ═══ */
+/* ═══ Serayae — scroll story ═══ */
 
 (function () {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
