@@ -16,6 +16,21 @@
   const numberEl = document.getElementById('wlNumber');
   const KEY = 'serayae.waitlist';
 
+  /* ── ambassador referral handoff ──
+     /invite/<code> sends its "Get Serayae" visitors here as /?ref=<code>#waitlist.
+     Keep the code on this device so attribution survives until signup exists.
+     Same shape the ambassador endpoint mints: userId.slice(0, 8), lower-case
+     alphanumeric. Best effort only, no network request, and the code is never
+     sent anywhere from this page. */
+  (function persistReferralCode() {
+    try {
+      const ref = new URLSearchParams(window.location.search).get('ref');
+      if (ref && /^[a-z0-9]{6,15}$/i.test(ref)) {
+        window.localStorage.setItem('serayae.ref', ref.toLowerCase());
+      }
+    } catch (e) { /* storage or URLSearchParams unavailable — nothing to fake */ }
+  })();
+
   const WL_ENDPOINT = 'https://vhtkslliqgbsjuebzhnc.supabase.co/rest/v1/rpc/join_waitlist';
   const WL_KEY = 'sb_publishable_syI34SUvhcs_miaOEWOUug__ceKRXxu';
   const WL_TIMEOUT = 8000;
