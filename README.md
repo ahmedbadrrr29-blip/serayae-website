@@ -44,4 +44,36 @@ delete-account.html account deletion (store requirement)
 css/ js/ media/     styles, behavior, real footage & photos
 ```
 
+## Developer onboarding
+
+Use Node 22 for repository checks. There is no application build step: HTML, CSS and JavaScript are published as static files.
+
+```sh
+npm ci
+npm run check:api-origin
+python3 -m http.server 8080
+```
+
+Open http://localhost:8080. The invite/track pages contain the production API origin; do not redeem real invitations, submit forms or exercise emergency links during local review. Use synthetic data and an isolated test backend for end-to-end testing.
+
+## Repository map
+
+- [Mobile](https://github.com/ahmedbadrrr29-blip/Serayae-app): installed application and store releases.
+- [Backend](https://github.com/ahmedbadrrr29-blip/serayae-backend): API, authorization, records and notification delivery.
+- [Admin](https://github.com/ahmedbadrrr29-blip/serayae-admin): internal operations.
+- [Guardian](https://github.com/ahmedbadrrr29-blip/serayae-guardian): authorized guardian portal.
+- [API docs](https://github.com/ahmedbadrrr29-blip/serayae-api-docs): partner documentation.
+
+The website's waitlist integration is separate from backend support tickets and SOS delivery. Verify each provider separately; a healthy web page does not establish email or emergency delivery.
+
+## Sensitive pages and release checks
+
+- invite/ and track/: guardian invitation and tokenized tracking flows. Never add user-controlled API-host overrides; tracking tokens must not be redirected to an arbitrary host.
+- privacy.html, terms.html and delete-account.html: store-facing disclosures. Keep them aligned with the actual retention, deletion, permissions and provider behavior. Do not claim a legal review merely because these pages exist.
+- .github/scripts/check-api-origin.js: parser-based API-host consistency guard.
+
+PRs target main. Before release check API-origin validation, mobile layout, English/Arabic content where provided, deep links, deletion/support links and live deployment status. Use synthetic screenshots, not personal phone numbers or real incidents. Confirm GitHub Pages and Cloudflare deployment/cache settings before claiming a change is live.
+
+Consumer subscriptions are Free/Plus; paid sales remain gated until native billing tests pass. Do not restore old Basic/Shield/Family sales copy, insurance benefits, guaranteed response, or claims of offline delivery unsupported by the actual product.
+
 © 2026 SERAYAE · [team@serayae.me](mailto:team@serayae.me)
