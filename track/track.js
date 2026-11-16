@@ -97,6 +97,44 @@
     return dl;
   }
 
+  /**
+   * Arabic beside English, never instead of it: the person holding this link
+   * may read either, and a guardian in Egypt is likelier to read Arabic. Arabic
+   * copy is gender-neutral and names the person in the third person.
+   */
+  function bi(tag, className, en, ar) {
+    var frag = document.createDocumentFragment();
+    frag.appendChild(el(tag, className, en));
+    var arNode = el(tag === 'h1' ? 'p' : tag, (className ? className + ' ' : '') + 'ar' + (tag === 'h1' ? ' ar-h' : ''), ar);
+    arNode.setAttribute('lang', 'ar');
+    arNode.setAttribute('dir', 'rtl');
+    frag.appendChild(arNode);
+    return frag;
+  }
+
+  /** "11:42" in the viewer's own clock, or null. */
+  function clockTime(iso, locale) {
+    if (typeof iso !== 'string') return null;
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    try {
+      return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return d.toTimeString().slice(0, 5);
+    }
+  }
+
+  /** Emergency types, named the way a parent would say them. */
+  var TYPE_LABEL = {
+    FALL: ['Possible fall', 'احتمال سقوط'],
+    MEDICAL: ['Medical', 'حالة طبية'],
+    CHRONIC: ['Health episode', 'نوبة صحية'],
+    HARASSMENT: ['Harassment', 'تحرّش'],
+    SEXUAL_ABUSE: ['Harassment', 'تحرّش'],
+    FOLLOWING: ['Being followed', 'تعرّض للملاحقة'],
+    SOS: ['SOS', 'نداء استغاثة']
+  };
+
   function pill(text, variant) {
     var p = el('p', 'pill ' + (variant || ''));
     p.appendChild(el('span', 'dot'));
@@ -143,39 +181,60 @@
 
     view.appendChild(
       isEmergency
-        ? pill('Emergency in progress', 'is-alarm')
-        : pill('Safe Walk in progress', 'is-live')
+        ? pill('Emergency in progress · طوارئ جارية', 'is-alarm')
+        : pill('Safe Walk in progress · مشوار آمن جارٍ', 'is-live')
     );
 
-    view.appendChild(el('h1', null, isEmergency ? name + ' needs help.' : 'Walking with ' + name + '.'));
+    view.appendChild(
+      isEmergency
+        ? bi('h1', null, name + ' needs help.', name + ' بحاجة إلى مساعدة.')
+        : bi('h1', null, 'Walking with ' + name + '.', 'مشوار آمن مع ' + name + '.')
+    );
+
+    var sentEn = isEmergency ? clockTime(data.startedAt, undefined) : null;
+    var sentAr = isEmergency ? clockTime(data.startedAt, 'ar-EG') : null;
 
     view.appendChild(
-      el(
-        'p',
-        'lede',
-        isEmergency
-          ? name + ' triggered an emergency on Serayae and shared this link with you. If you believe they are in immediate danger, call your local emergency number.'
-          : name + ' is on a Safe Walk and shared this link with you. You will see it update while this page is open.'
-      )
+      isEmergency
+        ? bi(
+            'p',
+            'lede',
+            name + ' pressed SOS' + (sentEn ? ' at ' + sentEn : '') + ' and shared this link with you. If you think they are in danger now, call 123 for an ambulance or 122 for the police.',
+            'تم إطلاق نداء استغاثة من ' + name + (sentAr ? ' الساعة ' + sentAr : '') + '، وتمت مشاركة هذا الرابط معك. عند الشك في وجود خطر الآن، يُرجى الاتصال بـ 123 للإسعاف أو 122 للشرطة.'
+          )
+        : bi(
+            'p',
+            'lede',
+            name + ' is on a Safe Walk and shared this link with you. It updates while this page is open.',
+            'مشوار آمن جارٍ لـ ' + name + '، وتمت مشاركة هذا الرابط معك. يتم التحديث ما دامت الصفحة مفتوحة.'
+          )
     );
 
     var facts = [];
     if (isEmergency) {
-      facts.push(['Status', titleCase(data.status) || 'Active']);
-      if (typeof data.emergencyType === 'string') facts.push(['Type', titleCase(data.emergencyType)]);
+      var typeLabel = TYPE_LABEL[data.emergencyType];
+      if (typeLabel) facts.push(['Type · النوع', typeLabel[0] + ' · ' + typeLabel[1]]);
+      else if (typeof data.emergencyType === 'string') facts.push(['Type · النوع', titleCase(data.emergencyType)]);
+      if (sentEn) facts.push(['Sent at · وقت الإرسال', sentEn]);
       if (typeof data.responderCount === 'number') {
-        // Say plainly when it is zero. "0 responders" beats an empty row that
-        // lets someone assume help is already moving.
+        // Only helpers who said "I'm going" are counted (the API stopped
+        // counting paged and declined ones). Zero is said plainly: an empty
+        // row lets someone assume help is already moving.
+        var n = data.responderCount;
         facts.push([
-          'Responders',
-          data.responderCount === 0 ? 'None yet' : String(data.responderCount) + ' on the way'
+          'Helpers · المساعدون',
+          n === 0
+            ? 'None on the way yet · لا يوجد مساعد في الطريق بعد'
+            : n === 1
+            ? '1 verified helper on the way · مساعد موثّق في الطريق'
+            : n + ' verified helpers on the way · ' + n + ' مساعدين موثّقين في الطريق'
         ]);
       }
     } else {
-      facts.push(['Status', titleCase(data.status) || 'Active']);
+      facts.push(['Status · الحالة', titleCase(data.status) || 'Active']);
       var remaining = humanDuration(data.timeRemaining);
-      if (remaining) facts.push(['Expected back in', remaining]);
-      if (data.escalated === true) facts.push(['Check-in', 'Missed — escalated']);
+      if (remaining) facts.push(['Expected back in · العودة المتوقعة خلال', remaining]);
+      if (data.escalated === true) facts.push(['Check-in · التأكيد', 'Missed — escalated · لم يتم — تم التصعيد']);
     }
     view.appendChild(factList(facts));
 
@@ -183,8 +242,8 @@
 
     var loc = data.lastLocation;
     if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
-      var maps = el('a', 'btn btn-primary', 'Open last known location');
-      maps.href = 'https://www.google.com/maps?q=' + encodeURIComponent(loc.lat + ',' + loc.lng);
+      var maps = el('a', 'btn btn-primary', 'Directions · الاتجاهات');
+      maps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(loc.lat + ',' + loc.lng);
       maps.target = '_blank';
       // noreferrer is the one that matters: without it the token travels to
       // Google in the Referer header.
@@ -192,68 +251,72 @@
       actions.appendChild(maps);
     }
 
-    var refresh = el('button', 'btn btn-ghost', 'Refresh now');
+    if (isEmergency) {
+      var amb = el('a', 'btn btn-ghost', 'Call 123 · Ambulance · الإسعاف');
+      amb.href = 'tel:123';
+      actions.appendChild(amb);
+      var pol = el('a', 'btn btn-ghost', 'Call 122 · Police · الشرطة');
+      pol.href = 'tel:122';
+      actions.appendChild(pol);
+    }
+
+    var refresh = el('button', 'btn btn-ghost', 'Refresh now · تحديث');
     refresh.type = 'button';
     refresh.addEventListener('click', function () { load(true); });
     actions.appendChild(refresh);
     view.appendChild(actions);
 
-    var note = el('p', 'note');
+    var first = name.split(' ')[0];
     if (loc && typeof loc.lat === 'number') {
-      note.appendChild(el('strong', null, 'This is a last known position, not a live trail. '));
-      note.appendChild(
-        document.createTextNode(
-          'It updates while this page is open. The link stops working when ' + name.split(' ')[0] +
-          ' revokes it, or within 24 hours.'
-        )
-      );
+      view.appendChild(bi(
+        'p',
+        'note',
+        'This is a last known position, not a live trail. It updates while this page is open. The link stops working when ' + first + ' turns it off, or 24 hours after the SOS ends.',
+        'هذا آخر موقع معروف، وليس تتبّعًا مباشرًا. يتم التحديث ما دامت الصفحة مفتوحة. يتوقف الرابط عند إيقافه، أو بعد 24 ساعة من انتهاء النداء.'
+      ));
     } else {
-      note.appendChild(el('strong', null, 'No location available yet. '));
-      note.appendChild(
-        document.createTextNode(
-          'Serayae has not received a position for this session. The status above still updates while this page is open.'
-        )
-      );
+      view.appendChild(bi(
+        'p',
+        'note',
+        'No location available yet. Serayae has not received a position for this session. The status above still updates while this page is open.',
+        'لا يتوفر موقع بعد. لم يصل إلى Serayae أي موقع لهذه الجلسة، وتستمر الحالة أعلاه في التحديث ما دامت الصفحة مفتوحة.'
+      ));
     }
-    view.appendChild(note);
   }
 
   function renderOver(message) {
     stop();
     clear();
     view.setAttribute('aria-busy', 'false');
-    view.appendChild(pill('No longer active', 'is-over'));
-    view.appendChild(el('h1', null, 'This link has been turned off.'));
-    view.appendChild(
-      el(
-        'p',
-        'lede',
-        message ||
-          'The person who shared it has stopped sharing their location, or the link reached its 24-hour limit. Nothing is wrong on your end.'
-      )
-    );
-    view.appendChild(
-      el(
-        'p',
-        'lede',
-        'If you are worried about them, contact them directly — or your local emergency number if you believe they are in danger.'
-      )
-    );
+    view.appendChild(pill('No longer active · لم يعد نشطًا', 'is-over'));
+    view.appendChild(bi('h1', null, 'This link has been turned off.', 'تم إيقاف هذا الرابط.'));
+    view.appendChild(bi(
+      'p',
+      'lede',
+      message ||
+        'The person who shared it has stopped sharing their location, or the link reached its 24-hour limit. Nothing is wrong on your end.',
+      'تم إيقاف مشاركة الموقع، أو انتهت مدة الـ 24 ساعة. لا توجد مشكلة من جهتك.'
+    ));
+    view.appendChild(bi(
+      'p',
+      'lede',
+      'If you are worried about them, contact them directly, or call 123 (ambulance) or 122 (police) if you think they are in danger.',
+      'عند القلق، يُرجى التواصل مباشرة، أو الاتصال بـ 123 للإسعاف أو 122 للشرطة عند الشك في وجود خطر.'
+    ));
   }
 
   function renderUnknown() {
     stop();
     clear();
     view.setAttribute('aria-busy', 'false');
-    view.appendChild(pill('Link not recognised', 'is-over'));
-    view.appendChild(el('h1', null, 'We can\u2019t find this link.'));
-    view.appendChild(
-      el(
-        'p',
-        'lede',
-        'It may have been copied incompletely, or it was never a Serayae tracking link. Ask the person to share it again.'
-      )
-    );
+    view.appendChild(pill('Link not recognised · رابط غير معروف', 'is-over'));
+    view.appendChild(bi('h1', null, 'We can\u2019t find this link.', 'تعذّر العثور على هذا الرابط.'));
+    view.appendChild(bi(
+      'p',
+      'lede',
+      'It may have been copied incompletely, or it was never a Serayae tracking link. Ask the person to share it again.',
+      'ربما تم نسخ الرابط بشكل ناقص، أو أنه ليس رابط تتبّع من Serayae. يُرجى طلب مشاركته مرة أخرى.'
+    ));
     var actions = el('div', 'actions');
     var home = el('a', 'btn btn-ghost', 'Go to serayae.me');
     home.href = '/';
@@ -264,20 +327,22 @@
   function renderError() {
     clear();
     view.setAttribute('aria-busy', 'false');
-    view.appendChild(pill('Status unavailable', 'is-over'));
-    view.appendChild(el('h1', null, 'We can\u2019t reach Serayae right now.'));
-    view.appendChild(
-      el(
-        'p',
-        'lede',
-        'This does not mean the person is safe, and it does not mean they are not. We simply cannot confirm their status from here.'
-      )
-    );
-    view.appendChild(
-      el('p', 'lede', 'If you are worried, contact them directly, or call your local emergency number.')
-    );
+    view.appendChild(pill('Status unavailable · الحالة غير متاحة', 'is-over'));
+    view.appendChild(bi('h1', null, 'We can\u2019t reach Serayae right now.', 'تعذّر الوصول إلى Serayae الآن.'));
+    view.appendChild(bi(
+      'p',
+      'lede',
+      'This does not mean the person is safe, and it does not mean they are not. We simply cannot confirm their status from here.',
+      'هذا لا يعني أن الشخص بأمان، ولا يعني العكس. لا يمكن تأكيد الحالة من هنا فقط.'
+    ));
+    view.appendChild(bi(
+      'p',
+      'lede',
+      'If you are worried, contact them directly, or call 123 (ambulance) or 122 (police).',
+      'عند القلق، يُرجى التواصل مباشرة، أو الاتصال بـ 123 للإسعاف أو 122 للشرطة.'
+    ));
     var actions = el('div', 'actions');
-    var retry = el('button', 'btn btn-primary', 'Try again');
+    var retry = el('button', 'btn btn-primary', 'Try again · إعادة المحاولة');
     retry.type = 'button';
     retry.addEventListener('click', function () { failures = 0; load(true); });
     actions.appendChild(retry);
