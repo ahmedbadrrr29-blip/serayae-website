@@ -14,22 +14,15 @@
   at all: the backend created the row as PENDING and nothing anywhere could move
   it to CONFIRMED, so the person who added them had an SOS that reached nobody.
 
-  What this page does and does not do:
-   - It CAN now redeem the invite, and this is the only client in the codebase
-     that can. Redemption is authenticated, so the page walks her through the
-     same proof the app would: a one-time code by SMS to the invited number
-     (POST /api/auth/send-otp, POST /api/auth/verify-otp), then
-     POST /api/referrals/redeem with the token from her own SMS. The backend's
-     own check is what makes this safe: it compares the CALLER'S account phone —
-     the number she just proved — against the number the invite was issued to, so
-     a link forwarded to a stranger still confirms nobody.
-   - It makes NO network request while loading, and none at all until she presses
-     a button herself. There is still no unauthenticated endpoint that would tell
-     the page anything about the token, so it shows nothing about the inviter
-     before she signs in — inventing such an endpoint would turn the link into an
-     oracle for "is this number registered?".
-   - It still offers the app deep link for anyone who does have the app. There is
-     deliberately no store button, because Serayae is not published yet.
+  What this page does (ADR-0016, 16 Nov 2026):
+   - Accepts the invite with NO account. "Send me the code" calls
+     POST /api/referrals/invite/code {token}; the server sends an Akedly code to
+     the INVITED number (never one typed here) and never returns that number.
+     POST /api/referrals/invite/confirm {token, code} confirms. A forwarded
+     link is useless without the phone it was made for.
+   - Makes no network request until a button is pressed.
+   - Says honestly how an alert reaches a guardian today (see the comment
+     above "How an alert reaches you today").
 
   Privacy rules, same as /track:
    - noindex/nofollow: an invite URL must never enter a search index.
@@ -190,8 +183,8 @@
     -webkit-appearance: none; appearance: none;
   }
   .field input:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
-  .field .hint { font-size: 0.75rem; line-height: 1.55; color: var(--ivory-45); }
-  .field .hint[dir='rtl'] { text-align: right; }
+  .hint { font-size: 0.75rem; line-height: 1.55; color: var(--ivory-45); }
+  .hint[dir='rtl'] { text-align: right; }
   #codeInput { font-family: var(--font-mono); letter-spacing: 0.3em; }
 
   .result {
@@ -292,139 +285,47 @@
     <p class="kicker">Guardian invite</p>
     <h1>Someone asked you to be their guardian.</h1>
     <p class="lede">
-      They put your number on Serayae as one of the people to contact if something
-      goes wrong. <strong>Nothing about them has been shared with you</strong>, and
-      you will not see their location unless they raise an alert and you have
-      confirmed it is you. Until you accept, <strong>an SOS from them will not be
-      sent to you at all</strong> — Serayae only contacts guardians who have
-      confirmed their own number, which is why they were asked to invite you.
-    </p>
-    <!--
-      Corrected in Task 8. This paragraph used to say an emergency SMS "can still
-      reach you" before confirming. It cannot: notifyGuardians selects
-      `where: { userId, status: 'CONFIRMED' }` (src/services/smsService.ts:124),
-      and so does every other dispatch path. Telling an invited guardian she is
-      already reachable was the same class of lie as telling the sender help was
-      on the way — and it would have made accepting look optional.
-    -->
-    <p class="lede">
-      You can accept right here, on this page. It takes a one-time code by SMS to
-      <strong>this</strong> phone number — the number the invite was sent to. That
-      is deliberate: proving the number is the only way to be sure a link
-      forwarded to somebody else cannot make a stranger into their guardian.
+      They saved your number in Serayae as one of the people to contact if they
+      are ever in danger. <strong>Nothing about them has been shared with
+      you.</strong> They see only the name and number they saved for you.
     </p>
     <p class="lede">
-      Accepting means one thing: <strong>if they send an SOS, Serayae will contact
-      you at this number.</strong> It does not start you following anybody, it
-      does not share your location, and there is nothing to watch — you will see
-      nothing at all until there is an emergency.
+      To accept, confirm that this is your number. We send a one-time code to the
+      number the invitation was made for, by WhatsApp or text message. No account,
+      no app, nothing to install. A link forwarded to someone else is useless
+      without that code.
     </p>
 
     <p class="ar" lang="ar" dir="rtl">
-      اختارك أحدهم وليّ أمان له على سراي. لم يُشارَك معك أي شيء عنه، ولن ترَي موقعه
-      إلا إذا أطلق نداء استغاثة وأكّدتِ أن هذا الرقم رقمك. واعلمي أنه قبل قبولك
-      <strong>لن يُرسل إليك نداء الاستغاثة منه إطلاقًا</strong> — فسراي لا تتصل إلا
-      بمن أكّدوا أرقامهم، ولهذا أُرسلت لك الدعوة.
+      تم حفظ رقمك في Serayae ضمن الأشخاص الذين يُتواصل معهم عند التعرّض للخطر.
+      <strong>لم تتم مشاركة أي معلومات عن صاحب الدعوة معك</strong>، ولا يظهر له
+      عنك سوى الاسم والرقم المحفوظين.
     </p>
     <p class="ar" lang="ar" dir="rtl">
-      اقبلي الدعوة من هذه الصفحة مباشرة. سيصلك رمز لمرة واحدة برسالة نصية على هذا
-      الرقم — الرقم الذي وصلتك عليه الدعوة. وهذا مقصود: إثبات الرقم هو الطريقة
-      الوحيدة لضمان أن رابطًا أُعيد إرساله لشخص آخر لا يجعل غريبًا وليّ أمان.
-    </p>
-    <p class="ar" lang="ar" dir="rtl">
-      اعرفي معنى القبول: <strong>عند إرسال نداء استغاثة، ستتصل بك سراي على هذا
-      الرقم.</strong> لا تتابعين موقع أحد، ولا يُشارَك موقعك، ولا يوجد شيء
-      لمراقبته — لن ترَي شيئًا حتى تحدث حالة طوارئ.
+      للقبول، يلزم تأكيد أن هذا الرقم رقمك. يصل رمز لمرة واحدة إلى الرقم الذي
+      أُنشئت له الدعوة، عبر واتساب أو رسالة نصية. لا حاجة إلى حساب أو تطبيق.
+      والرابط المُعاد إرساله لشخص آخر لا يفيد من دون هذا الرمز.
     </p>
 
     <h2>Accept the invitation</h2>
 
-    <!--
-      The one thing this whole week was missing. POST /api/referrals/redeem is the
-      only transition into CONFIRMED, and CONFIRMED is the only status any SOS
-      reaches — and until now no client anywhere called it. The app is not in any
-      store, so this form is the only route a real invited guardian has.
-
-      Redemption is authenticated, so the form does what the app would do: prove
-      the number by one-time code, then redeem with the token from her own SMS.
-
-      Review I3: the two disclosure notes below used to sit AFTER the form. What a
-      woman is agreeing to has to be readable before she agrees to it, not after,
-      so they now precede the first input.
-    -->
-
-    <p class="note">
-      Confirming the code signs you in to Serayae, and creates an account for this
-      number if you do not already have one — that is how the invitation can be
-      checked against your number rather than against a link anyone could forward.
-      You can undo it: accepting can be withdrawn at any time from the Serayae app
-      on this number, and the person who invited you can remove you as well, which
-      stops any future SOS reaching you. This page itself keeps nothing: no code,
-      no token and no sign-in is saved on this device.
-    </p>
-    <p class="note">
-      One thing we cannot tell you up front: whether this invitation is still
-      valid. Serayae deliberately will not reveal anything about an invitation to
-      whoever holds the link, so an expired or withdrawn invitation only becomes
-      visible after the code has been sent and entered. If that happens, you will
-      be told plainly, and nothing will have been confirmed.
-    </p>
-    <p class="note" lang="ar" dir="rtl">
-      تأكيد الرمز يُسجّل دخولك إلى سراي، ويُنشئ حسابًا لهذا الرقم إن لم يكن لديك
-      حساب — بهذه الطريقة تُفحَص الدعوة مقابل رقمك، لا مقابل رابط يمكن لأي شخص
-      إعادة إرساله. ويمكنك التراجع: اسحبي قبولك في أي وقت من تطبيق سراي على هذا
-      الرقم، ويمكن لمن دعاكِ حذفك أيضًا، وبذلك يتوقف وصول أي نداء استغاثة إليك.
-      ولا تحفظ هذه الصفحة شيئًا على هذا الجهاز: لا الرمز ولا الرابط ولا تسجيل
-      الدخول.
-    </p>
-    <p class="note" lang="ar" dir="rtl">
-      واعلمي أمرًا لا نستطيع إخبارك به مقدَّمًا: هل هذه الدعوة ما زالت صالحة. فسراي
-      لا تكشف عن أي شيء يخص الدعوة لمن يحمل الرابط، ولذلك لا تظهر الدعوة المنتهية
-      أو المسحوبة إلا بعد إرسال الرمز وإدخاله. وإن حدث ذلك سنقول لك بوضوح، ولن
-      يكون قد تم تأكيد أي شيء.
-    </p>
-
     <form class="accept" id="acceptForm" novalidate>
-      <div id="phoneStep">
-        <div class="field">
-          <label for="phoneInput">Your phone number</label>
-          <input
-            id="phoneInput"
-            name="phone"
-            type="tel"
-            inputmode="tel"
-            autocomplete="tel"
-            enterkeyhint="send"
-            placeholder="+20 10 1234 5678"
-          />
-          <p class="hint">
-            The number this message arrived on. Any other number will be refused
-            — the invitation is tied to this one.
-          </p>
-          <p class="hint" lang="ar" dir="rtl">
-            اكتبي الرقم الذي وصلتك عليه هذه الرسالة. أي رقم آخر سيُرفَض — الدعوة
-            مرتبطة بهذا الرقم وحده.
-          </p>
-        </div>
-        <div class="field">
-          <label for="nameInput">Your name (optional)</label>
-          <input
-            id="nameInput"
-            name="name"
-            type="text"
-            autocomplete="name"
-            maxlength="100"
-            placeholder="So they know who accepted"
-          />
-        </div>
+      <div id="startStep">
         <button class="btn btn-primary" id="sendCodeBtn" type="button">
-          Send me a code
+          Send me the code
         </button>
+        <p class="hint" style="margin-top: 0.75rem">
+          It goes to the number this invitation was made for. We never show that
+          number on this page.
+        </p>
+        <p class="hint" lang="ar" dir="rtl">
+          يصل الرمز إلى الرقم المرتبط بهذه الدعوة، ولا يظهر هذا الرقم على الصفحة.
+        </p>
       </div>
 
       <div id="codeStep" hidden>
         <div class="field">
-          <label for="codeInput">6-digit code sent to <span id="phoneEcho"></span></label>
+          <label for="codeInput">Code</label>
           <input
             id="codeInput"
             name="code"
@@ -432,9 +333,11 @@
             inputmode="numeric"
             autocomplete="one-time-code"
             enterkeyhint="done"
-            maxlength="6"
+            maxlength="8"
             placeholder="······"
           />
+          <p class="hint">Check WhatsApp first, then your text messages.</p>
+          <p class="hint" lang="ar" dir="rtl">يُرجى التحقق من واتساب أولًا، ثم الرسائل النصية.</p>
         </div>
         <div class="actions" style="margin-top: 0">
           <button class="btn btn-primary" id="acceptBtn" type="button">
@@ -443,99 +346,63 @@
           <button class="btn btn-ghost" id="resendCodeBtn" type="button">
             Send the code again
           </button>
-          <button class="btn btn-ghost" id="changeNumberBtn" type="button">
-            Use a different number
-          </button>
         </div>
       </div>
-
     </form>
 
-    <!--
-      Review C1: this box used to live INSIDE the form, and success hid the form.
-      The result was that the one woman who had actually succeeded — the entire
-      point of the week — saw a blank page, while the surrounding copy still told
-      her an SOS would not reach her. The status box now sits OUTSIDE the form so
-      that no future change to the form's visibility can ever silence the answer.
-      Nothing hides this element except `say()` and `clearStatus()`.
-    -->
+    <!-- Outside the form on purpose: nothing that hides the form may hide the answer. -->
     <div class="result" id="acceptStatus" role="status" aria-live="polite" hidden>
       <p id="acceptStatusEn"></p>
       <p id="acceptStatusAr" lang="ar" dir="rtl"></p>
     </div>
 
-    <h2>What happens next</h2>
-    <ol class="steps">
-      <li>Accept above with the number this message reached. A one-time code by
-        SMS proves the number is yours; nothing is confirmed without it.</li>
-      <li>After that, an SOS from the person who invited you will be sent to this
-        number. Until then it will not — an invitation that is never accepted
-        counts for nothing, which is exactly what their app tells them.</li>
-      <li>Only that confirmation lets them share their location with you during an
-        alert. Nothing is shared before it, and nothing is shared between
-        alerts.</li>
-      <li>If you do have the app, you can accept there instead — the button below
-        opens it. Serayae is not in the app stores yet, so for almost everyone
-        this page is the way.</li>
-    </ol>
-
-    <div class="actions">
-      <a class="btn btn-primary" id="openApp" href="#">Open in Serayae</a>
-      <a class="btn btn-ghost" href="/#waitlist">I don't have the app yet</a>
-    </div>
-
+    <h2>What accepting means</h2>
+    <dl class="facts">
+      <div class="fact"><dt>They can see</dt><dd>The name and number they saved for you</dd></div>
+      <div class="fact"><dt>You can see</dt><dd>Their location only during an alert</dd></div>
+      <div class="fact"><dt>You are not</dt><dd>Tracked. Your location is never shared</dd></div>
+      <div class="fact"><dt>You can stop</dt><dd>Any time. Ask them to remove your number</dd></div>
+    </dl>
     <!--
-      There is deliberately no store button here. Serayae is not published on
-      Google Play or the App Store yet — the Play listing for the reserved
-      package is not public, and a "Get the app" button that lands on a store
-      404 is worse than no button, especially for someone who was just told
-      another person's safety depends on them.
+      Honest copy (ADR-0016). The server cannot message a guardian without the app
+      until the WhatsApp/SMS channel is switched on after company registration.
+      This paragraph must change the day it is, and not before.
     -->
-    <p class="note">
-      Serayae is not in the app stores yet, which is why accepting lives on this
-      page. The invitation is good for 14 days; after that, ask the person who
-      invited you to send a fresh one.
+    <p class="lede" style="margin-top: 1.25rem">
+      <strong>How an alert reaches you today:</strong> through the Serayae app,
+      which is not in the app stores yet. Their app can also open a ready-made text
+      message to you from their own phone. Alerts to your number by WhatsApp or
+      text message are being set up; once they start, you are included with
+      nothing more to do.
+    </p>
+    <p class="ar" lang="ar" dir="rtl">
+      <strong>كيف يصل التنبيه اليوم:</strong> عبر تطبيق Serayae، وهو غير متاح في
+      متاجر التطبيقات بعد. ويمكن لتطبيق صاحب الدعوة أيضًا فتح رسالة نصية جاهزة
+      إليك من هاتفه. التنبيهات إلى رقمك عبر واتساب أو الرسائل النصية قيد الإعداد،
+      وعند تفعيلها يكون رقمك مشمولًا دون أي خطوة إضافية.
     </p>
 
-    <!--
-      Review round 1 (I5): a "paste this code into the app" block used to sit
-      here. No client implements a paste-a-code screen, so it instructed an
-      action nobody could take. Removed rather than hidden: a hidden element is a
-      promise waiting to be re-enabled by accident. The deep link above is the
-      whole handoff.
-    -->
-
-    <h2>What you are agreeing to</h2>
-    <dl class="facts">
-      <div class="fact"><dt>They can see</dt><dd>Your name and number, as they saved them</dd></div>
-      <div class="fact"><dt>You can see</dt><dd>Their location only while they raise an alert</dd></div>
-      <div class="fact"><dt>You are not</dt><dd>Tracked. Serayae does not share your location with them</dd></div>
-      <div class="fact"><dt>You can stop</dt><dd>Any time. Tell them to remove your number, or stop the invitations below</dd></div>
-    </dl>
+    <div class="actions">
+      <a class="btn btn-ghost" id="openApp" href="#">I have the app — open it</a>
+    </div>
 
     <h2>If you did not want this</h2>
     <p class="lede">
-      Ignoring this invite is enough on its own — an invite that is never confirmed
-      grants nothing and expires by itself in 14 days. If you would rather not be
-      asked again, the button below tells us to stop sending guardian invitations
-      to this number, whoever adds it.
+      Ignoring this invitation is enough: it grants nothing and expires by itself
+      in 14 days. To stop guardian invitations to this number, use the button
+      below.
     </p>
     <p class="ar" lang="ar" dir="rtl">
-      لو لا تريدين دعوات من هذا النوع، اضغطي الزر لإيقاف إرسالها إلى رقمك من الشخص
-      الذي وصلتك دعوته. الرابط الذي وصلك يبقى صالحًا لو غيّرتِ رأيك.
+      تجاهل هذه الدعوة كافٍ: لا تمنح أي صلاحية، وتنتهي تلقائيًا خلال 14 يومًا.
+      ولإيقاف دعوات الحماية إلى هذا الرقم، يمكن استخدام الزر أدناه.
     </p>
     <div class="actions">
       <button class="btn btn-ghost" id="stopInvites" type="button">
-        Stop sending invitations to this number
+        Stop invitations to this number
       </button>
     </div>
     <p class="note" id="stopResult" hidden></p>
     <p class="note">
-      This stops the messages, from the person whose invitation brought you here, for
-      about six months. It does not tell them anything about you, and it does not
-      cancel an invite you might still want later — the link you were sent keeps
-      working, so you can confirm from it if you change your mind. Declining is a
-      separate choice, and it lives in the app.
       <a href="/guardian">What being a guardian means</a> ·
       <a href="/privacy.html">Privacy Policy</a>
     </p>
