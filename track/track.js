@@ -194,13 +194,19 @@
     var sentEn = isEmergency ? clockTime(data.startedAt, undefined) : null;
     var sentAr = isEmergency ? clockTime(data.startedAt, 'ar-EG') : null;
 
+    // Location-less SOS: the first thing a guardian reads says what to do.
+    var noLocationLede = isEmergency && data.locationUnavailable === true;
     view.appendChild(
       isEmergency
         ? bi(
             'p',
             'lede',
-            name + ' pressed SOS' + (sentEn ? ' at ' + sentEn : '') + ' and shared this link with you. If you think they are in danger now, call 123 for an ambulance or 122 for the police.',
-            'تم إطلاق نداء استغاثة من ' + name + (sentAr ? ' الساعة ' + sentAr : '') + '، وتمت مشاركة هذا الرابط معك. عند الشك في وجود خطر الآن، يُرجى الاتصال بـ 123 للإسعاف أو 122 للشرطة.'
+            name + ' pressed SOS' + (sentEn ? ' at ' + sentEn : '') + ' and shared this link with you. ' +
+              (noLocationLede ? 'Their location is not available yet, so call them now. ' : '') +
+              'If you think they are in danger now, call 123 for an ambulance or 122 for the police.',
+            'تم إطلاق نداء استغاثة من ' + name + (sentAr ? ' الساعة ' + sentAr : '') + '، وتمت مشاركة هذا الرابط معك. ' +
+              (noLocationLede ? 'الموقع غير متاح بعد، لذا يُرجى الاتصال الآن. ' : '') +
+              'عند الشك في وجود خطر الآن، يُرجى الاتصال بـ 123 للإسعاف أو 122 للشرطة.'
           )
         : bi(
             'p',
@@ -216,7 +222,19 @@
       if (typeLabel) facts.push(['Type · النوع', typeLabel[0] + ' · ' + typeLabel[1]]);
       else if (typeof data.emergencyType === 'string') facts.push(['Type · النوع', titleCase(data.emergencyType)]);
       if (sentEn) facts.push(['Sent at · وقت الإرسال', sentEn]);
-      if (typeof data.responderCount === 'number') {
+      // Location-less SOS (basement, metro, GPS off): the server alerted
+      // guardians only. Nearby helpers are asked when the phone gets a fix, so
+      // "none on the way" would hide the reason; say it.
+      var noLocation = data.locationUnavailable === true;
+      if (noLocation) {
+        facts.push(['Location · الموقع', 'Not available yet · غير متاح بعد']);
+      }
+      if (noLocation && data.responderCount === 0) {
+        facts.push([
+          'Helpers · المساعدون',
+          'Not asked yet: no location · لم يتم طلب المساعدة بعد: الموقع غير متاح'
+        ]);
+      } else if (typeof data.responderCount === 'number') {
         // Only helpers who said "I'm going" are counted (the API stopped
         // counting paged and declined ones). Zero is said plainly: an empty
         // row lets someone assume help is already moving.
@@ -267,7 +285,14 @@
     view.appendChild(actions);
 
     var first = name.split(' ')[0];
-    if (loc && typeof loc.lat === 'number') {
+    if (isEmergency && data.locationUnavailable === true) {
+      view.appendChild(bi(
+        'p',
+        'note',
+        'Their phone could not get a location when the SOS was sent. A position appears here, and nearby helpers are asked, as soon as their phone finds one. This page updates while it is open.',
+        'تعذّر على الهاتف تحديد الموقع عند إطلاق النداء. سيظهر الموقع هنا، وسيتم طلب المساعدة من المتطوعين القريبين، فور تحديد الموقع. يتم التحديث ما دامت الصفحة مفتوحة.'
+      ));
+    } else if (loc && typeof loc.lat === 'number') {
       view.appendChild(bi(
         'p',
         'note',
