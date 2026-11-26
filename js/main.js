@@ -31,7 +31,7 @@
     } catch (e) { /* storage or URLSearchParams unavailable — nothing to fake */ }
   })();
 
-  const WL_ENDPOINT = 'https://vhtkslliqgbsjuebzhnc.supabase.co/rest/v1/rpc/join_waitlist';
+  const WL_ENDPOINT = 'https://serayae-api-01118af29270.herokuapp.com/api/waitlist/join';
   const WL_KEY = 'sb_publishable_syI34SUvhcs_miaOEWOUug__ceKRXxu';
   const WL_TIMEOUT = 8000;
   const SUBMIT_LABEL = 'Request Early Access';
